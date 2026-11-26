@@ -11,7 +11,7 @@ El módulo actual de Gestión Comercial funciona en el navegador y ofrece respal
 ## 2. Crear las tablas protegidas
 1. Abrir SQL Editor en Supabase.
 2. Copiar y ejecutar el contenido de `supabase/schema.sql`.
-3. Verificar que las cuatro tablas `aj_products`, `aj_sales`, `aj_sale_payments` y `aj_expenses` tengan Row Level Security (RLS) habilitado.
+3. Verificar que las cinco tablas `aj_products`, `aj_sales`, `aj_sale_payments`, `aj_expenses` y `aj_purchases` tengan Row Level Security (RLS) habilitado.
 
 Cada registro tiene `owner_id` y las políticas solo permiten a un usuario autenticado consultar o modificar sus propios registros. No desactivar RLS.
 
@@ -38,6 +38,7 @@ No subir el archivo de respaldo a un repositorio público: puede contener nombre
 - Registro de ventas con validación de existencia y descuento de inventario.
 - Costos unitarios, precios y existencias editables.
 - Gastos por categoría.
+- Compras de mercancía con actualización de existencias y costo promedio ponderado.
 - Abonos y cuentas por cobrar.
 - Resumen de ventas, costo de ventas, ganancia bruta y resultado estimado.
 - Respaldo y restauración manual en JSON.
