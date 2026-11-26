@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJ esencias - Boutique & Calculadora Glam</title>
+<meta name="description" content="AJ Esencias: perfumería, cuidado personal, cosméticos y detalles especiales. Cotiza tus productos y realiza tus pedidos por WhatsApp.">
+<meta name="theme-color" content="#FAF8F5">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>AJ Esencias | Perfumería & Boutique</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -90,11 +93,15 @@
             background: #C5A059;
             border-radius: 3px;
         }
-        @media print {
-            .no-print {
-                display: none !important;
-            }
+        @media print { .no-print { display: none !important; } }
+        :focus-visible { outline: 2px solid #A38038; outline-offset: 3px; }
+        button, input, select, textarea { font: inherit; }
+        button { -webkit-tap-highlight-color: transparent; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
+        .luxury-card { border-radius: 1.1rem; }
+        ::selection { background: #F3E5AB; color: #2B1E16; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -349,7 +356,7 @@
                     </div>
                     <div class="p-4 bg-beige-50 border-t border-beige-200 text-center">
                         <button onclick="openCardCheckoutModal('BHD')" class="w-full py-2 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
-                            <i class="fas fa-credit-card"></i> Pagar con Tarjeta (BHD)
+                            <i class="fas fa-credit-card"></i> Consultar pago con tarjeta (BHD)
                         </button>
                     </div>
                 </div>
@@ -670,7 +677,7 @@
             </div>
             <div>
                 <h3 class="font-serif-title text-2xl font-bold text-bistre">Acceso Protegido</h3>
-                <p class="text-xs text-bistre/60">Ingresa el código de seguridad de 4 dígitos para desbloquear este apartado.</p>
+                <p class="text-xs text-bistre/60">Ingresa tu código para mostrar estas secciones en este navegador.</p>
             </div>
             <div>
                 <input type="password" id="txtPinInput" maxlength="6" placeholder="••••" 
@@ -919,71 +926,31 @@
                     <h3 class="font-serif-title text-2xl font-bold text-bistre flex items-center gap-2">
                         <i class="fas fa-shield-halved text-emerald-600"></i> Pasarela de Pago
                     </h3>
-                    <p class="text-[11px] text-bistre/60">Procesamiento seguro BHD & Banreservas</p>
+                    <p class="text-[11px] text-bistre/60">Consulta de pago · AJ Esencias</p>
                 </div>
                 <button onclick="closeCardCheckoutModal()" class="text-bistre/50 hover:text-bistre">
                     <i class="fas fa-xmark text-lg"></i>
                 </button>
             </div>
 
-            <!-- Virtual Credit Card Visualizer -->
-            <div class="luxury-card rounded-2xl p-5 bg-gradient-to-r from-bistre via-bistre-light to-bistre text-white shadow-xl space-y-4 border-gold-500/40 relative overflow-hidden">
-                <div class="absolute -right-10 -bottom-10 w-32 h-32 rounded-full bg-gold-500/10"></div>
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-serif-title font-bold gold-gradient-text text-lg">AJ esencias</span>
-                    <i class="fab fa-cc-visa text-2xl text-gold-400"></i>
-                </div>
-                <div class="space-y-1">
-                    <span class="text-[9px] uppercase tracking-widest text-beige-300">Número de Tarjeta</span>
-                    <p id="cardPreviewNum" class="font-mono text-base font-bold tracking-widest text-gold-200">•••• •••• •••• ••••</p>
-                </div>
-                <div class="flex justify-between items-center text-[10px] font-mono">
-                    <div>
-                        <span class="block text-[8px] uppercase text-beige-300">Titular</span>
-                        <span id="cardPreviewName" class="font-bold text-white uppercase">NOMBRE TITULAR</span>
-                    </div>
-                    <div>
-                        <span class="block text-[8px] uppercase text-beige-300">Vence</span>
-                        <span id="cardPreviewExp" class="font-bold text-white">MM/AA</span>
-                    </div>
-                </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2 text-xs text-amber-900">
+                <p class="font-bold flex items-center gap-2"><i class="fas fa-circle-info"></i> Pago con tarjeta no disponible desde esta página</p>
+                <p>AJ Esencias todavía no tiene una pasarela bancaria integrada. No escribas aquí números de tarjeta, fecha de vencimiento ni código CVC. Te orientaremos por WhatsApp para coordinar un método de pago disponible.</p>
             </div>
-
-            <!-- Payment Form Inputs -->
-            <form onsubmit="processCardPayment(event)" class="space-y-3 text-xs">
-                <div>
-                    <label class="block text-bistre/80 font-semibold mb-1">Nombre en la Tarjeta:</label>
-                    <input type="text" id="cardHolderName" required placeholder="Ej: MARÍA PERALTA" oninput="updateCardVisual()" class="w-full p-2.5 rounded-xl border border-beige-200 bg-white uppercase focus:border-gold-500">
-                </div>
-                <div>
-                    <label class="block text-bistre/80 font-semibold mb-1">Número de Tarjeta (Débito/Crédito):</label>
-                    <input type="text" id="cardNumberInput" maxlength="19" required placeholder="4000 0000 0000 0000" oninput="formatCardNum(this)" class="w-full p-2.5 rounded-xl border border-beige-200 bg-white font-mono focus:border-gold-500">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-bistre/80 font-semibold mb-1">Expiración:</label>
-                        <input type="text" id="cardExpInput" maxlength="5" required placeholder="MM/AA" oninput="formatCardExp(this)" class="w-full p-2.5 rounded-xl border border-beige-200 bg-white font-mono text-center focus:border-gold-500">
-                    </div>
-                    <div>
-                        <label class="block text-bistre/80 font-semibold mb-1">CVC / CVC2:</label>
-                        <input type="password" maxlength="4" required placeholder="•••" class="w-full p-2.5 rounded-xl border border-beige-200 bg-white font-mono text-center focus:border-gold-500">
-                    </div>
-                </div>
-                <div class="bg-beige-50 p-3 rounded-xl border border-beige-200 flex justify-between items-center text-xs">
-                    <span class="font-semibold text-bistre">Monto a Procesar:</span>
-                    <span id="cardChargeAmount" class="font-extrabold text-gold-700 text-sm">RD$ 0.00</span>
-                </div>
-                <button type="submit" id="btnSubmitCardPay" class="w-full py-3 rounded-xl gold-gradient-bg text-white font-bold text-xs shadow hover:brightness-105 transition flex items-center justify-center gap-2">
-                    <i class="fas fa-lock"></i> PROCESAR PAGO SEGURO
-                </button>
-            </form>
+            <div class="bg-beige-50 p-3 rounded-xl border border-beige-200 flex justify-between items-center text-xs">
+                <span class="font-semibold text-bistre">Total de la cotización:</span>
+                <span id="cardChargeAmount" class="font-extrabold text-gold-700 text-sm">RD$ 0.00</span>
+            </div>
+            <button type="button" onclick="sendCardPaymentInquiry()" class="w-full py-3 rounded-xl gold-gradient-bg text-white font-bold text-xs shadow hover:brightness-105 transition flex items-center justify-center gap-2">
+                <i class="fab fa-whatsapp"></i> CONSULTAR POR WHATSAPP
+            </button>
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="bg-white border-t border-beige-200 py-4 mt-8 no-print">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs text-bistre/60 space-y-1">
-            <p class="font-serif-title font-bold tracking-wider text-sm gold-gradient-text">AJ esencias</p>
+            <p class="font-serif-title font-bold tracking-wider text-sm gold-gradient-text">AJ Esencias</p>
             <p>© <span id="currYear"></span> Todos los derechos reservados. Perfumería, Cuidado Personal & Detalle Glamour.</p>
         </div>
     </footer>
@@ -993,6 +960,7 @@
         const AJ_FIXED_WHATSAPP = "18094318218";
 
         // Required Security PIN Code
+        // PIN local heredado: solo oculta la interfaz; no protege datos sensibles.
         const REQUIRED_PIN = "1221";
 
         // Application State & Storage Keys
@@ -1067,17 +1035,10 @@
             document.getElementById('currYear').innerText = new Date().getFullYear();
             
             // Load LocalStorage data if exists
-            const savedProds = localStorage.getItem('aj_products');
-            products = savedProds ? JSON.parse(savedProds) : [...initialProducts];
-
-            const savedCredit = localStorage.getItem('aj_credit');
-            creditClients = savedCredit ? JSON.parse(savedCredit) : [];
-
-            const savedApp = localStorage.getItem('aj_appointments');
-            appointments = savedApp ? JSON.parse(savedApp) : [];
-
-            const savedLogs = localStorage.getItem('aj_daily_logs');
-            dailyLogs = savedLogs ? JSON.parse(savedLogs) : [];
+            products = readStoredJSON('aj_products', [...initialProducts]);
+            creditClients = readStoredJSON('aj_credit', []);
+            appointments = readStoredJSON('aj_appointments', []);
+            dailyLogs = readStoredJSON('aj_daily_logs', []);
 
             // Render Products & Tables
             renderProductCatalog();
@@ -1088,11 +1049,30 @@
             calculateTotal();
         };
 
+        function readStoredJSON(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return fallback;
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : fallback;
+            } catch (error) {
+                console.warn('No se pudo leer ' + key + '; se utilizarán valores iniciales.', error);
+                return fallback;
+            }
+        }
+
         function saveData() {
-            localStorage.setItem('aj_products', JSON.stringify(products));
-            localStorage.setItem('aj_credit', JSON.stringify(creditClients));
-            localStorage.setItem('aj_appointments', JSON.stringify(appointments));
-            localStorage.setItem('aj_daily_logs', JSON.stringify(dailyLogs));
+            try {
+                localStorage.setItem('aj_products', JSON.stringify(products));
+                localStorage.setItem('aj_credit', JSON.stringify(creditClients));
+                localStorage.setItem('aj_appointments', JSON.stringify(appointments));
+                localStorage.setItem('aj_daily_logs', JSON.stringify(dailyLogs));
+                return true;
+            } catch (error) {
+                console.error('No fue posible guardar los datos en este navegador.', error);
+                alert('No se pudieron guardar los cambios. Libera espacio del navegador e inténtalo de nuevo.');
+                return false;
+            }
         }
 
         function checkProtectedTab(tabId) {
@@ -1147,7 +1127,7 @@
             if (isAdminUnlocked) {
                 statusBtn.classList.add('bg-gold-100', 'border-gold-500');
                 lockIcon.className = "fas fa-lock-open text-green-700";
-                lockText.innerText = "Acceso Concedido (1221)";
+                lockText.innerText = "Sesión local abierta";
             }
         }
 
@@ -1547,9 +1527,9 @@
             alert(message);
         }
 
-        function openCardCheckoutModal(bankName) {
+        function openCardCheckoutModal() {
             const amount = currentGeneratedQuote ? currentGeneratedQuote.grandTotal : 0;
-            document.getElementById('cardChargeAmount').innerText = `RD$ ${amount.toLocaleString()}`;
+            document.getElementById('cardChargeAmount').innerText = 'RD$ ' + amount.toLocaleString();
             document.getElementById('cardCheckoutModal').classList.remove('hidden');
         }
 
@@ -1557,49 +1537,11 @@
             document.getElementById('cardCheckoutModal').classList.add('hidden');
         }
 
-        function updateCardVisual() {
-            const name = document.getElementById('cardHolderName').value.trim() || "NOMBRE TITULAR";
-            document.getElementById('cardPreviewName').innerText = name.toUpperCase();
-        }
-
-        function formatCardNum(input) {
-            let val = input.value.replace(/\D/g, '');
-            let formatted = val.match(/.{1,4}/g)?.join(' ') || '';
-            input.value = formatted;
-            document.getElementById('cardPreviewNum').innerText = formatted || "•••• •••• •••• ••••";
-        }
-
-        function formatCardExp(input) {
-            let val = input.value.replace(/\D/g, '');
-            if (val.length >= 2) {
-                input.value = val.substring(0, 2) + '/' + val.substring(2, 4);
-            } else {
-                input.value = val;
-            }
-            document.getElementById('cardPreviewExp').innerText = input.value || "MM/AA";
-        }
-
-        function processCardPayment(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnSubmitCardPay');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Procesando con BHD / Banreservas...';
-            btn.disabled = true;
-
-            setTimeout(() => {
-                alert("¡PAGO PROCESADO EXITOSAMENTE!\nSe ha generado el recibo digital de AJ Esencias.");
-                btn.innerHTML = '<i class="fas fa-lock"></i> PROCESAR PAGO SEGURO';
-                btn.disabled = false;
-                closeCardCheckoutModal();
-                
-                if (currentGeneratedQuote) {
-                    sendReceiptToWhatsApp();
-                }
-            }, 1800);
-        }
-
-        function sendReceiptToWhatsApp() {
-            let text = `Hola *AJ Esencias* ✨, adjunto mi reporte de pago/transferencia bancaria a nombre de Jeremy Mejía para mi pedido.`;
-            window.open(`https://wa.me/${AJ_FIXED_WHATSAPP}?text=${encodeURIComponent(text)}`, '_blank');
+        function sendCardPaymentInquiry() {
+            const amount = currentGeneratedQuote ? currentGeneratedQuote.grandTotal : 0;
+            const message = 'Hola, soy cliente de *AJ Esencias*. Quisiera consultar si puedo pagar con tarjeta mi cotización de *RD$ ' + amount.toLocaleString() + '*.';
+            window.open('https://wa.me/' + AJ_FIXED_WHATSAPP + '?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
+            closeCardCheckoutModal();
         }
 
         function renderCreditTable() {
