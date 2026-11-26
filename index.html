@@ -1981,6 +1981,27 @@
             updateImagePreviewDisplay("");
         }
 
+        function ajReadImageLocally(file) {
+            return new Promise((resolve, reject) => {
+                if (!file || !file.type.startsWith('image/')) return reject(new Error('Selecciona un archivo de imagen válido.'));
+                if (file.size > 5 * 1024 * 1024) return reject(new Error('La imagen debe pesar 5 MB o menos.'));
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('No se pudo leer el archivo.'));
+                reader.readAsDataURL(file);
+            });
+        }
+        async function ajUploadProductImage(file, productId) {
+            if (!ajSupabase || !ajCloudUser) throw new Error('Inicia sesión en AJ Esencias Cloud para subir imágenes sincronizadas.');
+            if (!file || !file.type.startsWith('image/')) throw new Error('Selecciona un archivo de imagen válido.');
+            if (file.size > 5 * 1024 * 1024) throw new Error('La imagen debe pesar 5 MB o menos.');
+            const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+            const path = ajCloudUser.id + '/' + productId + '-' + Date.now() + '.' + ext;
+            const { error } = await ajSupabase.storage.from('aj-product-images').upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+            if (error) throw error;
+            return ajSupabase.storage.from('aj-product-images').getPublicUrl(path).data.publicUrl;
+        }
+
         async function saveProductImage() {
             const prodId = parseInt(document.getElementById('editImageProdId').value);
             const prod = products.find(p => p.id === prodId);
