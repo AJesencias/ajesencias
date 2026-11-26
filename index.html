@@ -652,6 +652,7 @@
             </div>
             <div class="luxury-card rounded-2xl p-5 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Inventario: existencias y costo</h3><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Producto</th><th class="p-2">Existencia</th><th class="p-2">Costo unitario</th><th class="p-2">Precio</th><th class="p-2">Valor del inventario</th></tr></thead><tbody id="bizInventoryTable"></tbody></table></div></div>
             <div class="grid lg:grid-cols-2 gap-5"><div class="luxury-card rounded-2xl p-5 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Cuentas por cobrar</h3><p>Saldo pendiente: <b id="bizReceivableTotal" class="text-red-700">RD$ 0.00</b></p><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Cliente / fecha</th><th class="p-2">Total</th><th class="p-2">Pendiente</th><th class="p-2">Abono</th></tr></thead><tbody id="bizReceivablesTable"></tbody></table></div></div><div class="luxury-card rounded-2xl p-5 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Últimos gastos</h3><div id="bizExpensesList" class="text-xs space-y-2"></div></div></div>
+            <div class="luxury-card rounded-2xl p-5 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Registrar compra / entrada de mercancía</h3><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2"><label class="text-xs">Producto<select id="bizPurchaseProduct" class="w-full p-2 border rounded-lg"></select></label><label class="text-xs">Unidades recibidas<input id="bizPurchaseQty" type="number" min="1" step="1" class="w-full p-2 border rounded-lg"></label><label class="text-xs">Costo por unidad (RD$)<input id="bizPurchaseCost" type="number" min="0" step=".01" class="w-full p-2 border rounded-lg"></label><label class="text-xs">Fecha<input id="bizPurchaseDate" type="date" class="w-full p-2 border rounded-lg"></label></div><div class="flex flex-wrap gap-2"><input id="bizPurchaseSupplier" maxlength="100" placeholder="Proveedor (opcional)" class="flex-1 min-w-40 p-2 border rounded-lg text-sm"><button onclick="registerBusinessPurchase()" class="px-4 py-2 rounded-lg gold-gradient-bg text-white text-xs font-bold">Registrar entrada</button></div><p class="text-xs text-bistre/60">La compra aumenta las existencias y actualiza el costo promedio ponderado. Se registra como adquisición de inventario, no como gasto operativo.</p><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Fecha</th><th class="p-2">Producto / proveedor</th><th class="p-2">Unidades</th><th class="p-2">Costo unitario</th><th class="p-2">Total compra</th></tr></thead><tbody id="bizPurchasesTable"></tbody></table></div></div>
             <div class="luxury-card rounded-2xl p-5 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Historial de ventas</h3><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Fecha</th><th class="p-2">Producto / cliente</th><th class="p-2">Cant.</th><th class="p-2">Total</th><th class="p-2">Cobrado</th><th class="p-2">Pendiente</th></tr></thead><tbody id="bizSalesTable"></tbody></table></div></div>
         </section>
 
@@ -994,6 +995,7 @@
         let dailyLogs = [];
         let businessSales = [];
         let businessExpenses = [];
+        let businessPurchases = [];
         let selectedQuantities = {}; // { productId: count }
         let isAdminUnlocked = false;
         let activeTabToPending = null;
@@ -1067,6 +1069,7 @@
             dailyLogs = readStoredJSON('aj_daily_logs', []);
             businessSales = readStoredJSON('aj_business_sales', []);
             businessExpenses = readStoredJSON('aj_business_expenses', []);
+            businessPurchases = readStoredJSON('aj_business_purchases', []);
 
             // Render Products & Tables
             renderProductCatalog();
@@ -1078,6 +1081,7 @@
             const today = new Date().toISOString().slice(0,10);
             document.getElementById('bizSaleDate').value = today;
             document.getElementById('bizExpenseDate').value = today;
+            document.getElementById('bizPurchaseDate').value = today;
             calculateTotal();
         };
 
@@ -1101,6 +1105,7 @@
                 localStorage.setItem('aj_daily_logs', JSON.stringify(dailyLogs));
                 localStorage.setItem('aj_business_sales', JSON.stringify(businessSales));
                 localStorage.setItem('aj_business_expenses', JSON.stringify(businessExpenses));
+                localStorage.setItem('aj_business_purchases', JSON.stringify(businessPurchases));
                 return true;
             } catch (error) {
                 console.error('No fue posible guardar los datos en este navegador.', error);
@@ -1114,6 +1119,9 @@
         function renderBusinessManagement() {
             const sel=document.getElementById('bizSaleProduct'); if(!sel)return;
             sel.innerHTML=products.map(p=>'<option value="'+Number(p.id)+'">'+safeText(p.name)+' · Existencia '+(Number(p.stock)||0)+'</option>').join('');
+            const purchaseSelect=document.getElementById('bizPurchaseProduct');
+            if(purchaseSelect) purchaseSelect.innerHTML=sel.innerHTML;
+            document.getElementById('bizPurchasesTable').innerHTML=businessPurchases.slice(0,20).map(x=>'<tr><td class="p-2">'+safeText(x.date)+'</td><td class="p-2">'+safeText(x.productName)+'<br>'+safeText(x.supplier||'Proveedor no indicado')+'</td><td class="p-2">'+Number(x.qty)+'</td><td class="p-2">'+moneyRD(x.unitCost)+'</td><td class="p-2">'+moneyRD(x.total)+'</td></tr>').join('')||'<tr><td colspan="5" class="p-3 text-center">No hay compras registradas.</td></tr>';
             document.getElementById('bizInventoryTable').innerHTML=products.map(p=>'<tr><td class="p-2">'+safeText(p.name)+'</td><td class="p-2"><input type="number" min="0" step="1" value="'+(Number(p.stock)||0)+'" onchange="updateProductInventory('+Number(p.id)+',\'stock\',this.value)" class="w-20 p-1 border rounded"></td><td class="p-2"><input type="number" min="0" step=".01" value="'+(Number(p.cost)||0)+'" onchange="updateProductInventory('+Number(p.id)+',\'cost\',this.value)" class="w-24 p-1 border rounded"></td><td class="p-2">'+moneyRD(p.price)+'</td><td class="p-2">'+moneyRD((Number(p.stock)||0)*(Number(p.cost)||0))+'</td></tr>').join('');
             const sales=businessSales.reduce((a,x)=>a+(Number(x.total)||0),0), cost=businessSales.reduce((a,x)=>a+(Number(x.costTotal)||0),0), expenses=businessExpenses.reduce((a,x)=>a+(Number(x.amount)||0),0), operatingExpenses=businessExpenses.filter(x=>x.category!=='Compra de mercancía').reduce((a,x)=>a+(Number(x.amount)||0),0), due=businessSales.reduce((a,x)=>a+Math.max(0,(Number(x.total)||0)-(Number(x.paid)||0)),0);
             document.getElementById('bizSalesTotal').textContent=moneyRD(sales);document.getElementById('bizCostTotal').textContent=moneyRD(cost);document.getElementById('bizGrossProfit').textContent=moneyRD(sales-cost);document.getElementById('bizExpensesTotal').textContent=moneyRD(expenses);document.getElementById('bizNetResult').textContent=moneyRD(sales-cost-operatingExpenses);document.getElementById('bizReceivableTotal').textContent=moneyRD(due);
@@ -1134,10 +1142,21 @@
             const total=qty*price;if(paid>total||(mode==='Contado'&&paid!==total)||(mode==='Crédito'&&paid!==0)){alert('Verifica el abono: contado debe estar completo y crédito debe iniciar en cero.');return;}
             businessSales.unshift({id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),date,productId:p.id,productName:p.name,qty,price,cost,total,costTotal:qty*cost,paid,customer:document.getElementById('bizSaleCustomer').value.trim(),paymentMode:mode});p.stock=Number(p.stock||0)-qty;saveData();renderBusinessManagement();renderPriceEditor();alert('Venta guardada e inventario actualizado.');
         }
+        function registerBusinessPurchase(){
+            const p=products.find(x=>Number(x.id)===Number(document.getElementById('bizPurchaseProduct').value));
+            const qty=Number(document.getElementById('bizPurchaseQty').value),unitCost=Number(document.getElementById('bizPurchaseCost').value),date=document.getElementById('bizPurchaseDate').value;
+            if(!p||!Number.isInteger(qty)||qty<1||!Number.isFinite(unitCost)||unitCost<0||!date){alert('Verifica el producto, las unidades, el costo y la fecha.');return;}
+            const oldQty=Number(p.stock)||0,oldCost=Number(p.cost)||0,newQty=oldQty+qty;
+            p.cost=newQty>0?((oldQty*oldCost)+(qty*unitCost))/newQty:unitCost;p.stock=newQty;
+            businessPurchases.unshift({id:String(Date.now()),date,productId:p.id,productName:p.name,qty,unitCost,total:qty*unitCost,supplier:document.getElementById('bizPurchaseSupplier').value.trim()});
+            saveData();renderBusinessManagement();renderPriceEditor();
+            document.getElementById('bizPurchaseQty').value='';document.getElementById('bizPurchaseCost').value='';document.getElementById('bizPurchaseSupplier').value='';
+            alert('Compra registrada. Se actualizaron las existencias y el costo promedio del producto.');
+        }
         function registerBusinessExpense(){const description=document.getElementById('bizExpenseDesc').value.trim(),category=document.getElementById('bizExpenseCategory').value,amount=Number(document.getElementById('bizExpenseAmount').value),date=document.getElementById('bizExpenseDate').value;if(!description||!Number.isFinite(amount)||amount<=0||!date){alert('Completa la descripción, el monto y la fecha.');return;}businessExpenses.unshift({id:String(Date.now()),description,category,amount,date});saveData();document.getElementById('bizExpenseDesc').value='';document.getElementById('bizExpenseAmount').value='';renderBusinessManagement();alert('Gasto registrado.');}
         function addBusinessPayment(id){const x=businessSales.find(v=>String(v.id)===String(id));if(!x)return;const balance=Number(x.total)-Number(x.paid),n=Number(prompt('Saldo pendiente '+moneyRD(balance)+'. Monto del abono:'));if(!Number.isFinite(n)||n<=0||n>balance){alert('Abono no válido.');return;}x.paid=Number(x.paid)+n;x.payments=x.payments||[];x.payments.push({date:new Date().toISOString().slice(0,10),amount:n});saveData();renderBusinessManagement();}
-        function exportBusinessData(){const data={app:'AJ Esencias',version:1,exportedAt:new Date().toISOString(),products,creditClients,appointments,dailyLogs,businessSales,businessExpenses},blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='AJ-Esencias-respaldo-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);}
-        function importBusinessData(input){const file=input.files&&input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result),keys=['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses'];if(d.app!=='AJ Esencias'||!keys.every(k=>Array.isArray(d[k])))throw new Error('Formato de respaldo inválido.');if(!confirm('El respaldo reemplazará los datos actuales de este navegador. ¿Continuar?'))return;products=d.products;creditClients=d.creditClients;appointments=d.appointments;dailyLogs=d.dailyLogs;businessSales=d.businessSales;businessExpenses=d.businessExpenses;if(saveData()){renderProductCatalog();renderPriceEditor();renderCreditTable();renderAppointmentsList();renderDailyLogs();renderBusinessManagement();alert('Respaldo restaurado.');}}catch(e){alert('No se pudo restaurar: '+e.message);}finally{input.value='';}};reader.readAsText(file);}
+        function exportBusinessData(){const data={app:'AJ Esencias',version:1,exportedAt:new Date().toISOString(),products,creditClients,appointments,dailyLogs,businessSales,businessExpenses,businessPurchases},blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='AJ-Esencias-respaldo-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);}
+        function importBusinessData(input){const file=input.files&&input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result),keys=['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses','businessPurchases'];if(d.app!=='AJ Esencias'||!keys.every(k=>Array.isArray(d[k])))throw new Error('Formato de respaldo inválido.');if(!confirm('El respaldo reemplazará los datos actuales de este navegador. ¿Continuar?'))return;products=d.products;creditClients=d.creditClients;appointments=d.appointments;dailyLogs=d.dailyLogs;businessSales=d.businessSales;businessExpenses=d.businessExpenses;businessPurchases=d.businessPurchases;if(saveData()){renderProductCatalog();renderPriceEditor();renderCreditTable();renderAppointmentsList();renderDailyLogs();renderBusinessManagement();alert('Respaldo restaurado.');}}catch(e){alert('No se pudo restaurar: '+e.message);}finally{input.value='';}};reader.readAsText(file);}
 
         function checkProtectedTab(tabId) {
             if (tabId === 'calculator') {
