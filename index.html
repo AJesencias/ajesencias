@@ -1901,36 +1901,25 @@
             document.getElementById('addProductModal').classList.add('hidden');
         }
 
-        function saveNewProduct(e) {
+        async function saveNewProduct(e) {
             e.preventDefault();
             const name = document.getElementById('newProdName').value.trim();
             const category = document.getElementById('newProdCategory').value;
             const price = parseFloat(document.getElementById('newProdPrice').value) || 0;
             const fileInput = document.getElementById('newProdImageFile');
-
             const newId = Date.now();
-
-            const createAndSave = (imgUrl) => {
-                products.push({ id: newId, category, name, price, image: imgUrl || "" });
-                saveData();
-                renderPriceEditor();
-                renderProductCatalog();
-                closeAddProductModal();
+            let image = "";
+            try {
+                if (fileInput.files && fileInput.files[0]) {
+                    image = ajCloudUser ? await ajUploadProductImage(fileInput.files[0], newId) : await ajReadImageLocally(fileInput.files[0]);
+                }
+                products.push({ id: newId, category, name, price, image });
+                saveData(); renderPriceEditor(); renderProductCatalog(); closeAddProductModal();
                 document.getElementById('newProdName').value = '';
                 document.getElementById('newProdPrice').value = '';
-                document.getElementById('newProdImageFile').value = '';
-                alert("¡Nuevo producto guardado exitosamente!");
-            };
-
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    createAndSave(evt.target.result);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                createAndSave("");
-            }
+                fileInput.value = '';
+                alert(ajCloudUser && image.startsWith('http') ? "¡Producto e imagen guardados en la nube!" : "¡Producto guardado! La imagen queda en este dispositivo; inicia sesión para sincronizarla.");
+            } catch (error) { alert('No se pudo guardar la imagen: ' + error.message); }
         }
 
         /* --- Image Edit Modal Handlers --- */
@@ -1992,18 +1981,19 @@
             updateImagePreviewDisplay("");
         }
 
-        function saveProductImage() {
+        async function saveProductImage() {
             const prodId = parseInt(document.getElementById('editImageProdId').value);
             const prod = products.find(p => p.id === prodId);
-
-            if (prod) {
-                prod.image = tempImageValue || "";
-                saveData();
-                renderPriceEditor();
-                renderProductCatalog();
-                closeEditImageModal();
-                alert("¡Imagen del producto actualizada con éxito!");
-            }
+            if (!prod) return;
+            const file = document.getElementById('editImageFileInput').files[0];
+            const urlInput = document.getElementById('editImageUrlInput').value.trim();
+            try {
+                if (file) prod.image = ajCloudUser ? await ajUploadProductImage(file, prodId) : await ajReadImageLocally(file);
+                else prod.image = urlInput || tempImageValue || "";
+                if (!saveData()) return;
+                renderPriceEditor(); renderProductCatalog(); closeEditImageModal();
+                alert(ajCloudUser && prod.image.startsWith('http') ? "¡Fotografía actualizada y guardada en la nube!" : "¡Fotografía actualizada en este dispositivo!");
+            } catch (error) { alert('No se pudo actualizar la fotografía: ' + error.message); }
         }
     
         const AJ_SUPABASE_URL = 'https://egkqaymaqednmweaqbaz.supabase.co';
