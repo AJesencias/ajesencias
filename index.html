@@ -1090,6 +1090,7 @@
             document.getElementById('bizExpenseDate').value = today;
             document.getElementById('bizPurchaseDate').value = today;
             calculateTotal();
+            if (typeof ajCloudInit === 'function') ajCloudInit();
         };
 
         function readStoredJSON(key, fallback) {
