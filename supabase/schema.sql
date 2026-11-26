@@ -80,3 +80,23 @@ create policy "Users manage own AJ sale payments" on public.aj_sale_payments
 drop policy if exists "Users manage own AJ expenses" on public.aj_expenses;
 create policy "Users manage own AJ expenses" on public.aj_expenses
   for all to authenticated using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+
+create table if not exists public.aj_purchases (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  product_id uuid,
+  product_name text not null,
+  supplier text,
+  purchase_date date not null default current_date,
+  quantity integer not null check (quantity > 0),
+  unit_cost numeric(12,2) not null check (unit_cost >= 0),
+  total numeric(12,2) not null check (total >= 0),
+  created_at timestamptz not null default now(),
+  foreign key(owner_id, product_id) references public.aj_products(owner_id, id)
+);
+
+create index if not exists aj_purchases_owner_date_idx on public.aj_purchases(owner_id, purchase_date desc);
+alter table public.aj_purchases enable row level security;
+drop policy if exists "Users manage own AJ purchases" on public.aj_purchases;
+create policy "Users manage own AJ purchases" on public.aj_purchases
+  for all to authenticated using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
