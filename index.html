@@ -2005,6 +2005,88 @@
                 alert("¡Imagen del producto actualizada con éxito!");
             }
         }
+    
+        const AJ_SUPABASE_URL = 'https://egkqaymaqednmweaqbaz.supabase.co';
+        const AJ_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_zEE8izXWpR3xafes53pjMQ_dP0LQD9k';
+        let ajSupabase = null, ajCloudUser = null;
+        function ajCloudSetStatus(message, isError = false) {
+            const el = document.getElementById('cloudStatus');
+            if (el) { el.textContent = message; el.className = 'text-xs ' + (isError ? 'text-red-700' : 'text-bistre/70'); }
+        }
+        function ajCloudRefreshUI(user) {
+            ajCloudUser = user || null;
+            const logged = !!ajCloudUser;
+            document.getElementById('cloudAuthFields').classList.toggle('hidden', logged);
+            document.getElementById('cloudAuthActions').classList.toggle('hidden', logged);
+            document.getElementById('cloudDataActions').classList.toggle('hidden', !logged);
+            document.getElementById('cloudSignOutBtn').classList.toggle('hidden', !logged);
+            ajCloudSetStatus(logged ? 'Sesión iniciada: ' + ajCloudUser.email : 'No has iniciado sesión en AJ Esencias Cloud.');
+        }
+        async function ajCloudSignUp() {
+            const email = document.getElementById('cloudEmail').value.trim();
+            const password = document.getElementById('cloudPassword').value;
+            if (!email || password.length < 8) return alert('Introduce un correo válido y una contraseña de al menos 8 caracteres.');
+            const { data, error } = await ajSupabase.auth.signUp({ email, password });
+            if (error) return ajCloudSetStatus(error.message, true);
+            if (data.session) ajCloudRefreshUI(data.user);
+            else ajCloudSetStatus('Cuenta creada. Revisa tu correo para confirmar el registro y luego inicia sesión.');
+            alert(data.session ? 'Cuenta creada e iniciada.' : 'Te enviamos un correo de confirmación. Revisa también Spam.');
+        }
+        async function ajCloudSignIn() {
+            const email = document.getElementById('cloudEmail').value.trim();
+            const password = document.getElementById('cloudPassword').value;
+            const { data, error } = await ajSupabase.auth.signInWithPassword({ email, password });
+            if (error) return ajCloudSetStatus(error.message, true);
+            ajCloudRefreshUI(data.user);
+        }
+        async function ajCloudSignOut() {
+            const { error } = await ajSupabase.auth.signOut();
+            if (error) return ajCloudSetStatus(error.message, true);
+            ajCloudRefreshUI(null);
+        }
+        function ajCloudSnapshot() {
+            return {
+                products: products.map(p => ({...p, image: (typeof p.image === 'string' && /^https?:\\/\\//i.test(p.image)) ? p.image : ''})),
+                creditClients, appointments, dailyLogs, businessSales, businessExpenses, businessPurchases,
+                savedAt: new Date().toISOString(), formatVersion: 1
+            };
+        }
+        async function ajCloudSave() {
+            if (!ajCloudUser) return alert('Inicia sesión primero.');
+            const { error } = await ajSupabase.from('aj_business_data').upsert(
+                { owner_id: ajCloudUser.id, payload: ajCloudSnapshot(), updated_at: new Date().toISOString() },
+                { onConflict: 'owner_id' }
+            );
+            if (error) return ajCloudSetStatus('No se pudo guardar: ' + error.message, true);
+            ajCloudSetStatus('Datos guardados en la nube: ' + new Date().toLocaleString('es-DO'));
+            alert('Respaldo guardado en la nube.');
+        }
+        async function ajCloudLoad() {
+            if (!ajCloudUser) return alert('Inicia sesión primero.');
+            if (!confirm('Esto reemplazará los datos actuales de este navegador por el respaldo de la nube. Descarga antes un respaldo local. ¿Continuar?')) return;
+            const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', ajCloudUser.id).maybeSingle();
+            if (error) return ajCloudSetStatus('No se pudo cargar: ' + error.message, true);
+            if (!data || !data.payload) return ajCloudSetStatus('Todavía no existe un respaldo. Guarda los datos en la nube primero.');
+            const d = data.payload;
+            if (!Array.isArray(d.products) || !Array.isArray(d.businessSales) || !Array.isArray(d.businessExpenses)) return ajCloudSetStatus('El respaldo tiene un formato no reconocido.', true);
+            products = d.products; creditClients = Array.isArray(d.creditClients) ? d.creditClients : [];
+            appointments = Array.isArray(d.appointments) ? d.appointments : [];
+            dailyLogs = Array.isArray(d.dailyLogs) ? d.dailyLogs : [];
+            businessSales = d.businessSales; businessExpenses = d.businessExpenses;
+            businessPurchases = Array.isArray(d.businessPurchases) ? d.businessPurchases : [];
+            if (!saveData()) return;
+            renderProductCatalog(); renderPriceEditor(); renderCreditTable(); renderAppointmentsList(); renderDailyLogs(); renderBusinessManagement();
+            ajCloudSetStatus('Datos cargados desde la nube: ' + new Date(data.updated_at).toLocaleString('es-DO'));
+            alert('Datos cargados correctamente.');
+        }
+        async function ajCloudInit() {
+            if (!window.supabase || !window.supabase.createClient) return ajCloudSetStatus('No se pudo cargar la librería Supabase.', true);
+            ajSupabase = window.supabase.createClient(AJ_SUPABASE_URL, AJ_SUPABASE_PUBLISHABLE_KEY);
+            const { data: { session } } = await ajSupabase.auth.getSession();
+            ajCloudRefreshUI(session ? session.user : null);
+            ajSupabase.auth.onAuthStateChange((_event, currentSession) => ajCloudRefreshUI(currentSession ? currentSession.user : null));
+        }
+
     </script>
 </body>
 </html>
