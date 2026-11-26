@@ -2046,7 +2046,7 @@
         }
         function ajCloudSnapshot() {
             return {
-                products: products.map(p => ({...p, image: (typeof p.image === 'string' && /^https?:\\/\\//i.test(p.image)) ? p.image : ''})),
+                products: products.map(p => ({...p, image: (typeof p.image === 'string' && (p.image.startsWith('http://') || p.image.startsWith('https://'))) ? p.image : ''})),
                 creditClients, appointments, dailyLogs, businessSales, businessExpenses, businessPurchases,
                 savedAt: new Date().toISOString(), formatVersion: 1
             };
