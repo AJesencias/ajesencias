@@ -2063,15 +2063,41 @@
                 savedAt: new Date().toISOString(), formatVersion: 1
             };
         }
-        async function ajCloudSave() {
-            if (!ajCloudUser) return alert('Inicia sesión primero.');
+        let ajCloudSyncTimer = null;
+        let ajCloudApplyingRemote = false;
+        let ajCloudChannel = null;
+        let ajCloudLastUpdatedAt = null;
+        let ajCloudWriteInProgress = false;
+        let ajCloudWriteQueued = false;
+
+        async function ajCloudWrite(showAlert = false) {
+            if (!ajCloudUser || !ajSupabase || ajCloudApplyingRemote) return;
+            if (ajCloudWriteInProgress) { ajCloudWriteQueued = true; return; }
+            ajCloudWriteInProgress = true;
+            const stamp = new Date().toISOString();
             const { error } = await ajSupabase.from('aj_business_data').upsert(
-                { owner_id: ajCloudUser.id, payload: ajCloudSnapshot(), updated_at: new Date().toISOString() },
+                { owner_id: ajCloudUser.id, payload: ajCloudSnapshot(), updated_at: stamp },
                 { onConflict: 'owner_id' }
             );
-            if (error) return ajCloudSetStatus('No se pudo guardar: ' + error.message, true);
-            ajCloudSetStatus('Datos guardados en la nube: ' + new Date().toLocaleString('es-DO'));
-            alert('Respaldo guardado en la nube.');
+            ajCloudWriteInProgress = false;
+            if (error) ajCloudSetStatus('Error al sincronizar: ' + error.message, true);
+            else {
+                ajCloudLastUpdatedAt = stamp;
+                ajCloudSetStatus('Sincronizado automáticamente: ' + new Date(stamp).toLocaleTimeString('es-DO'));
+                if (showAlert) alert('Datos guardados en la nube correctamente.');
+            }
+            if (ajCloudWriteQueued) { ajCloudWriteQueued = false; ajCloudScheduleSync(); }
+        }
+        function ajCloudScheduleSync() {
+            if (!ajCloudUser || ajCloudApplyingRemote || !ajSupabase) return;
+            clearTimeout(ajCloudSyncTimer);
+            ajCloudSetStatus('Cambios guardados en este dispositivo. Sincronizando…');
+            ajCloudSyncTimer = setTimeout(() => ajCloudWrite(false), 1000);
+        }
+        async function ajCloudSave() {
+            if (!ajCloudUser) return alert('Inicia sesión primero.');
+            clearTimeout(ajCloudSyncTimer);
+            await ajCloudWrite(true);
         }
         async function ajCloudLoad() {
             if (!ajCloudUser) return alert('Inicia sesión primero.');
