@@ -104,6 +104,20 @@ create policy "AJ users delete their own product images" on storage.objects
 
 -- Ensure each account can only read/write its own synchronized business record.
 alter table public.aj_business_data enable row level security;
+
+-- Remove any older policies on this AJ-specific table so a permissive legacy
+-- policy cannot accidentally bypass owner isolation.
+do $
+declare policy_row record;
+begin
+  for policy_row in
+    select policyname from pg_policies
+    where schemaname = 'public' and tablename = 'aj_business_data'
+  loop
+    execute format('drop policy if exists %I on public.aj_business_data', policy_row.policyname);
+  end loop;
+end $;
+
 drop policy if exists "AJ owner reads business data" on public.aj_business_data;
 create policy "AJ owner reads business data" on public.aj_business_data
   for select to authenticated using (owner_id = auth.uid());
