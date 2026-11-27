@@ -22,10 +22,16 @@ En Project Settings > API, copiar:
 
 La clave pública/publishable puede utilizarse en el navegador únicamente porque las políticas RLS protegen las tablas. **Nunca** colocar la service_role key, una contraseña de base de datos ni tokens privados en el HTML, GitHub o mensajes.
 
-## 4. Conectar el sitio
+## 4. Restringir la administración a cuentas autorizadas
+1. En Supabase > SQL Editor, ejecutar también `supabase/migrations/20261127_aj_admin_allowlist.sql`.
+2. Esta migración activa RLS y reemplaza las políticas de las tablas privadas para que solo la cuenta cuyo correo esté en la lista autorizada pueda leer o modificar datos. Actualmente la lista contiene `ambardilone06@gmail.com`.
+3. No añadas correos que no sean de los propietarios. Para incorporar a Jeremy más adelante, agrega su correo verificado a la lista dentro de `aj_is_authorized_admin()` y vuelve a ejecutar la migración.
+4. Las fotografías de productos mantienen lectura pública para que la tienda pueda mostrarlas; la carga, sustitución y eliminación quedan limitadas a la cuenta autorizada.
+
+## 5. Conectar el sitio
 La conexión de inicio de sesión y sincronización debe añadirse al frontend usando esas dos credenciales. No está activada todavía: no se debe asumir que el sistema ya sincroniza entre dispositivos. Para completar la conexión hacen falta el Project URL y la publishable/anon key del proyecto que cree el propietario.
 
-## 5. Migración de datos
+## 6. Migración de datos
 Antes de activar la nube:
 1. Abrir Gestión Comercial en el sitio que contiene los datos actuales.
 2. Pulsar **Respaldar datos** y guardar el archivo JSON en un lugar privado.
