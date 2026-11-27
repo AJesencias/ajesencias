@@ -2131,6 +2131,14 @@
             if (error) console.warn('No se pudo registrar la actividad:', error.message);
         }
 
+        async function ajCloudRefreshBackupClock() {
+            if (!ajSupabase || !ajCloudUser) return;
+            const { data, error } = await ajSupabase.from('aj_business_backups')
+                .select('created_at').eq('owner_id', ajCloudUser.id)
+                .order('created_at', { ascending: false }).limit(1);
+            if (!error && data && data.length) ajCloudLastBackupAt = new Date(data[0].created_at).getTime();
+        }
+
         async function ajCloudCreateBackup(label = 'Respaldo automático') {
             if (!ajSupabase || !ajCloudUser) throw new Error('Inicia sesión en AJ Esencias Cloud.');
             const { error } = await ajSupabase.from('aj_business_backups').insert({
@@ -2238,8 +2246,8 @@
         let ajCloudWriteQueued = false;
 
         async function ajCloudWrite(showAlert = false) {
-            if (!ajCloudUser || !ajSupabase || ajCloudApplyingRemote) return;
-            if (ajCloudWriteInProgress) { ajCloudWriteQueued = true; return; }
+            if (!ajCloudUser || !ajSupabase || ajCloudApplyingRemote) return false;
+            if (ajCloudWriteInProgress) { ajCloudWriteQueued = true; return false; }
             ajCloudWriteInProgress = true;
             const stamp = new Date().toISOString();
             const { error } = await ajSupabase.from('aj_business_data').upsert(
@@ -2307,6 +2315,7 @@
             if (session) {
                 const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', session.user.id).maybeSingle();
                 if (!error && data && data.payload) ajCloudApplyPayload(data.payload, data.updated_at);
+                await ajCloudRefreshBackupClock();
                 await ajCloudSubscribe();
             }
             ajSupabase.auth.onAuthStateChange(async (_event, currentSession) => {
@@ -2314,6 +2323,7 @@
                 if (currentSession) {
                     const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', currentSession.user.id).maybeSingle();
                     if (!error && data && data.payload) ajCloudApplyPayload(data.payload, data.updated_at);
+                    await ajCloudRefreshBackupClock();
                     await ajCloudSubscribe();
                 } else if (ajCloudChannel) {
                     await ajSupabase.removeChannel(ajCloudChannel); ajCloudChannel = null;
