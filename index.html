@@ -1064,7 +1064,7 @@
                 <div id="ajCampaignAdmin" class="aj-campaign-admin space-y-4">
                     <div><span class="text-[10px] font-bold uppercase tracking-widest text-amber-700">Marketing y temporadas</span><h3 class="font-serif-title text-2xl font-bold text-bistre">Calendario comercial y campañas</h3><p class="text-xs text-bistre/60">Programa el inicio y final de cada tema. La tienda cambiará automáticamente según las fechas y la hora de República Dominicana.</p></div>
                     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <label class="text-xs font-semibold">Campaña<select id="ajCampaignType"><option value="offers">Ofertas especiales</option><option value="blackfriday">Black Friday</option><option value="christmas">Navidad</option></select></label>
+                        <label class="text-xs font-semibold">Campaña<select id="ajCampaignType" onchange="renderAjCampaignImagePreview()"><option value="offers">Ofertas especiales</option><option value="blackfriday">Black Friday</option><option value="christmas">Navidad</option></select></label>
                         <label class="text-xs font-semibold">Fecha de inicio<input id="ajCampaignStart" type="date"></label>
                         <label class="text-xs font-semibold">Fecha de finalización<input id="ajCampaignEnd" type="date"></label>
                         <label class="text-xs font-semibold">Estado<select id="ajCampaignEnabled"><option value="true">Programada / activa</option><option value="false">Desactivada</option></select></label>
@@ -1655,7 +1655,7 @@
             if(!ajCloudUser)return alert('Inicia sesión para guardar campañas.');
             const k=document.getElementById('ajCampaignType').value,start=document.getElementById('ajCampaignStart').value,end=document.getElementById('ajCampaignEnd').value;
             if(!start||!end||end<start)return alert('Indica fechas válidas. La fecha final no puede ser anterior a la inicial.');
-            ajCampaigns[k]={start,end,enabled:document.getElementById('ajCampaignEnabled').value==='true',message:document.getElementById('ajCampaignMessage').value.trim(),badge:document.getElementById('ajCampaignBadge').value.trim()};
+            const existingImages=Array.isArray(ajCampaigns[k]?.images)?ajCampaigns[k].images:[];ajCampaigns[k]={...(ajCampaigns[k]||{}),start,end,enabled:document.getElementById('ajCampaignEnabled').value==='true',message:document.getElementById('ajCampaignMessage').value.trim(),badge:document.getElementById('ajCampaignBadge').value.trim(),images:existingImages};
             renderAjCampaignAdmin(); applyAjSeasonTheme();
             document.getElementById('ajCampaignStatus').textContent='Campaña guardada en este dispositivo. Sincronizando con la nube…';
             ajCloudWrite(false).then(ok=>{document.getElementById('ajCampaignStatus').textContent=ok?'Campaña guardada y sincronizada.':'No se pudo sincronizar. Revisa tu conexión y vuelve a guardar.';});
