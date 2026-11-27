@@ -8,6 +8,11 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>AJ Esencias | Perfumería & Boutique</title>
     <link rel="icon" type="image/svg+xml" href="assets/aj-esencias-logo.svg">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./assets/aj-app-icon.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AJ Esencias">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -3406,6 +3411,16 @@
             }
             panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+</script>
+
+<script>
+// AJ Esencias: instalación como aplicación web progresiva (PWA).
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .catch(error => console.warn('No se pudo registrar el modo aplicación:', error));
+  });
+}
 </script>
 </body>
 </html>
