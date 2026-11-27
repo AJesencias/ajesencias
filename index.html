@@ -1316,6 +1316,20 @@
                     <div id="editImageGalleryPreview" class="grid grid-cols-4 gap-2"></div>
                 </div>
 
+                <div class="rounded-xl border border-gold-300/60 bg-[#FBF8F3] p-3 space-y-3 text-left">
+                    <div>
+                        <label for="editImageProductDescription" class="block text-xs font-bold text-bistre mb-1">Descripción breve del producto</label>
+                        <textarea id="editImageProductDescription" rows="3" maxlength="600" placeholder="¿Qué es el producto y qué lo hace especial?" class="w-full text-sm p-2.5 border border-beige-200 rounded-lg bg-white"></textarea>
+                    </div>
+                    <div>
+                        <label for="editImageProductNotes" class="block text-xs font-bold text-bistre mb-1">Notas olfativas (si aplica)</label>
+                        <textarea id="editImageProductNotes" rows="3" maxlength="600" placeholder="Salida, corazón y fondo; solo si se conocen." class="w-full text-sm p-2.5 border border-beige-200 rounded-lg bg-white"></textarea>
+                    </div>
+                    <button type="button" onclick="ajOpenProductTextAI()" class="w-full rounded-xl border border-[#B99A62] bg-[#482431] px-3 py-3 text-sm font-bold text-white hover:bg-[#603044]">
+                        <i class="fas fa-wand-magic-sparkles mr-2 text-[#E7C77E]"></i>Generar texto sugerido con IA
+                    </button>
+                    <p class="text-[10px] leading-relaxed text-bistre/60">Se abrirá ChatGPT con los datos del producto y una instrucción preparada. Revisa la propuesta, copia cada texto en su campo y guarda los cambios. Verifica las notas con el fabricante antes de publicarlas.</p>
+                </div>
                 <div class="text-xs text-bistre/50 font-semibold uppercase tracking-widest my-1">- Ó bien -</div>
 
                 <!-- Buscar imagen en Internet y pegar su enlace -->
@@ -2939,6 +2953,8 @@
 
             document.getElementById('editImageProdId').value = prodId;
             document.getElementById('editImageProdTitle').innerText = `Foto: ${prod.name}`;
+            document.getElementById('editImageProductDescription').value = prod.description || prod.shortDescription || '';
+            document.getElementById('editImageProductNotes').value = prod.olfactoryNotes || prod.fragranceNotes || prod.notes || '';
             document.getElementById('editImageUrlInput').value = prod.image && prod.image.startsWith('http') ? prod.image : '';
             document.getElementById('editImageFileInput').value = '';
             window.ajEditingImageRotation = Number(prod.imageRotation || 0);
@@ -3052,6 +3068,31 @@
             return ajSupabase.storage.from('aj-product-images').getPublicUrl(path).data.publicUrl;
         }
 
+        function ajOpenProductTextAI() {
+            const prodId = Number(document.getElementById('editImageProdId')?.value);
+            const prod = products.find(item => Number(item.id) === prodId);
+            if (!prod) return alert('No se encontró el producto.');
+            const description = document.getElementById('editImageProductDescription')?.value.trim() || '';
+            const notes = document.getElementById('editImageProductNotes')?.value.trim() || '';
+            const prompt = [
+                'Actúa como redactor especializado en perfumería, cosmética y comercio minorista para AJ ESENCIAS, una tienda de República Dominicana.',
+                'Prepara dos textos breves, elegantes, claros y atractivos para la ficha de un producto de catálogo.',
+                'PRODUCTO: ' + (prod.name || ''),
+                'CATEGORÍA: ' + (prod.category || 'No especificada'),
+                'DESCRIPCIÓN O DATOS CONOCIDOS: ' + (description || 'No suministrados'),
+                'NOTAS OLFATIVAS CONOCIDAS: ' + (notes || 'No suministradas'),
+                'Devuelve exactamente dos apartados: DESCRIPCIÓN DEL PRODUCTO (máximo 45 palabras) y NOTAS OLFATIVAS (máximo 35 palabras).',
+                'No inventes ingredientes, beneficios, composición, notas, concentración ni afirmaciones del fabricante. Si no hay datos suficientes para identificar notas reales, indícalo claramente y sugiere dejar ese apartado pendiente de confirmar. Si el producto no es perfumado, escribe "No aplica".',
+                'Usa español natural, tono comercial refinado y sin emojis. No incluyas precio.'
+            ].join('\n');
+            const url = 'https://chatgpt.com/?q=' + encodeURIComponent(prompt);
+            const opened = window.open(url, '_blank', 'noopener,noreferrer');
+            if (!opened) {
+                try { navigator.clipboard.writeText(prompt).then(() => alert('El navegador bloqueó la nueva pestaña. Copié la instrucción: abre ChatGPT y pégala para generar el texto.')); }
+                catch (e) { alert('Permite las ventanas emergentes para este sitio y vuelve a pulsar el botón.'); }
+            }
+        }
+
         let ajImageSaveInProgress = false;
         function ajSetImageSaveStatus(message, isError = false) {
             const status = document.getElementById('editImageSaveStatus');
@@ -3109,6 +3150,8 @@
                 }
                 prod.images = newImages;
                 prod.image = newImage;
+                prod.description = document.getElementById('editImageProductDescription').value.trim();
+                prod.olfactoryNotes = document.getElementById('editImageProductNotes').value.trim();
                 prod.imageRotation = Number(window.ajEditingImageRotation || 0);
                 if (!saveData()) throw new Error('No se pudieron guardar los cambios en este dispositivo.');
                 if (ajCloudUser) {
