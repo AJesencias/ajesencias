@@ -28,8 +28,12 @@ La clave pública/publishable puede utilizarse en el navegador únicamente porqu
 3. No añadas correos que no sean de los propietarios. Para incorporar a Jeremy más adelante, agrega su correo verificado a la lista dentro de `aj_is_authorized_admin()` y vuelve a ejecutar la migración.
 4. Las fotografías de productos mantienen lectura pública para que la tienda pueda mostrarlas; la carga, sustitución y eliminación quedan limitadas a la cuenta autorizada.
 
-## 5. Conectar el sitio
-La conexión de inicio de sesión y sincronización debe añadirse al frontend usando esas dos credenciales. No está activada todavía: no se debe asumir que el sistema ya sincroniza entre dispositivos. Para completar la conexión hacen falta el Project URL y la publishable/anon key del proyecto que cree el propietario.
+## 5. Separar el catálogo público
+1. Ejecutar `supabase/migrations/20261127_aj_public_catalog.sql` después de la migración de administradores autorizados.
+2. La tabla `aj_public_catalog` contiene solo identificador de producto, categoría, nombre, precio e imagen. No contiene costos, existencias, proveedores, ventas, clientes ni movimientos.
+3. El sitio carga el catálogo desde esta tabla con acceso público de solo lectura. La cuenta administrativa autorizada publica los cambios desde la información privada sincronizada.
+4. El sitio ya no carga los registros privados desde localStorage cuando un visitante no ha iniciado sesión; al cerrar sesión o bloquearse, elimina las copias locales privadas y vuelve a mostrar únicamente el catálogo público.
+5. La primera publicación del catálogo ocurre cuando la cuenta administrativa autorizada inicia sesión y existe un respaldo privado cargado. Si aún no se ejecutó esta migración, el catálogo remoto no podrá consultarse ni publicarse.
 
 ## 6. Migración de datos
 Antes de activar la nube:
