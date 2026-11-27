@@ -452,6 +452,7 @@
                 <button onclick="checkProtectedTab('credit')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-book-bookmark block text-gold-700 text-lg mb-1"></i>Clientes a crédito</button>
                 <button onclick="checkProtectedTab('appointments')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-calendar-check block text-gold-700 text-lg mb-1"></i>Citas y recordatorios</button>
                 <button onclick="checkProtectedTab('prices')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-tags block text-gold-700 text-lg mb-1"></i>Productos e imágenes</button>
+                <button onclick="checkProtectedTab('marketing')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-bullhorn block text-gold-700 text-lg mb-1"></i>Marketing y ventas</button>
                 <button onclick="ajCloudSignOut()" class="px-3 py-3 rounded-xl border border-red-200 text-xs font-semibold text-red-700"><i class="fas fa-lock block text-lg mb-1"></i>Bloquear y salir</button>
             </div>
         </div>
@@ -632,6 +633,72 @@
                     </div>
                 </div>
 
+            </div>
+        </section>
+
+        <!-- CENTRO DE MARKETING Y VENTAS · PRIVADO -->
+        <section id="section-marketing" class="tab-content hidden space-y-6">
+            <div class="luxury-card rounded-2xl p-5 sm:p-7 border-gold-500/20 space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-beige-200 pb-4">
+                    <div><span class="text-[10px] tracking-[.2em] uppercase font-bold text-gold-700">AJ Esencias · Crecimiento comercial</span><h2 class="font-serif-title text-3xl font-bold text-bistre"><i class="fas fa-bullhorn text-gold-600 mr-2"></i>Centro de Marketing y Ventas</h2><p class="text-xs text-bistre/60 mt-1">Crea promociones con criterio de rentabilidad, prepara tus publicaciones y mide sus resultados.</p></div>
+                    <span class="rounded-full bg-[#F4ECE9] text-[#482431] px-3 py-1 text-xs font-bold">Área privada</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <div class="rounded-2xl border border-[#E6DCD5] bg-[#FFFEFC] p-4 sm:p-5 space-y-3">
+                        <h3 class="font-bold text-[#482431] text-lg">1. Diseña una promoción</h3>
+                        <label class="block text-xs font-semibold text-[#765F65]">Producto a promocionar</label>
+                        <select id="ajMktProduct" class="w-full rounded-lg border border-[#DCCBC5] bg-white p-3 text-sm" onchange="ajMktUpdateProductInsight()"></select>
+                        <div id="ajMktProductInsight" class="rounded-xl bg-[#F8F5F1] p-3 text-xs text-[#765F65]">Selecciona un producto para revisar su costo, margen y disponibilidad.</div>
+                        <label class="block text-xs font-semibold text-[#765F65]">Objetivo de la promoción</label>
+                        <select id="ajMktObjective" class="w-full rounded-lg border border-[#DCCBC5] bg-white p-3 text-sm">
+                            <option value="atraer">Atraer clientes nuevos</option><option value="rotar">Mover inventario disponible</option><option value="combo">Vender productos complementarios</option><option value="recompra">Motivar clientes a volver</option><option value="temporada">Aprovechar una temporada especial</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="block text-xs font-semibold text-[#765F65]">Descuento opcional (%)</label><input id="ajMktDiscount" type="number" min="0" max="70" step="1" placeholder="Ej. 10" class="w-full rounded-lg border border-[#DCCBC5] p-3 text-sm" oninput="ajMktUpdateProductInsight()"></div>
+                            <div><label class="block text-xs font-semibold text-[#765F65]">Duración</label><select id="ajMktDuration" class="w-full rounded-lg border border-[#DCCBC5] p-3 text-sm"><option>24 horas</option><option>3 días</option><option>7 días</option><option>Fin de semana</option></select></div>
+                        </div>
+                        <button type="button" onclick="ajMktGenerate()" class="w-full rounded-xl bg-[#482431] text-white p-3 text-sm font-bold"><i class="fas fa-wand-magic-sparkles mr-2 text-[#D9C18E]"></i>Generar promoción y textos</button>
+                        <div id="ajMktGenerated" class="hidden space-y-3">
+                            <label class="block text-xs font-semibold text-[#765F65]">Texto listo para publicar</label>
+                            <textarea id="ajMktCopy" rows="8" class="w-full rounded-xl border border-[#DCCBC5] p-3 text-sm leading-relaxed"></textarea>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" onclick="ajMktCopyText()" class="rounded-lg border border-[#B99A62] px-3 py-2 text-xs font-bold text-[#482431]"><i class="fas fa-copy mr-1"></i>Copiar texto</button>
+                                <button type="button" onclick="ajMktSaveCampaign()" class="rounded-lg bg-[#B99A62] px-3 py-2 text-xs font-bold text-white"><i class="fas fa-save mr-1"></i>Guardar campaña</button>
+                            </div>
+                            <p class="text-[11px] text-[#765F65]">Al pulsar una plataforma se abrirá su aplicación o sitio. La publicación y el envío los confirmas tú.</p>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-[#E6DCD5] bg-[#FFFEFC] p-4 sm:p-5 space-y-4">
+                        <h3 class="font-bold text-[#482431] text-lg">2. Publicar y compartir</h3>
+                        <p class="text-xs text-[#765F65]">Prepara el contenido aquí y abre la plataforma para publicarlo manualmente.</p>
+                        <a href="https://wa.me/?text=Descubre%20las%20promociones%20de%20AJ%20Esencias" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-3 text-sm font-bold text-green-800"><i class="fab fa-whatsapp text-2xl"></i><span>WhatsApp <small class="block font-normal">Compartir texto con tus contactos</small></span><i class="fas fa-arrow-up-right-from-square ml-auto"></i></a>
+                        <a href="https://www.instagram.com/aj_esenciass/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-xl border border-pink-200 bg-pink-50 p-3 text-sm font-bold text-pink-800"><i class="fab fa-instagram text-2xl"></i><span>Instagram <small class="block font-normal">Abrir @aj_esenciass</small></span><i class="fas fa-arrow-up-right-from-square ml-auto"></i></a>
+                        <a href="https://www.tiktok.com/upload" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-xl border border-gray-300 bg-gray-50 p-3 text-sm font-bold text-gray-900"><i class="fab fa-tiktok text-2xl"></i><span>TikTok <small class="block font-normal">Abrir herramienta de publicación</small></span><i class="fas fa-arrow-up-right-from-square ml-auto"></i></a>
+                        <div class="rounded-xl bg-[#F8F5F1] p-3 text-xs text-[#765F65]"><b class="text-[#482431]">Consejo:</b> usa la misma oferta en las tres plataformas, pero adapta el formato: estado y mensaje en WhatsApp, historia/reel en Instagram y video corto demostrativo en TikTok.</div>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-[#E6DCD5] p-4 sm:p-5 space-y-3">
+                    <h3 class="font-bold text-[#482431] text-lg"><i class="fas fa-lightbulb text-[#B99A62] mr-2"></i>3. Asesor de ventas</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <article class="rounded-xl bg-[#F8F5F1] p-3"><b class="text-[#482431]">Vende soluciones, no solo productos</b><p class="mt-1 text-xs text-[#765F65]">Pregunta qué busca el cliente: hidratar, perfumarse, regalar o cuidar su piel. Recomienda según su necesidad.</p></article>
+                        <article class="rounded-xl bg-[#F8F5F1] p-3"><b class="text-[#482431]">Aumenta el ticket promedio</b><p class="mt-1 text-xs text-[#765F65]">Ofrece un complemento coherente: crema + splash, gel + exfoliante o perfume + loción.</p></article>
+                        <article class="rounded-xl bg-[#F8F5F1] p-3"><b class="text-[#482431]">Convierte consultas en ventas</b><p class="mt-1 text-xs text-[#765F65]">Responde rápido, muestra fotos reales, informa precio y existencia y termina con una pregunta concreta de compra.</p></article>
+                        <article class="rounded-xl bg-[#F8F5F1] p-3"><b class="text-[#482431]">Fomenta la recompra</b><p class="mt-1 text-xs text-[#765F65]">Después de la compra, agradece y solicita permiso para avisar cuando lleguen novedades o promociones.</p></article>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-[#E6DCD5] p-4 sm:p-5 space-y-3">
+                    <h3 class="font-bold text-[#482431] text-lg"><i class="fas fa-chart-line text-[#B99A62] mr-2"></i>4. Medición de resultados</h3>
+                    <p class="text-xs text-[#765F65]">Registra los resultados de cada campaña guardada para saber cuáles generan ventas.</p>
+                    <div id="ajMktCampaignList" class="space-y-2 text-sm"><p class="text-xs text-[#765F65]">Todavía no hay campañas registradas.</p></div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <input id="ajMktReach" type="number" min="0" placeholder="Personas alcanzadas" class="min-w-0 rounded-lg border p-2 text-xs">
+                        <input id="ajMktLeads" type="number" min="0" placeholder="Consultas recibidas" class="min-w-0 rounded-lg border p-2 text-xs">
+                        <input id="ajMktOrders" type="number" min="0" placeholder="Ventas logradas" class="min-w-0 rounded-lg border p-2 text-xs">
+                        <input id="ajMktRevenue" type="number" min="0" step=".01" placeholder="Ingresos RD$" class="min-w-0 rounded-lg border p-2 text-xs">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2"><input id="ajMktSpend" type="number" min="0" step=".01" placeholder="Inversión RD$" class="rounded-lg border p-2 text-xs"><button type="button" onclick="ajMktSaveMetrics()" class="rounded-lg bg-[#482431] text-white p-2 text-xs font-bold">Guardar resultados</button></div>
+                    <p id="ajMktMetricsSummary" class="text-xs font-semibold text-[#765F65]"></p>
+                </div>
             </div>
         </section>
 
@@ -1191,6 +1258,7 @@
         // Application State & Storage Keys
         let products = [];
         let ajCampaigns = { offers:null, blackfriday:null, christmas:null };
+        let ajMarketingCampaigns = [];
         let creditClients = [];
         let appointments = [];
         let dailyLogs = [];
@@ -1353,6 +1421,7 @@
                 localStorage.setItem('aj_business_sales', JSON.stringify(businessSales));
                 localStorage.setItem('aj_business_expenses', JSON.stringify(businessExpenses));
                 localStorage.setItem('aj_business_purchases', JSON.stringify(businessPurchases));
+                localStorage.setItem('aj_marketing_campaigns', JSON.stringify(ajMarketingCampaigns));
                 if (typeof ajCloudScheduleSync === 'function') ajCloudScheduleSync();
                 return true;
             } catch (error) {
@@ -1510,7 +1579,7 @@
         }
 
         function switchTab(tabId) {
-            const protectedTabs = ['credit','appointments','inventory','business','prices'];
+            const protectedTabs = ['credit','appointments','inventory','business','prices','marketing'];
             if (protectedTabs.includes(tabId) && !ajCloudUser) {
                 if (tabId !== 'business') activeTabToPending = tabId;
                 tabId = 'business';
@@ -2626,11 +2695,74 @@
             if (error) return ajCloudSetStatus(error.message, true);
             ajCloudRefreshUI(null);
         }
+        function ajMktInit() {
+            const sel=document.getElementById('ajMktProduct'); if(!sel)return;
+            sel.innerHTML='<option value="">Selecciona un producto</option>'+products.map(p=>'<option value="'+Number(p.id)+'">'+safeText(p.name)+' · '+moneyRD(p.price)+'</option>').join('');
+            renderAjMarketing();
+        }
+        function ajMktUpdateProductInsight() {
+            const id=Number(document.getElementById('ajMktProduct')?.value),p=products.find(x=>Number(x.id)===id),box=document.getElementById('ajMktProductInsight');
+            if(!box)return;
+            if(!p){box.textContent='Selecciona un producto para revisar su costo, margen y disponibilidad.';return;}
+            const cost=Number(p.cost)||0,price=Number(p.price)||0,stock=Number(p.stock)||0,discount=Math.max(0,Number(document.getElementById('ajMktDiscount')?.value)||0),sale=price*(1-discount/100);
+            const hasCost=cost>0,margin=hasCost&&sale>0?((sale-cost)/sale)*100:null;
+            const safeMax=hasCost&&price>0?Math.max(0,Math.floor((1-(cost/(price*.75)))*100)):null;
+            box.innerHTML='<b>'+safeText(p.name)+'</b><br>Precio: '+moneyRD(price)+' · Existencia: '+stock+'<br>'+(hasCost?'Costo registrado: '+moneyRD(cost)+' · Margen con esta oferta: '+margin.toFixed(1)+'%'+(margin<25?'<br><span class="text-red-700 font-bold">Atención: este descuento deja un margen inferior al 25%.</span>':'<br><span class="text-green-700 font-semibold">Margen estimado aceptable.</span>')+'<br>Descuento máximo estimado para conservar 25% de margen: '+safeMax+'%.':'<span class="text-amber-700 font-semibold">No hay costo registrado. Registra el costo en Inventario y diario para evaluar rentabilidad; no recomendamos inventar descuentos.</span>');
+        }
+        function ajMktGenerate() {
+            const id=Number(document.getElementById('ajMktProduct').value),p=products.find(x=>Number(x.id)===id);
+            if(!p)return alert('Selecciona un producto primero.');
+            const objective=document.getElementById('ajMktObjective').value,duration=document.getElementById('ajMktDuration').value,discount=Math.max(0,Math.min(70,Number(document.getElementById('ajMktDiscount').value)||0));
+            const price=Number(p.price)||0,cost=Number(p.cost)||0,sale=price*(1-discount/100),stock=Number(p.stock)||0;
+            if(discount>0&&cost>0&&sale<cost/.75)return alert('Ese descuento dejaría menos de 25% de margen sobre el precio de venta. Reduce el descuento para proteger tu ganancia.');
+            if(discount>0&&!cost&&!confirm('Este producto no tiene costo registrado. No podemos confirmar si el descuento es rentable. ¿Deseas continuar?'))return;
+            const goals={atraer:'atraer nuevos clientes',rotar:'dar salida al inventario disponible',combo:'motivar la compra de productos complementarios',recompra:'motivar a nuestros clientes a volver',temporada:'aprovechar esta temporada especial'};
+            const offer=discount>0?'Precio especial: '+moneyRD(sale)+' (antes '+moneyRD(price)+').':'Precio: '+moneyRD(price)+'.';
+            const scarcity=stock>0&&stock<=5?' Unidades limitadas según disponibilidad.':'';
+            const copy='✨ ¡Una excelente opción te espera en AJ Esencias! ✨\n\n'+safeText(p.name)+'\n'+offer+'\n\nUna oportunidad ideal para '+goals[objective]+'.'+scarcity+'\nPromoción válida por '+duration.toLowerCase()+', sujeta a disponibilidad.\n\n📲 Escríbenos por WhatsApp para reservar o consultar.\nInstagram: @aj_esenciass\n\nAJ Esencias | Tu esencia, tu estilo.';
+            document.getElementById('ajMktCopy').value=copy;
+            document.getElementById('ajMktGenerated').classList.remove('hidden');
+            ajMktUpdateProductInsight();
+            window.ajMktCurrent={productId:p.id,productName:p.name,objective,discount,price,sale,copy,duration,createdAt:new Date().toISOString()};
+        }
+        async function ajMktCopyText() {
+            const value=document.getElementById('ajMktCopy').value;
+            try { await navigator.clipboard.writeText(value); alert('Texto copiado. Ahora abre la plataforma y pégalo en tu publicación.'); }
+            catch(e) { const box=document.getElementById('ajMktCopy');box.focus();box.select();alert('Selecciona y copia el texto para pegarlo en la plataforma.'); }
+        }
+        function ajMktSaveCampaign() {
+            if(!window.ajMktCurrent)return alert('Genera una promoción antes de guardarla.');
+            ajMarketingCampaigns.unshift({...window.ajMktCurrent,id:Date.now(),reach:0,leads:0,orders:0,revenue:0,spend:0});
+            saveData();renderAjMarketing();alert('Promoción guardada. Podrás registrar sus resultados cuando termine.');
+        }
+        function renderAjMarketing() {
+            const list=document.getElementById('ajMktCampaignList');if(!list)return;
+            list.innerHTML=ajMarketingCampaigns.map((c,i)=>'<article class="rounded-xl border border-[#E6DCD5] bg-white p-3"><div class="flex flex-wrap justify-between gap-2"><b class="text-[#482431]">'+safeText(c.productName)+'</b><span class="text-[10px] text-[#765F65]">'+new Date(c.createdAt).toLocaleDateString('es-DO')+'</span></div><p class="text-xs text-[#765F65]">'+(Number(c.discount)>0?'Descuento '+Number(c.discount)+'%':'Sin descuento')+' · '+safeText(c.duration||'')+'</p><p class="text-xs mt-1">Alcance: '+Number(c.reach||0)+' · Consultas: '+Number(c.leads||0)+' · Ventas: '+Number(c.orders||0)+' · Ingresos: '+moneyRD(c.revenue)+'</p><button type="button" onclick="ajMktSelectMetrics('+i+')" class="mt-2 text-xs font-bold underline text-[#795B32]">Registrar / actualizar resultados</button></article>').join('')||'<p class="text-xs text-[#765F65]">Todavía no hay campañas registradas.</p>';
+            ajMktInitProductsOnly();
+        }
+        function ajMktInitProductsOnly() {
+            const sel=document.getElementById('ajMktProduct');if(!sel)return;
+            const current=sel.value;sel.innerHTML='<option value="">Selecciona un producto</option>'+products.map(p=>'<option value="'+Number(p.id)+'">'+safeText(p.name)+' · '+moneyRD(p.price)+'</option>').join('');if(products.some(p=>String(p.id)===current))sel.value=current;
+        }
+        let ajMktSelectedMetricsIndex=0;
+        function ajMktSelectMetrics(i) {
+            ajMktSelectedMetricsIndex=i;const c=ajMarketingCampaigns[i];if(!c)return;
+            document.getElementById('ajMktReach').value=c.reach||0;document.getElementById('ajMktLeads').value=c.leads||0;document.getElementById('ajMktOrders').value=c.orders||0;document.getElementById('ajMktRevenue').value=c.revenue||0;document.getElementById('ajMktSpend').value=c.spend||0;
+            document.getElementById('ajMktMetricsSummary').textContent='Editando resultados de: '+c.productName;
+        }
+        function ajMktSaveMetrics() {
+            const c=ajMarketingCampaigns[ajMktSelectedMetricsIndex];if(!c)return alert('Primero selecciona una campaña para registrar sus resultados.');
+            c.reach=Number(document.getElementById('ajMktReach').value)||0;c.leads=Number(document.getElementById('ajMktLeads').value)||0;c.orders=Number(document.getElementById('ajMktOrders').value)||0;c.revenue=Number(document.getElementById('ajMktRevenue').value)||0;c.spend=Number(document.getElementById('ajMktSpend').value)||0;
+            const roi=c.spend>0?((c.revenue-c.spend)/c.spend)*100:null;
+            document.getElementById('ajMktMetricsSummary').textContent='Resultados guardados · '+(roi===null?'Registra inversión para calcular retorno.':'Retorno sobre inversión (ROI) estimado: '+roi.toFixed(1)+'%.');
+            saveData();renderAjMarketing();
+        }
+
         function ajCloudSnapshot() {
             return {
                 products: products.map(p => ({...p, image: (typeof p.image === 'string' && (p.image.startsWith('http://') || p.image.startsWith('https://'))) ? p.image : ''})),
                 creditClients, appointments, dailyLogs, businessSales, businessExpenses, businessPurchases,
-                campaigns: ajCampaigns,
+                campaigns: ajCampaigns, marketingCampaigns: ajMarketingCampaigns,
                 savedAt: new Date().toISOString(), formatVersion: 2
             };
         }
@@ -2646,6 +2778,7 @@
                 if (Array.isArray(payload.businessExpenses)) businessExpenses = payload.businessExpenses;
                 if (Array.isArray(payload.businessPurchases)) businessPurchases = payload.businessPurchases;
                 if (payload.campaigns && typeof payload.campaigns === 'object') ajCampaigns = payload.campaigns;
+                if (Array.isArray(payload.marketingCampaigns)) ajMarketingCampaigns = payload.marketingCampaigns;
 
                 localStorage.setItem('aj_products', JSON.stringify(products));
                 localStorage.setItem('aj_credit', JSON.stringify(creditClients));
@@ -2654,6 +2787,7 @@
                 localStorage.setItem('aj_business_sales', JSON.stringify(businessSales));
                 localStorage.setItem('aj_business_expenses', JSON.stringify(businessExpenses));
                 localStorage.setItem('aj_business_purchases', JSON.stringify(businessPurchases));
+                localStorage.setItem('aj_marketing_campaigns', JSON.stringify(ajMarketingCampaigns));
 
                 ajCloudLastUpdatedAt = updatedAt || payload.savedAt || null;
                 applyAjSeasonTheme();
@@ -2664,6 +2798,7 @@
                 renderAppointmentsList();
                 renderDailyLogs();
                 renderBusinessManagement();
+                renderAjMarketing();
                 calculateTotal();
                 ajCloudSetStatus('Datos de la nube actualizados correctamente.');
             } catch (error) {
