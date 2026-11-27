@@ -2861,7 +2861,7 @@
                 name: String(product?.name ?? ''),
                 price: Math.max(0, Number(product?.price) || 0),
                 image: ajReferenceProductImage(product),
-                images: (Array.isArray(product?.images) ? product.images : []).filter(src => /^https?:\\/\\//i.test(String(src)) || /^data:image\\//i.test(String(src))),
+                images: (Array.isArray(product?.images) ? product.images : []).filter(src => { const value = String(src); return value.startsWith('https://') || value.startsWith('http://') || value.startsWith('data:image/'); }),
                 imageRotation: ((Number(product?.imageRotation) || 0) % 360 + 360) % 360
             };
         }
