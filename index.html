@@ -3086,10 +3086,13 @@
                 'Usa español natural, tono comercial refinado y sin emojis. No incluyas precio.'
             ].join('\n');
             const url = 'https://chatgpt.com/?q=' + encodeURIComponent(prompt);
-            const opened = window.open(url, '_blank', 'noopener,noreferrer');
-            if (!opened) {
-                try { navigator.clipboard.writeText(prompt).then(() => alert('El navegador bloqueó la nueva pestaña. Copié la instrucción: abre ChatGPT y pégala para generar el texto.')); }
-                catch (e) { alert('Permite las ventanas emergentes para este sitio y vuelve a pulsar el botón.'); }
+            const opened = window.open(url, '_blank');
+            if (opened) {
+                opened.opener = null;
+            } else {
+                navigator.clipboard.writeText(prompt)
+                    .then(() => alert('El navegador bloqueó la nueva pestaña. Copié la instrucción: abre ChatGPT y pégala para generar el texto.'))
+                    .catch(() => alert('Permite las ventanas emergentes para este sitio y vuelve a pulsar el botón.'));
             }
         }
 
