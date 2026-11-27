@@ -103,6 +103,35 @@
             *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
         .luxury-card { border-radius: 1.1rem; }
+        .catalog-grid { align-items:stretch; }
+        .catalog-product-card {
+            min-width:0; overflow:hidden; background:linear-gradient(180deg,#fff 0%,#fffdfa 100%);
+            border:1px solid #e9dfd1; border-radius:20px; padding:14px;
+            box-shadow:0 5px 18px rgba(76,53,27,.045);
+            transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+        }
+        .catalog-product-card:hover { transform:translateY(-3px); border-color:#d7bd7c; box-shadow:0 12px 28px rgba(76,53,27,.09); }
+        .catalog-product-media {
+            width:100%; aspect-ratio:4/3; height:auto; min-height:0; margin-bottom:14px;
+            display:flex; align-items:center; justify-content:center; overflow:hidden;
+            border-radius:14px; background:linear-gradient(145deg,#faf8f3,#f1ebe1);
+            border:1px solid #eee5d8;
+        }
+        .catalog-product-media img { width:100%; height:100%; object-fit:contain; padding:8px; transition:transform .35s ease; }
+        .catalog-product-card:hover .catalog-product-media img { transform:scale(1.035); }
+        .catalog-product-name { min-height:2.7em; font-size:clamp(.9rem,1.4vw,1rem); line-height:1.35; color:#2b1e16; }
+        .catalog-product-price { color:#a77a28; font-size:1.55rem; line-height:1.1; letter-spacing:.01em; text-shadow:0 1px 0 rgba(255,255,255,.8); }
+        .catalog-brand-tag { display:inline-flex; align-items:center; gap:.35rem; background:#f7f1e7; color:#96702f; border:1px solid #eee2c8; border-radius:7px; padding:4px 9px; font-size:10px; font-weight:700; letter-spacing:.08em; }
+        .catalog-qty-control { background:#f8f5ef; border:1px solid #e9dfd1; border-radius:12px; padding:4px; }
+        .catalog-qty-control button { width:34px; height:34px; border-radius:9px; }
+        @media (max-width: 639px) {
+            .catalog-grid { grid-template-columns:minmax(0,1fr); gap:16px; }
+            .catalog-product-card { padding:14px; border-radius:18px; }
+            .catalog-product-media { aspect-ratio: 5/4; }
+            .catalog-product-name { min-height:0; font-size:1rem; }
+            .catalog-product-price { font-size:1.65rem; }
+            .catalog-qty-control button { width:38px; height:38px; }
+        }
         .brand-logo { display:block; object-fit:contain; flex:0 0 auto; filter: drop-shadow(0 3px 7px rgba(132,92,28,.14)); }
         .brand-header-mark { width:68px; height:68px; }
         .brand-wordmark { letter-spacing:.15em; }
@@ -1084,30 +1113,30 @@
                 catGroup.appendChild(title);
 
                 const grid = document.createElement('div');
-                grid.className = "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4";
+                grid.className = "catalog-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5";
 
                 categories[catName].forEach(p => {
                     const qty = selectedQuantities[p.id] || 0;
                     const card = document.createElement('div');
-                    card.className = `luxury-card rounded-xl p-4 flex flex-col justify-between relative ${qty > 0 ? 'border-gold-500 ring-1 ring-gold-500/30 bg-gold-100/10' : ''}`;
+                    card.className = `catalog-product-card luxury-card flex flex-col justify-between relative ${qty > 0 ? 'border-gold-500 ring-1 ring-gold-500/30 bg-gold-100/10' : ''}`;
                     card.setAttribute('data-name', p.name.toLowerCase());
 
                     // Image Display Element
                     const hasImg = p.image && p.image.trim().length > 0;
                     const imgHtml = hasImg 
-                        ? `<div class="w-full h-36 mb-3 rounded-lg overflow-hidden bg-beige-50 border border-beige-200"><img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover hover:scale-105 transition duration-300"></div>`
-                        : `<div class="w-full h-24 mb-3 rounded-lg bg-beige-100/70 border border-dashed border-beige-300 flex items-center justify-center text-bistre/30"><i class="fas fa-spray-can-sparkles text-2xl"></i></div>`;
+                        ? `<div class="catalog-product-media"><img src="${p.image}" alt="${p.name}" loading="lazy"></div>`
+                        : `<div class="catalog-product-media text-gold-600/50"><i class="fas fa-spray-can-sparkles text-4xl"></i></div>`;
 
                     card.innerHTML = `
                         ${imgHtml}
                         <div class="space-y-1 mb-3">
-                            <span class="text-[10px] text-gold-700 font-bold uppercase tracking-wider bg-beige-100 px-2 py-0.5 rounded">AJ Esencias</span>
-                            <h4 class="font-semibold text-bistre text-sm leading-snug">${p.name}</h4>
-                            <p class="font-serif-title font-bold text-gold-700 text-lg">RD$ ${p.price.toLocaleString()}</p>
+                            <span class="catalog-brand-tag">AJ ESENCIAS</span>
+                            <h4 class="catalog-product-name font-semibold">${p.name}</h4>
+                            <p class="catalog-product-price font-serif-title font-bold">RD$ ${p.price.toLocaleString()}</p>
                         </div>
                         <div class="flex items-center justify-between border-t border-beige-100 pt-3 mt-auto">
                             <span class="text-xs text-bistre/60">Cantidad:</span>
-                            <div class="flex items-center space-x-2 bg-beige-100/80 rounded-lg p-1 border border-beige-200">
+                            <div class="catalog-qty-control flex items-center space-x-2">
                                 <button onclick="updateQty(${p.id}, -1)" class="w-7 h-7 bg-white rounded-md flex items-center justify-center text-bistre hover:bg-gold-200 transition text-xs font-bold shadow-xs">
                                     <i class="fas fa-minus"></i>
                                 </button>
