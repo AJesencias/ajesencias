@@ -1894,6 +1894,56 @@
         const AJ_SUPABASE_URL = 'https://egkqaymaqednmweaqbaz.supabase.co';
         const AJ_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_zEE8izXWpR3xafes53pjMQ_dP0LQD9k';
         let ajSupabase = null, ajCloudUser = null;
+        // Bloqueo automático de la administración tras 60 segundos sin actividad.
+        const AJ_IDLE_LIMIT_MS = 60 * 1000;
+        let ajIdleTimer = null;
+        let ajLastActivityAt = 0;
+        let ajIdleLockInProgress = false;
+        function ajStopIdleLock() {
+            if (ajIdleTimer) clearTimeout(ajIdleTimer);
+            ajIdleTimer = null;
+            ajLastActivityAt = 0;
+        }
+        function ajScheduleIdleLock() {
+            if (!ajCloudUser) return ajStopIdleLock();
+            if (ajIdleTimer) clearTimeout(ajIdleTimer);
+            const remaining = Math.max(0, AJ_IDLE_LIMIT_MS - (Date.now() - ajLastActivityAt));
+            ajIdleTimer = setTimeout(ajLockAfterInactivity, remaining);
+        }
+        function ajRegisterActivity() {
+            if (!ajCloudUser || ajIdleLockInProgress || document.hidden) return;
+            ajLastActivityAt = Date.now();
+            ajScheduleIdleLock();
+        }
+        async function ajLockAfterInactivity() {
+            if (!ajCloudUser || ajIdleLockInProgress) return;
+            const elapsed = Date.now() - ajLastActivityAt;
+            if (elapsed < AJ_IDLE_LIMIT_MS) return ajScheduleIdleLock();
+            ajIdleLockInProgress = true;
+            ajStopIdleLock();
+            try {
+                await ajSupabase.auth.signOut({ scope: 'local' });
+                ajCloudSetStatus('Sesión bloqueada por 1 minuto de inactividad. Vuelve a entrar con Face ID o contraseña.');
+            } catch (error) {
+                ajCloudSetStatus('No se pudo cerrar la sesión automáticamente: ' + error.message, true);
+            } finally {
+                ajIdleLockInProgress = false;
+            }
+        }
+        ['pointerdown','keydown','touchstart','scroll','click'].forEach(eventName => {
+            document.addEventListener(eventName, ajRegisterActivity, { passive: true });
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (!ajCloudUser) return;
+            if (document.hidden) {
+                // Al volver a la pestaña se comprueba el tiempo transcurrido sin actividad.
+                if (ajIdleTimer) clearTimeout(ajIdleTimer);
+                ajIdleTimer = null;
+            } else {
+                if (Date.now() - ajLastActivityAt >= AJ_IDLE_LIMIT_MS) ajLockAfterInactivity();
+                else ajScheduleIdleLock();
+            }
+        });
         const AJ_ADMIN_EMAIL = 'ambardilone06@gmail.com';
         function ajCloudIsAllowedUser(user) {
             return !!user && String(user.email || '').toLowerCase() === AJ_ADMIN_EMAIL;
@@ -1929,6 +1979,8 @@
         function ajCloudRefreshUI(user) {
             ajCloudUser = user || null;
             const logged = !!ajCloudUser;
+            if (logged) { if (!ajLastActivityAt) ajLastActivityAt = Date.now(); ajScheduleIdleLock(); }
+            else ajStopIdleLock();
             document.getElementById('cloudAuthFields').classList.toggle('hidden', logged);
             document.getElementById('cloudAuthActions').classList.toggle('hidden', logged);
             document.getElementById('cloudDataActions').classList.toggle('hidden', !logged);
