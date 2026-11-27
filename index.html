@@ -1022,6 +1022,23 @@
         <section id="section-accounting" class="tab-content hidden space-y-6">
             <div class="luxury-card rounded-2xl p-5 sm:p-7 space-y-5">
                 <div class="border-b border-beige-200 pb-4"><span class="text-[10px] font-bold tracking-[.2em] uppercase text-gold-700">AJ Esencias · Control contable</span><h2 class="font-serif-title text-3xl font-bold text-bistre">Sistema de contabilidad</h2><p class="text-xs text-bistre/60">Registro por partida doble · Moneda: peso dominicano (RD$)</p></div>
+                <div class="rounded-xl border border-gold-500/30 bg-white p-4 space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3"><div><h3 class="font-serif-title text-2xl font-bold">Informes financieros</h3><p class="text-xs text-bistre/60">Cálculos basados en ventas, compras, gastos e inventario registrados.</p></div><label class="text-xs font-semibold">Período<select id="ajAccReportPeriod" onchange="renderAjAccountingReports()" class="mt-1 block rounded-lg border p-2"><option value="month">Mes actual</option><option value="year">Año actual</option><option value="all">Todo el historial</option></select></label></div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      <div class="rounded-xl bg-beige-50 p-3"><small>Ventas</small><b id="ajRepSales" class="block text-lg">RD$ 0.00</b></div>
+                      <div class="rounded-xl bg-beige-50 p-3"><small>Costo de ventas</small><b id="ajRepCost" class="block text-lg">RD$ 0.00</b></div>
+                      <div class="rounded-xl bg-beige-50 p-3"><small>Ganancia bruta</small><b id="ajRepGross" class="block text-lg">RD$ 0.00</b></div>
+                      <div class="rounded-xl bg-beige-50 p-3"><small>Gastos operativos</small><b id="ajRepExpenses" class="block text-lg">RD$ 0.00</b></div>
+                      <div class="rounded-xl bg-beige-50 p-3"><small>Resultado estimado</small><b id="ajRepNet" class="block text-lg">RD$ 0.00</b></div>
+                      <div class="rounded-xl bg-beige-50 p-3"><small>Por cobrar</small><b id="ajRepReceivable" class="block text-lg">RD$ 0.00</b></div>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-3">
+                      <div class="rounded-xl border border-beige-200 p-3"><h4 class="font-bold text-sm mb-2">Movimiento de efectivo registrado</h4><div class="flex justify-between text-xs"><span>Cobros de clientes</span><b id="ajRepCollections">RD$ 0.00</b></div><div class="flex justify-between text-xs mt-2"><span>Pagos de compras</span><b id="ajRepPurchases">RD$ 0.00</b></div><div class="flex justify-between text-xs mt-2"><span>Pagos de gastos</span><b id="ajRepOutExpenses">RD$ 0.00</b></div><div class="flex justify-between border-t mt-3 pt-2 text-sm"><span>Flujo neto del período</span><b id="ajRepCashNet">RD$ 0.00</b></div></div>
+                      <div class="rounded-xl border border-beige-200 p-3"><h4 class="font-bold text-sm mb-2">Indicadores de inventario</h4><div class="flex justify-between text-xs"><span>Unidades disponibles</span><b id="ajRepUnits">0</b></div><div class="flex justify-between text-xs mt-2"><span>Valor al costo</span><b id="ajRepStock">RD$ 0.00</b></div><p class="text-[10px] text-bistre/60 mt-3">El valor del inventario usa las existencias y el costo promedio registrados actualmente.</p></div>
+                    </div>
+                    <p class="text-[10px] text-bistre/60">El resultado es una estimación de gestión antes de impuestos. No sustituye estados financieros formales ni incorpora saldos iniciales, depreciaciones, ITBIS o cuentas por pagar no registradas.</p>
+                    <button onclick="ajAccExportManagementReport()" class="rounded-lg border border-gold-500/50 px-3 py-2 text-xs font-bold">Exportar informe CSV</button>
+                </div>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3"><div class="rounded-xl bg-beige-50 p-3"><small>Asientos registrados</small><b id="ajAccCount" class="block text-xl">0</b></div><div class="rounded-xl bg-beige-50 p-3"><small>Total débitos</small><b id="ajAccDebit" class="block text-lg">RD$ 0.00</b></div><div class="rounded-xl bg-beige-50 p-3"><small>Total créditos</small><b id="ajAccCredit" class="block text-lg">RD$ 0.00</b></div><div class="rounded-xl bg-beige-50 p-3"><small>Estado</small><b id="ajAccStatus" class="block text-sm text-green-700">Sin movimientos</b></div></div>
                 <div class="rounded-xl border border-beige-200 p-4 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Registrar asiento contable</h3><div class="grid sm:grid-cols-3 gap-2"><label class="text-xs">Fecha<input id="ajAccDate" type="date" class="w-full rounded-lg border p-2"></label><label class="text-xs sm:col-span-2">Descripción<input id="ajAccDescription" maxlength="180" placeholder="Ej. Aporte inicial de capital" class="w-full rounded-lg border p-2"></label></div><div class="grid sm:grid-cols-2 gap-3"><label class="text-xs">Cuenta que recibe el débito<select id="ajAccDebitAccount" class="w-full rounded-lg border p-2"></select><input id="ajAccDebitAmount" type="number" min="0.01" step=".01" placeholder="Monto del débito" class="mt-2 w-full rounded-lg border p-2"></label><label class="text-xs">Cuenta que recibe el crédito<select id="ajAccCreditAccount" class="w-full rounded-lg border p-2"></select><input id="ajAccCreditAmount" type="number" min="0.01" step=".01" placeholder="Monto del crédito" class="mt-2 w-full rounded-lg border p-2"></label></div><p class="text-[11px] text-bistre/60">Para guardar, ambos importes deben ser iguales y mayores que cero. Los asientos registrados aquí son manuales; no se han generado movimientos históricos automáticamente.</p><button onclick="ajAccRegisterEntry()" class="rounded-xl bg-[#482431] px-5 py-3 text-sm font-bold text-white">Guardar asiento balanceado</button></div>
                 <div class="rounded-xl border border-beige-200 p-4 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Catálogo de cuentas</h3><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Código</th><th class="p-2">Cuenta</th><th class="p-2">Clasificación</th></tr></thead><tbody id="ajAccChart"></tbody></table></div></div>
@@ -1715,6 +1732,1745 @@
         function addBusinessPayment(id){const x=businessSales.find(v=>String(v.id)===String(id));if(!x)return;const balance=Number(x.total)-Number(x.paid),n=Number(prompt('Saldo pendiente '+moneyRD(balance)+'. Monto del abono:'));if(!Number.isFinite(n)||n<=0||n>balance){alert('Abono no válido.');return;}x.paid=Number(x.paid)+n;x.payments=x.payments||[];x.payments.push({date:new Date().toISOString().slice(0,10),amount:n});saveData();renderBusinessManagement();}
         function exportBusinessData(){const data={app:'AJ Esencias',version:1,exportedAt:new Date().toISOString(),products,creditClients,appointments,dailyLogs,businessSales,businessExpenses,businessPurchases,ajAccountingEntries},blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='AJ-Esencias-respaldo-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);}
         function importBusinessData(input){const file=input.files&&input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result),keys=['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses','businessPurchases'];if(d.app!=='AJ Esencias'||!['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses'].every(k=>Array.isArray(d[k]))||(d.businessPurchases!==undefined&&!Array.isArray(d.businessPurchases)))throw new Error('Formato de respaldo inválido.');d.businessPurchases=d.businessPurchases||[];d.ajAccountingEntries=d.ajAccountingEntries||[];if(!Array.isArray(d.ajAccountingEntries))throw new Error('Libro diario inválido.');if(!confirm('El respaldo reemplazará los datos actuales de este navegador. ¿Continuar?'))return;products=d.products;creditClients=d.creditClients;appointments=d.appointments;dailyLogs=d.dailyLogs;businessSales=d.businessSales;businessExpenses=d.businessExpenses;businessPurchases=d.businessPurchases;ajAccountingEntries=d.ajAccountingEntries;if(saveData()){renderProductCatalog();renderPriceEditor();renderCreditTable();renderAppointmentsList();renderDailyLogs();renderBusinessManagement();renderAjAccounting();alert('Respaldo restaurado.');}}catch(e){alert('No se pudo restaurar: '+e.message);}finally{input.value='';}};reader.readAsText(file);}
+
+        function ajAccReportRows(){
+            const period=document.getElementById('ajAccReportPeriod')?.value||'month';
+            const now=new Date(),month=now.toISOString().slice(0,7),year=String(now.getFullYear());
+            const inPeriod=x=>{const d=String(x.date||'');return period==='all'||(period==='year'?d.startsWith(year):d.startsWith(month));};
+            const sales=businessSales.filter(inPeriod),expenses=businessExpenses.filter(inPeriod),purchases=businessPurchases.filter(inPeriod);
+            const revenue=sales.reduce((n,x)=>n+(Number(x.total)||0),0);
+            const cost=sales.reduce((n,x)=>n+(Number(x.costTotal)||0),0);
+            const collected=sales.reduce((n,x)=>n+(Number(x.paid)||0),0);
+            const receivable=businessSales.reduce((n,x)=>n+Math.max(0,(Number(x.total)||0)-(Number(x.paid)||0)),0);
+            const opExpenses=expenses.filter(x=>x.category!=='Compra de mercancía').reduce((n,x)=>n+(Number(x.amount)||0),0);
+            const purchaseOut=purchases.reduce((n,x)=>n+(Number(x.total)||0),0);
+            const expenseOut=expenses.reduce((n,x)=>n+(Number(x.amount)||0),0);
+            const gross=revenue-cost,net=gross-opExpenses;
+            const units=products.reduce((n,p)=>n+(Number(p.stock)||0),0);
+            const stock=products.reduce((n,p)=>n+(Number(p.stock)||0)*(Number(p.cost)||0),0);
+            return {period,revenue,cost,collected,receivable,opExpenses,purchaseOut,expenseOut,gross,net,units,stock,cashNet:collected-purchaseOut-expenseOut};
+        }
+        function renderAjAccountingReports(){
+            const r=ajAccReportRows(),put=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=moneyRD(v);};
+            put('ajRepSales',r.revenue);put('ajRepCost',r.cost);put('ajRepGross',r.gross);put('ajRepExpenses',r.opExpenses);put('ajRepNet',r.net);put('ajRepReceivable',r.receivable);
+            put('ajRepCollections',r.collected);put('ajRepPurchases',r.purchaseOut);put('ajRepOutExpenses',r.expenseOut);put('ajRepCashNet',r.cashNet);
+            const units=document.getElementById('ajRepUnits');if(units)units.textContent=r.units.toLocaleString('es-DO');
+            put('ajRepStock',r.stock);
+        }
+        function ajAccExportManagementReport(){
+            const r=ajAccReportRows(),rows=[['Indicador','Importe RD
+            const date=document.getElementById('ajAccDate').value,description=document.getElementById('ajAccDescription').value.trim(),debitCode=document.getElementById('ajAccDebitAccount').value,creditCode=document.getElementById('ajAccCreditAccount').value,debit=Number(document.getElementById('ajAccDebitAmount').value),credit=Number(document.getElementById('ajAccCreditAmount').value);
+            if(!date||!description||!debitCode||!creditCode||debitCode===creditCode||!Number.isFinite(debit)||!Number.isFinite(credit)||debit<=0||credit<=0||Math.abs(debit-credit)>0.009){alert('Completa los datos y verifica que el débito y el crédito sean iguales, positivos y correspondan a cuentas distintas.');return;}
+            const da=ajAccountingChart.find(a=>a.code===debitCode),ca=ajAccountingChart.find(a=>a.code===creditCode);
+            ajAccountingEntries.unshift({id:String(Date.now()),date,description,debitCode, debitName:da.name,creditCode,creditName:ca.name,debit:Number(debit.toFixed(2)),credit:Number(credit.toFixed(2)),createdAt:new Date().toISOString()});
+            if(!saveData())return;document.getElementById('ajAccDescription').value='';document.getElementById('ajAccDebitAmount').value='';document.getElementById('ajAccCreditAmount').value='';renderAjAccounting();
+        }
+        function renderAjAccounting(){
+            renderAjAccountingReports();
+            const debitSel=document.getElementById('ajAccDebitAccount');if(!debitSel)return;const options=ajAccountingChart.map(a=>'<option value="'+a.code+'">'+a.code+' · '+safeText(a.name)+'</option>').join('');debitSel.innerHTML=options;document.getElementById('ajAccCreditAccount').innerHTML=options;
+            document.getElementById('ajAccChart').innerHTML=ajAccountingChart.map(a=>'<tr class="border-b border-beige-100"><td class="p-2">'+a.code+'</td><td class="p-2 font-semibold">'+safeText(a.name)+'</td><td class="p-2">'+a.type+'</td></tr>').join('');
+            const totalD=ajAccountingEntries.reduce((n,e)=>n+e.debit,0),totalC=ajAccountingEntries.reduce((n,e)=>n+e.credit,0);document.getElementById('ajAccCount').textContent=ajAccountingEntries.length;document.getElementById('ajAccDebit').textContent=moneyRD(totalD);document.getElementById('ajAccCredit').textContent=moneyRD(totalC);document.getElementById('ajAccStatus').textContent=Math.abs(totalD-totalC)<0.01?'Cuadrado':'Revisar';document.getElementById('ajAccStatus').className='block text-sm '+(Math.abs(totalD-totalC)<0.01?'text-green-700':'text-red-700');
+            document.getElementById('ajAccJournal').innerHTML=ajAccountingEntries.map(e=>'<tr class="border-b border-beige-100"><td class="p-2">'+safeText(e.date)+'</td><td class="p-2">'+safeText(e.description)+'<br><span class="text-bistre/50">'+e.debitCode+' '+safeText(e.debitName)+' / '+e.creditCode+' '+safeText(e.creditName)+'</span></td><td class="p-2">'+moneyRD(e.debit)+'</td><td class="p-2">'+moneyRD(e.credit)+'</td><td class="p-2">'+moneyRD(e.debit)+'</td></tr>').join('')||'<tr><td colspan="5" class="p-3 text-center text-bistre/50">Aún no hay asientos. Registra el primero cuando tengas el comprobante.</td></tr>';
+            const totals={};ajAccountingEntries.forEach(e=>{totals[e.debitCode]=totals[e.debitCode]||{name:e.debitName,d:0,c:0};totals[e.debitCode].d+=e.debit;totals[e.creditCode]=totals[e.creditCode]||{name:e.creditName,d:0,c:0};totals[e.creditCode].c+=e.credit;});document.getElementById('ajAccTrial').innerHTML=Object.entries(totals).map(([code,v])=>'<tr class="border-b border-beige-100"><td class="p-2">'+code+' · '+safeText(v.name)+'</td><td class="p-2">'+moneyRD(v.d)+'</td><td class="p-2">'+moneyRD(v.c)+'</td><td class="p-2">'+moneyRD(Math.max(0,v.d-v.c))+'</td><td class="p-2">'+moneyRD(Math.max(0,v.c-v.d))+'</td></tr>').join('')||'<tr><td colspan="5" class="p-3 text-center text-bistre/50">Sin movimientos para mostrar.</td></tr>';
+        }
+        function ajAccExportCSV() {
+            const headers = ['Fecha','Descripción','Código débito','Cuenta débito','Código crédito','Cuenta crédito','Débito RD$','Crédito RD$'];
+            const quote = value => '"' + String(value ?? '').replace(/"/g, '""') + '"';
+            const rows = [headers, ...ajAccountingEntries.map(entry => [
+                entry.date, entry.description, entry.debitCode, entry.debitName,
+                entry.creditCode, entry.creditName, entry.debit, entry.credit
+            ])];
+            const csv = '\uFEFF' + rows.map(row => row.map(quote).join(',')).join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'AJ-Esencias-libro-diario-' + new Date().toISOString().slice(0, 10) + '.csv';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function checkProtectedTab(tabId) {
+            if (tabId === 'calculator') { switchTab('calculator'); return; }
+            if (tabId === 'business') { openPrivateArea(); return; }
+            if (!ajCloudUser) {
+                activeTabToPending = tabId;
+                openPrivateArea();
+                ajCloudSetStatus('Inicia sesión con tu cuenta autorizada para acceder al área administrativa.', true);
+                return;
+            }
+            switchTab(tabId);
+        }
+
+        function openPinModal() {
+            document.getElementById('txtPinInput').value = '';
+            document.getElementById('pinErrorMsg').classList.add('hidden');
+            document.getElementById('pinModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('txtPinInput').focus(), 100);
+        }
+
+        function closePinModal() {
+            document.getElementById('pinModal').classList.add('hidden');
+            activeTabToPending = null;
+        }
+
+        function verifyPinCode() {
+            const enteredPin = document.getElementById('txtPinInput').value.trim();
+            
+            // Checking exact security code 1221
+            if (enteredPin === REQUIRED_PIN) {
+                isAdminUnlocked = true;
+                closePinModal();
+                updatePinUIStatus();
+                
+                if (activeTabToPending) {
+                    switchTab(activeTabToPending);
+                    activeTabToPending = null;
+                }
+            } else {
+                document.getElementById('pinErrorMsg').classList.remove('hidden');
+            }
+        }
+
+        function updatePinUIStatus() {
+            const statusBtn = document.getElementById('pinStatusBtn');
+            const lockIcon = document.getElementById('pinLockIcon');
+            const lockText = document.getElementById('pinLockText');
+
+            if (isAdminUnlocked) {
+                statusBtn.classList.add('bg-gold-100', 'border-gold-500');
+                lockIcon.className = "fas fa-lock-open text-green-700";
+                lockText.innerText = "Sesión local abierta";
+            }
+        }
+
+        function toggleAjPromoMenu(force) {
+            const menu = document.getElementById('ajPromoMenu');
+            const button = document.getElementById('ajPromoMenuButton');
+            if (!menu || !button) return;
+            const shouldOpen = typeof force === 'boolean' ? force : menu.classList.contains('hidden');
+            menu.classList.toggle('hidden', !shouldOpen);
+            button.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+        }
+
+        function switchTab(tabId) {
+            const protectedTabs = ['credit','appointments','inventory','business','prices','marketing','accounting'];
+            if (protectedTabs.includes(tabId) && !ajCloudUser) {
+                if (tabId !== 'business') activeTabToPending = tabId;
+                tabId = 'business';
+            }
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(el => el.classList.add('hidden'));
+
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(el => {
+                el.classList.remove('active-tab', 'bg-white', 'shadow-sm', 'border', 'border-gold-500/30');
+                el.classList.add('text-bistre/70');
+            });
+
+            const targetContent = document.getElementById('section-' + tabId);
+            if (targetContent) targetContent.classList.remove('hidden');
+            if (tabId === 'accounting') { const dateField=document.getElementById('ajAccDate'); if(dateField&&!dateField.value)dateField.value=new Date().toISOString().slice(0,10); renderAjAccounting(); }
+
+            const targetBtn = document.getElementById('tab-' + tabId);
+            if (targetBtn) {
+                targetBtn.classList.add('active-tab', 'bg-white', 'shadow-sm', 'border', 'border-gold-500/30');
+                targetBtn.classList.remove('text-bistre/70');
+            }
+        }
+
+        function changeProductGalleryImage(productId, direction) {
+            const product = products.find(item => String(item.id) === String(productId));
+            if (!product) return;
+            const images = (Array.isArray(product.images) && product.images.length ? product.images : [product.image]).filter(Boolean);
+            if (images.length < 2) return;
+            const image = document.getElementById('aj-product-image-' + productId);
+            if (!image) return;
+            let index = Number(image.dataset.galleryIndex || 0);
+            index = (index + direction + images.length) % images.length;
+            image.dataset.galleryIndex = String(index);
+            image.src = images[index];
+            const counter = image.parentElement.querySelector('span');
+            if (counter) counter.textContent = (index + 1) + ' / ' + images.length;
+        }
+
+        function renderProductCatalog() {
+            const container = document.getElementById('productsContainer');
+            const quickLinks = document.getElementById('categoryQuickLinks');
+            container.innerHTML = '';
+            quickLinks.innerHTML = '';
+
+            const categories = {};
+            products.forEach(p => {
+                if (!categories[p.category]) categories[p.category] = [];
+                categories[p.category].push(p);
+            });
+
+            Object.keys(categories).forEach((catName, index) => {
+                const link = document.createElement('a');
+                link.href = `#cat-${index}`;
+                link.className = "px-3 py-1.5 text-xs rounded-full bg-white border border-beige-200 text-bistre/80 hover:border-gold-500 hover:text-gold-700 transition whitespace-nowrap shadow-xs font-medium";
+                link.innerText = catName;
+                quickLinks.appendChild(link);
+            });
+
+            Object.keys(categories).forEach((catName, index) => {
+                const catGroup = document.createElement('div');
+                catGroup.id = `cat-${index}`;
+                catGroup.className = "space-y-4";
+
+                const title = document.createElement('h3');
+                title.className = "font-serif-title text-2xl font-bold text-bistre border-b border-gold-500/30 pb-2 flex items-center justify-between";
+                title.innerHTML = `<span><i class="fas fa-sparkles text-gold-600 mr-2 text-sm"></i>${catName}</span> <span class="text-xs font-sans text-bistre/50 font-normal">(${categories[catName].length} items)</span>`;
+                catGroup.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = "catalog-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5";
+
+                categories[catName].forEach(p => {
+                    const qty = selectedQuantities[p.id] || 0;
+                    const card = document.createElement('div');
+                    card.className = `catalog-product-card luxury-card flex flex-col justify-between relative ${qty > 0 ? 'border-gold-500 ring-1 ring-gold-500/30 bg-gold-100/10' : ''}`;
+                    card.setAttribute('data-name', p.name.toLowerCase());
+                    card.setAttribute('data-category', String(p.category || '').toLowerCase());
+
+                    // Image Display Element
+                    const productImages = (Array.isArray(p.images) && p.images.length ? p.images : [p.image]).filter(Boolean);
+                    const productImage = ajReferenceProductImage(p);
+                    const hasImg = productImage.length > 0;
+                    const imgHtml = hasImg
+                        ? `<div class="catalog-product-media relative"><img id="aj-product-image-${p.id}" src="${productImages[0] || productImage}" alt="${p.name}" loading="lazy" referrerpolicy="no-referrer" style="transform:rotate(${Number(p.imageRotation || 0)}deg)"><span class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[10px] text-bistre">${productImages.length > 1 ? '1 / ' + productImages.length : ''}</span>${productImages.length > 1 ? `<button type="button" onclick="changeProductGalleryImage('${p.id}',-1)" class="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 w-8 h-8 shadow text-bistre" aria-label="Foto anterior">‹</button><button type="button" onclick="changeProductGalleryImage('${p.id}',1)" class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 w-8 h-8 shadow text-bistre" aria-label="Foto siguiente">›</button>` : ''}</div>`
+                        : `<div class="catalog-product-media text-gold-600/50"><i class="fas fa-spray-can-sparkles text-4xl"></i></div>`;
+
+                    card.innerHTML = `
+                        ${imgHtml}
+                        <div class="space-y-1 mb-3">
+                            <span class="catalog-brand-tag">AJ ESENCIAS</span>
+                            <h4 class="catalog-product-name font-semibold">${p.name}</h4>
+                            ${(() => { const pr=ajProductPricing(p); return pr.discounted ? '<p class="text-xs text-gray-400 line-through">RD$ '+pr.originalPrice.toLocaleString('es-DO')+'</p><p class="catalog-product-price font-serif-title font-bold">RD$ '+pr.price.toLocaleString('es-DO')+'</p><span class="inline-flex rounded-full bg-red-50 px-2 py-1 text-[9px] font-extrabold text-red-700">OFERTA</span>' : '<p class="catalog-product-price font-serif-title font-bold">RD$ '+pr.price.toLocaleString('es-DO')+'</p>'; })()}
+                        </div>
+                        <div class="flex items-center justify-between border-t border-beige-100 pt-3 mt-auto">
+                            <span class="text-xs text-bistre/60">Cantidad:</span>
+                            <div class="catalog-qty-control flex items-center space-x-2">
+                                <button onclick="updateQty(${p.id}, -1)" class="w-7 h-7 bg-white rounded-md flex items-center justify-center text-bistre hover:bg-gold-200 transition text-xs font-bold shadow-xs">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="w-6 text-center font-bold text-xs text-bistre">${qty}</span>
+                                <button onclick="updateQty(${p.id}, 1)" class="w-7 h-7 gold-gradient-bg rounded-md flex items-center justify-center text-white hover:brightness-105 transition text-xs font-bold shadow-xs">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                catGroup.appendChild(grid);
+                container.appendChild(catGroup);
+            });
+        }
+
+        function ajProductPricing(p) {
+            const original = Math.max(0, Number(p.price) || 0);
+            const candidate = Number(p.discountPrice ?? p.salePrice ?? p.offerPrice ?? p.promoPrice);
+            const discounted = Number.isFinite(candidate) && candidate > 0 && candidate < original;
+            return { originalPrice: original, price: discounted ? candidate : original, discounted };
+        }
+
+        function openAjShoppingCart() {
+            renderAjShoppingCart();
+            document.getElementById('ajShoppingCartModal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+        function closeAjShoppingCart() {
+            document.getElementById('ajShoppingCartModal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+        function continueAjCartToQuote() {
+            if (!Object.keys(selectedQuantities).some(id => Number(selectedQuantities[id]) > 0)) {
+                alert('Agrega al menos un producto antes de continuar.');
+                return;
+            }
+            closeAjShoppingCart();
+            const quoteSection = document.getElementById('cartItemList');
+            if (quoteSection) quoteSection.scrollIntoView({behavior:'smooth',block:'center'});
+        }
+        function renderAjShoppingCart() {
+            const host = document.getElementById('ajShoppingCartItems');
+            if (!host) return;
+            host.innerHTML = '';
+            let subtotal = 0, count = 0;
+            Object.keys(selectedQuantities).forEach(id => {
+                const p = products.find(item => String(item.id) === String(id));
+                const qty = Number(selectedQuantities[id]) || 0;
+                if (!p || qty < 1) return;
+                const pricing = ajProductPricing(p), line = pricing.price * qty;
+                subtotal += line; count += qty;
+                const imageUrl = ajReferenceProductImage(p);
+                const row = document.createElement('div');
+                row.className = 'flex gap-3 rounded-2xl border border-[#E9DEDA] bg-white p-3 shadow-sm';
+                const img = imageUrl ? '<img src="'+safeText(imageUrl)+'" alt="'+safeText(p.name)+'" class="h-20 w-20 shrink-0 rounded-xl border border-[#eee5d8] bg-[#F8F5F1] object-contain p-1">' : '<div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-[#F8F5F1] text-2xl text-[#B99A62]"><i class="fas fa-spray-can-sparkles"></i></div>';
+                row.innerHTML = img + '<div class="min-w-0 flex-1"><div class="flex items-start justify-between gap-2"><strong class="text-sm text-[#482431]">'+safeText(p.name)+'</strong><button type="button" aria-label="Eliminar '+safeText(p.name)+'" class="text-gray-400 hover:text-red-600" onclick="updateQty('+Number(p.id)+',-'+qty+')"><i class="fas fa-trash"></i></button></div>' +
+                    (pricing.discounted ? '<p class="mt-1 text-xs text-gray-400 line-through">RD$ '+pricing.originalPrice.toLocaleString('es-DO')+'</p><p class="text-sm font-extrabold text-[#956F39]">RD$ '+pricing.price.toLocaleString('es-DO')+'</p>' : '<p class="mt-1 text-sm font-extrabold text-[#956F39]">RD$ '+pricing.price.toLocaleString('es-DO')+'</p>') +
+                    '<div class="mt-2 flex items-center justify-between gap-2"><div class="flex items-center gap-3 rounded-lg bg-[#F4ECE9] px-2 py-1"><button type="button" aria-label="Disminuir cantidad" onclick="updateQty('+Number(p.id)+',-1)" class="px-1 font-bold text-[#482431]">−</button><span class="min-w-5 text-center text-xs font-bold">'+qty+'</span><button type="button" aria-label="Aumentar cantidad" onclick="updateQty('+Number(p.id)+',1)" class="px-1 font-bold text-[#482431]">+</button></div><strong class="text-sm text-[#482431]">RD$ '+line.toLocaleString('es-DO')+'</strong></div></div>';
+                host.appendChild(row);
+            });
+            if (!count) host.innerHTML = '<p class="py-10 text-center text-sm text-gray-500"><i class="fas fa-basket-shopping mb-2 block text-3xl text-[#B99A62]"></i>Tu carrito está vacío. Explora el catálogo y agrega tus favoritos.</p>';
+            const total = subtotal + (document.getElementById('chkPersonalMessage')?.checked ? 25 : 0);
+            document.getElementById('ajShoppingCartSubtotal').textContent = 'RD$ '+subtotal.toLocaleString('es-DO');
+            document.getElementById('ajShoppingCartTotal').textContent = 'RD$ '+total.toLocaleString('es-DO');
+            const badge = document.getElementById('ajHeaderCartCount');
+            if (badge) badge.textContent = count;
+        }
+
+        function updateQty(productId, change) {
+            const current = selectedQuantities[productId] || 0;
+            const updated = Math.max(0, current + change);
+            if (updated === 0) {
+                delete selectedQuantities[productId];
+            } else {
+                selectedQuantities[productId] = updated;
+            }
+            ajSaveCart();
+            renderProductCatalog();
+            calculateTotal();
+            renderAjShoppingCart();
+        }
+
+        function clearSelection() {
+            selectedQuantities = {};
+            ajSaveCart();
+            renderProductCatalog();
+            calculateTotal();
+            renderAjShoppingCart();
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('productSearch').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('#productsContainer [data-name]');
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name') || '';
+                const category = card.getAttribute('data-category') || '';
+                card.style.display = (name.includes(query) || category.includes(query)) ? 'flex' : 'none';
+            });
+            document.querySelectorAll('#productsContainer > div[id^="cat-"]').forEach(group => {
+                const visible = group.querySelectorAll('[data-name]:not([style*="display: none"])').length;
+                group.style.display = visible ? '' : 'none';
+            });
+        }
+
+        function calculateTotal() {
+            let subtotal = 0;
+            let itemCount = 0;
+            const itemListContainer = document.getElementById('cartItemList');
+            itemListContainer.innerHTML = '';
+
+            Object.keys(selectedQuantities).forEach(id => {
+                const p = products.find(prod => prod.id == id);
+                const qty = selectedQuantities[id];
+                if (p && qty > 0) {
+                    const pricing = ajProductPricing(p);
+                    const lineSub = pricing.price * qty;
+                    subtotal += lineSub;
+                    itemCount += qty;
+
+                    const row = document.createElement('div');
+                    row.className = "flex justify-between items-center py-2 border-b border-beige-100 text-xs";
+                    const pricingHtml = pricing.discounted ? '<span class="block text-[10px] text-gray-400 line-through">RD$ '+pricing.originalPrice.toLocaleString('es-DO')+'</span>' : '';
+                    row.innerHTML = `
+                        <div class="pr-2">
+                            <span class="font-semibold text-bistre">${p.name}</span>
+                            ${pricingHtml}
+                            <span class="block text-[11px] text-bistre/60">${qty} x RD$ ${pricing.price.toLocaleString('es-DO')}</span>
+                        </div>
+                        <span class="font-bold text-gold-700">RD$ ${lineSub.toLocaleString('es-DO')}</span>
+                    `;
+                    itemListContainer.appendChild(row);
+                }
+            });
+
+            if (itemCount === 0) {
+                itemListContainer.innerHTML = '<p class="text-center text-bistre/50 py-6 italic text-xs">Aún no has seleccionado productos.</p>';
+            }
+
+            const chkMsg = document.getElementById('chkPersonalMessage');
+            const txtMsg = document.getElementById('txtPersonalMessage');
+            let addonTotal = 0;
+
+            if (chkMsg.checked) {
+                addonTotal += 25;
+                txtMsg.classList.remove('hidden');
+            } else {
+                txtMsg.classList.add('hidden');
+            }
+
+            const grandTotal = subtotal + addonTotal;
+
+            document.getElementById('cartCountBadge').innerText = `${itemCount} ítems`;
+            const headerCount = document.getElementById('ajHeaderCartCount');
+            if (headerCount) headerCount.textContent = itemCount;
+            renderAjShoppingCart();
+            document.getElementById('lblSubtotal').innerText = `RD$ ${subtotal.toLocaleString()}`;
+            document.getElementById('lblAddonTotal').innerText = `RD$ ${addonTotal.toLocaleString()}`;
+            document.getElementById('lblGrandTotal').innerText = `RD$ ${grandTotal.toLocaleString()}`;
+
+            const numAbono = parseFloat(document.getElementById('numAbonoAmount').value) || 0;
+            const pending = Math.max(0, grandTotal - numAbono);
+            document.getElementById('lblPendingBalance').innerText = `RD$ ${pending.toLocaleString()}`;
+        }
+
+        function toggleAbonoInput() {
+            const chk = document.getElementById('chkIsAbono');
+            const container = document.getElementById('abonoContainer');
+            if (chk.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                document.getElementById('numAbonoAmount').value = '';
+            }
+            calculateTotal();
+        }
+
+        function getGPSLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+                    document.getElementById('txtLocationLink').value = mapsUrl;
+                    alert("¡Ubicación GPS capturada con éxito!");
+                }, () => {
+                    alert("No se pudo obtener la ubicación GPS automática. Puedes pegar el link manualmente.");
+                });
+            } else {
+                alert("Geolocalización no es soportada por tu navegador.");
+            }
+        }
+
+        let currentGeneratedQuote = null;
+
+        function generateFinalQuote() {
+            if (Object.keys(selectedQuantities).length === 0) {
+                alert("Por favor, selecciona al menos un producto antes de generar la cotización.");
+                return;
+            }
+
+            let subtotal = 0;
+            const items = [];
+
+            Object.keys(selectedQuantities).forEach(id => {
+                const p = products.find(prod => prod.id == id);
+                const qty = selectedQuantities[id];
+                if (p && qty > 0) {
+                    const pricing = ajProductPricing(p);
+                    const lineSub = pricing.price * qty;
+                    subtotal += lineSub;
+                    items.push({ name: p.name, price: pricing.price, originalPrice: pricing.originalPrice, discounted: pricing.discounted, image: ajReferenceProductImage(p), qty: qty, subtotal: lineSub });
+                }
+            });
+
+            const hasMsg = document.getElementById('chkPersonalMessage').checked;
+            const msgText = document.getElementById('txtPersonalMessage').value.trim();
+            const addonPrice = hasMsg ? 25 : 0;
+            const grandTotal = subtotal + addonPrice;
+
+            const clientName = document.getElementById('quoteClientName').value.trim() || "Cliente Especial";
+            const clientPhone = document.getElementById('quoteClientPhone').value.trim() || "N/A";
+            const locationLink = document.getElementById('txtLocationLink').value.trim() || "El envío es aparte (se acuerda con el cliente)";
+
+            const isAbono = document.getElementById('chkIsAbono').checked;
+            const abonoAmount = isAbono ? (parseFloat(document.getElementById('numAbonoAmount').value) || 0) : 0;
+            const pendingBalance = Math.max(0, grandTotal - abonoAmount);
+
+            const now = new Date();
+            const quoteId = "AJ-" + Math.floor(1000 + Math.random() * 9000);
+
+            currentGeneratedQuote = {
+                id: quoteId,
+                date: now.toLocaleDateString('es-DO') + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                clientName,
+                clientPhone,
+                locationLink,
+                items,
+                subtotal,
+                addonPrice,
+                grandTotal,
+                isAbono,
+                abonoAmount,
+                pendingBalance,
+                personalMessage: hasMsg ? msgText : ""
+            };
+
+            document.getElementById('pdfQuoteId').innerText = `No. #${quoteId}`;
+            document.getElementById('pdfQuoteDate').innerText = `Fecha: ${currentGeneratedQuote.date}`;
+            document.getElementById('pdfClientName').innerText = clientName;
+            document.getElementById('pdfClientPhone').innerText = clientPhone;
+            document.getElementById('pdfClientLocation').innerText = locationLink;
+
+            const pdfTable = document.getElementById('pdfItemList');
+            pdfTable.innerHTML = '';
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-2 px-3 font-bold">${item.qty}</td>
+                    <td class="py-2 px-3">${item.name}</td>
+                    <td class="py-2 px-3 text-right">RD$ ${item.price.toLocaleString()}</td>
+                    <td class="py-2 px-3 text-right font-semibold">RD$ ${item.subtotal.toLocaleString()}</td>
+                `;
+                pdfTable.appendChild(tr);
+            });
+
+            document.getElementById('pdfSubtotal').innerText = `RD$ ${subtotal.toLocaleString()}`;
+            
+            if (hasMsg) {
+                document.getElementById('pdfAddonRow').classList.remove('hidden');
+            } else {
+                document.getElementById('pdfAddonRow').classList.add('hidden');
+            }
+
+            document.getElementById('pdfGrandTotal').innerText = `RD$ ${grandTotal.toLocaleString()}`;
+
+            if (isAbono) {
+                document.getElementById('pdfAbonoRow').classList.remove('hidden');
+                document.getElementById('pdfAbonoPaid').innerText = `RD$ ${abonoAmount.toLocaleString()}`;
+                document.getElementById('pdfAbonoPending').innerText = `RD$ ${pendingBalance.toLocaleString()}`;
+            } else {
+                document.getElementById('pdfAbonoRow').classList.add('hidden');
+            }
+
+            if (msgText) {
+                document.getElementById('pdfPersonalMsgText').innerText = ` Dedicatoria: "${msgText}"`;
+            } else {
+                document.getElementById('pdfPersonalMsgText').innerText = '';
+            }
+
+            dailyLogs.unshift({
+                time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                type: "Cotización Generada",
+                detail: `Cotización #${quoteId} para ${clientName}`,
+                amount: grandTotal
+            });
+            saveData();
+            renderDailyLogs();
+
+            document.getElementById('quoteModal').classList.remove('hidden');
+        }
+
+        function closeQuoteModal() {
+            document.getElementById('quoteModal').classList.add('hidden');
+        }
+
+        function startNewQuote() {
+            closeQuoteModal();
+            clearSelection();
+            document.getElementById('quoteClientName').value = '';
+            document.getElementById('quoteClientPhone').value = '';
+            document.getElementById('txtLocationLink').value = '';
+            document.getElementById('chkPersonalMessage').checked = false;
+            document.getElementById('txtPersonalMessage').value = '';
+            document.getElementById('chkIsAbono').checked = false;
+            document.getElementById('numAbonoAmount').value = '';
+            toggleAbonoInput();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function sendQuoteToWhatsApp() {
+            if (!currentGeneratedQuote) return;
+
+            let text = `✨ *COTIZACIÓN DE AJ ESENCIAS* ✨\n`;
+            text += `*Cotización No:* #${currentGeneratedQuote.id}\n`;
+            text += `*Cliente:* ${currentGeneratedQuote.clientName}\n`;
+            text += `-----------------------------------\n`;
+            text += `*DETALLE DE PRODUCTOS:*\n`;
+
+            currentGeneratedQuote.items.forEach(i => {
+                text += `• ${i.qty}x ${i.name} - RD$ ${i.subtotal.toLocaleString()}\n`;
+            });
+
+            if (currentGeneratedQuote.addonPrice > 0) {
+                text += `• Dedicatoria Personalizada - RD$ 25\n`;
+            }
+
+            text += `-----------------------------------\n`;
+            text += `*SUBTOTAL:* RD$ ${currentGeneratedQuote.subtotal.toLocaleString()}\n`;
+            text += `*COSTO TOTAL:* RD$ ${currentGeneratedQuote.grandTotal.toLocaleString()}\n`;
+
+            if (currentGeneratedQuote.isAbono) {
+                text += `*Monto Abonado:* RD$ ${currentGeneratedQuote.abonoAmount.toLocaleString()}\n`;
+                text += `*RESTA PENDIENTE:* RD$ ${currentGeneratedQuote.pendingBalance.toLocaleString()}\n`;
+            }
+
+            text += `\n*Ubicación / Envío:* ${currentGeneratedQuote.locationLink}\n`;
+            text += `_Nota: El envío se cotiza aparte._\n\n`;
+            text += `🌸 *¡Gracias por preferir AJ esencias!*`;
+
+            const encoded = encodeURIComponent(text);
+            const waUrl = `https://wa.me/${AJ_FIXED_WHATSAPP}?text=${encoded}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function exportQuoteToPDF() {
+            const element = document.getElementById('quotePrintableArea');
+            const opt = {
+                margin:       0.4,
+                filename:     `Cotizacion_AJ_Esencias_${currentGeneratedQuote ? currentGeneratedQuote.id : 'export'}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function copyToClipboard(text, message) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert(message);
+        }
+
+        function renderCreditTable() {
+            const tbody = document.getElementById('creditClientsTable');
+            tbody.innerHTML = '';
+
+            if (creditClients.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-bistre/50 italic">No hay registros de clientes a crédito.</td></tr>';
+                return;
+            }
+
+            creditClients.forEach((client, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-beige-50 transition";
+                
+                const isPaid = client.remaining <= 0;
+                const statusBadge = isPaid
+                    ? '<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded font-bold">PAGADO</span>'
+                    : '<span class="bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold">PENDIENTE</span>';
+                const dueLabel = client.dueDate ? new Date(client.dueDate + 'T12:00:00').toLocaleDateString('es-DO') : 'Sin definir';
+
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-bistre">${client.name}</td>
+                    <td class="p-3">${client.phone}</td>
+                    <td class="p-3 font-medium">RD$ ${client.totalAmount.toLocaleString()}</td>
+                    <td class="p-3 text-green-700 font-semibold">RD$ ${client.paidAmount.toLocaleString()}</td>
+                    <td class="p-3 text-red-700 font-bold">RD$ ${client.remaining.toLocaleString()}</td>
+                    <td class="p-3 whitespace-nowrap">${dueLabel}<br><button onclick="editCreditDueDate(${idx})" class="text-[10px] text-[#956F39] underline">Cambiar fecha</button></td>
+                    <td class="p-3">${statusBadge}</td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick="addCreditAbono(${idx})" title="Registrar Abono" class="px-2 py-1 bg-gold-500 hover:bg-gold-600 text-white rounded text-[11px] font-bold">
+                            <i class="fas fa-plus"></i> Abono
+                        </button>
+                        <button onclick="sendCreditWhatsAppReminder(${idx})" title="Enviar WhatsApp" class="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-[11px] font-bold">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            renderAjCreditReminders();
+        }
+
+        function ajLocalToday() {
+            const d = new Date();
+            return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-');
+        }
+        function ajBuildCreditReminder(client) {
+            const date = client.dueDate ? new Date(client.dueDate + 'T12:00:00').toLocaleDateString('es-DO') : '';
+            return 'Hola ' + client.name + ' ✨, esperamos que estés muy bien. Te escribimos de *AJ Esencias* para recordarte cordialmente que tienes un saldo pendiente de *RD$ ' + Number(client.remaining).toLocaleString('es-DO') + '*, con fecha de pago acordada para el *' + date + '*.' + '\n\nCuando te sea posible, agradecemos que nos confirmes tu pago o nos indiques cuándo podrías realizarlo. Estamos a tu disposición. ¡Muchas gracias por tu preferencia! 💛';
+        }
+        function renderAjCreditReminders() {
+            const list = document.getElementById('ajCreditReminderList'), count = document.getElementById('ajCreditReminderCount');
+            if (!list || !count) return;
+            const today = ajLocalToday();
+            const due = creditClients.map((client,index)=>({client,index})).filter(x=>Number(x.client.remaining)>0 && x.client.dueDate && x.client.dueDate<=today).sort((a,b)=>a.client.dueDate.localeCompare(b.client.dueDate));
+            count.textContent = due.length + (due.length===1?' recordatorio':' recordatorios');
+            if (!due.length) { list.innerHTML='<p class="text-sm text-[#765F65]">No hay pagos vencidos ni programados para hoy. Los próximos aparecerán aquí automáticamente.</p>'; return; }
+            list.innerHTML = due.map(({client,index})=>{
+                const late=client.dueDate<today, date=new Date(client.dueDate+'T12:00:00').toLocaleDateString('es-DO');
+                const href='https://wa.me/'+(String(client.phone||'').replace(/[^0-9]/g,'')||AJ_FIXED_WHATSAPP)+'?text='+encodeURIComponent(ajBuildCreditReminder(client));
+                return '<article class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#E8DCD7] bg-white p-3"><div><div class="font-bold text-[#482431]">'+safeText(client.name)+'</div><div class="text-xs text-[#765F65]">'+(late?'Vencido':'Vence hoy')+' · '+date+'</div><div class="text-sm font-bold text-[#956F39]">Saldo: RD$ '+Number(client.remaining).toLocaleString('es-DO')+'</div></div><a href="'+href+'" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#287A4B] px-4 py-2 text-xs font-bold text-white"><i class="fab fa-whatsapp"></i> Enviar recordatorio</a></article>';
+            }).join('');
+        }
+        function editCreditDueDate(index) {
+            const c=creditClients[index], value=prompt('Fecha acordada de pago para '+c.name+' (AAAA-MM-DD):',c.dueDate||'');
+            if(value===null)return;
+            if(value && !/^\d{4}-\d{2}-\d{2}$/.test(value))return alert('Usa el formato AAAA-MM-DD.');
+            c.dueDate=value||null; if(saveData())renderCreditTable();
+        }
+
+        function openNewCreditModal() {
+            const name = prompt("Nombre completo del cliente a crédito:");
+            if (!name) return;
+            const phone = prompt("Teléfono WhatsApp del cliente:");
+            if (!phone) return;
+            const amount = parseFloat(prompt("Monto total adeudado (RD$):")) || 0;
+            const initialAbono = parseFloat(prompt("Abono inicial entregado (RD$ - colocar 0 si no abonó):")) || 0;
+            const dueDate = prompt("Fecha acordada de pago (AAAA-MM-DD). Déjalo vacío si aún no está definida:", "");
+            if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return alert("La fecha debe tener el formato AAAA-MM-DD.");
+            const remaining = Math.max(0, amount - initialAbono);
+            creditClients.unshift({ name, phone, totalAmount: amount, paidAmount: initialAbono, remaining, dueDate: dueDate || null });
+
+            saveData();
+            renderCreditTable();
+            alert("Cliente registrado en el catálogo a crédito.");
+        }
+
+        function addCreditAbono(index) {
+            const client = creditClients[index];
+            const abono = parseFloat(prompt(`Ingresar monto de abono para ${client.name} (Saldo restante: RD$ ${client.remaining}):`));
+            if (abono && abono > 0) {
+                client.paidAmount += abono;
+                client.remaining = Math.max(0, client.totalAmount - client.paidAmount);
+                saveData();
+                renderCreditTable();
+
+                dailyLogs.unshift({
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    type: "Abono Recibido",
+                    detail: `Abono de RD$ ${abono} por ${client.name}`,
+                    amount: abono
+                });
+                saveData();
+                renderDailyLogs();
+                alert("Abono registrado correctamente.");
+            }
+        }
+
+        function sendCreditWhatsAppReminder(index) {
+            const client = creditClients[index];
+            const text = ajBuildCreditReminder(client);
+            const phone = String(client.phone || '').replace(/[^0-9]/g, '') || AJ_FIXED_WHATSAPP;
+            window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(text), '_blank');
+        }
+
+        function sendWhatsAppPaymentReminder() {
+            const phone = document.getElementById('remPaymentPhone').value.trim() || AJ_FIXED_WHATSAPP;
+            const name = document.getElementById('remPaymentName').value.trim() || "Estimada clienta";
+            const amount = document.getElementById('remPaymentAmount').value.trim() || "0";
+
+            let text = `Hola ${name} ✨, te contactamos de *AJ esencias*. Te recordamos que tienes un saldo pendiente de *RD$ ${amount}*. ¿Cuándo te gustaría realizar tu abono? Puedes transferir a nuestras cuentas BHD, Banreservas o Popular a nombre de Jeremy Mejía. ¡Muchas gracias!`;
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function saveAppointment(e) {
+            e.preventDefault();
+            const name = document.getElementById('appClientName').value.trim();
+            const phone = document.getElementById('appClientPhone').value.trim();
+            const date = document.getElementById('appDate').value;
+            const time = document.getElementById('appTime').value;
+            const notes = document.getElementById('appNotes').value.trim();
+
+            appointments.unshift({ id: Date.now(), name, phone, date, time, notes });
+            saveData();
+            renderAppointmentsList();
+
+            document.getElementById('appointmentForm').reset();
+            alert("¡Cita agendada exitosamente!");
+        }
+
+        function renderAppointmentsList() {
+            const container = document.getElementById('appointmentsList');
+            container.innerHTML = '';
+
+            if (appointments.length === 0) {
+                container.innerHTML = '<p class="text-xs text-bistre/50 italic py-4">No hay citas programadas.</p>';
+                return;
+            }
+
+            appointments.forEach(app => {
+                const card = document.createElement('div');
+                card.className = "bg-beige-50 p-3 rounded-xl border border-beige-200 text-xs flex justify-between items-center";
+                card.innerHTML = `
+                    <div>
+                        <div class="font-bold text-bistre">${app.name} <span class="text-gold-700 font-normal">(${app.date} ${app.time})</span></div>
+                        <div class="text-bistre/70">${app.notes || 'Sin detalles extra'}</div>
+                        <div class="text-[10px] text-bistre/50"><i class="fab fa-whatsapp text-green-600"></i> ${app.phone}</div>
+                    </div>
+                    <button onclick="sendAppointmentConfirmation('${app.phone}', '${app.name}', '${app.date}', '${app.time}')" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-[11px] transition flex items-center gap-1">
+                        <i class="fab fa-whatsapp"></i> Confirmar
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('statTodayAppointments').innerText = appointments.length;
+        }
+
+        function sendAppointmentConfirmation(phone, name, date, time) {
+            let text = `Hola ${name} ✨, confirmamos tu cita en *AJ esencias* para la fecha *${date}* a las *${time}*. ¡Te esperamos para brindarte la mejor atención glamurosa!`;
+            const cleanPhone = phone.replace(/[^0-9]/g, '') || AJ_FIXED_WHATSAPP;
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function renderDailyLogs() {
+            const tbody = document.getElementById('dailyLogTable');
+            tbody.innerHTML = '';
+
+            let grandTotalToday = 0;
+            let countQuotes = 0;
+
+            if (dailyLogs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-bistre/50 italic">Sin actividad registrada hoy.</td></tr>';
+            } else {
+                dailyLogs.forEach((log, idx) => {
+                    grandTotalToday += log.amount || 0;
+                    if (log.type === "Cotización Generada") countQuotes++;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-beige-50 transition";
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold text-bistre">${log.time}</td>
+                        <td class="p-3"><span class="bg-gold-100 text-gold-800 px-2 py-0.5 rounded text-[10px] font-bold">${log.type}</span></td>
+                        <td class="p-3">${log.detail}</td>
+                        <td class="p-3 font-bold text-gold-700">RD$ ${(log.amount || 0).toLocaleString()}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="deleteLogEntry(${idx})" class="text-red-500 hover:text-red-700 text-xs"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('statTodayQuotes').innerText = countQuotes;
+            document.getElementById('statTodayTotalSales').innerText = `RD$ ${grandTotalToday.toLocaleString()}`;
+        }
+
+        function addNewLogEntry() {
+            const detail = prompt("Descripción de la actividad / venta:");
+            if (!detail) return;
+            const amount = parseFloat(prompt("Monto involucrado (RD$):")) || 0;
+
+            dailyLogs.unshift({
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                type: "Registro Manual",
+                detail,
+                amount
+            });
+            saveData();
+            renderDailyLogs();
+        }
+
+        function deleteLogEntry(idx) {
+            if (confirm("¿Deseas eliminar este registro?")) {
+                dailyLogs.splice(idx, 1);
+                saveData();
+                renderDailyLogs();
+            }
+        }
+
+        /* --- PRODUCT & IMAGE MANAGEMENT LOGIC --- */
+        function renderPriceEditor() {
+            const tbody = document.getElementById('priceEditorTable');
+            tbody.innerHTML = '';
+
+            products.forEach((p) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-beige-50 transition";
+
+                const hasImg = p.image && p.image.trim().length > 0;
+                const imgThumb = hasImg 
+                    ? `<img src="${p.image}" class="w-10 h-10 object-cover rounded-lg border border-beige-200">`
+                    : `<div class="w-10 h-10 rounded-lg bg-beige-100 flex items-center justify-center text-bistre/30"><i class="fas fa-image"></i></div>`;
+
+                tr.innerHTML = `
+                    <td class="p-3">${imgThumb}</td>
+                    <td class="p-3 font-semibold text-gold-700 text-[11px] uppercase">${p.category}</td>
+                    <td class="p-3 font-bold text-bistre">${p.name}</td>
+                    <td class="p-3">
+                        <input type="number" value="${p.price}" onchange="updateProductPrice(${p.id}, this.value)" 
+                            class="w-28 p-1.5 border border-beige-300 rounded bg-white text-right font-bold text-bistre focus:border-gold-500 focus:outline-none">
+                    </td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick="openEditImageModal(${p.id})" title="Cargar / Cambiar Imagen" class="px-2.5 py-1 bg-gold-100 hover:bg-gold-200 text-gold-700 border border-gold-400/40 rounded text-xs font-bold transition">
+                            <i class="fas fa-camera mr-1"></i> ${hasImg ? 'Editar Foto' : 'Cargar Foto'}
+                        </button>
+                        <button onclick="deleteProduct(${p.id})" class="text-red-500 hover:text-red-700 text-xs p-1"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateProductPrice(id, newPrice) {
+            const prod = products.find(p => p.id === id);
+            if (prod) {
+                prod.price = parseFloat(newPrice) || 0;
+                saveData();
+                renderProductCatalog();
+                calculateTotal();
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm("¿Estás segura de eliminar este producto del catálogo?")) {
+                products = products.filter(p => p.id !== id);
+                saveData();
+                renderPriceEditor();
+                renderProductCatalog();
+                calculateTotal();
+            }
+        }
+
+        function openAddProductModal() {
+            document.getElementById('addProductModal').classList.remove('hidden');
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('addProductModal').classList.add('hidden');
+        }
+
+        async function saveNewProduct(e) {
+            e.preventDefault();
+            const name = document.getElementById('newProdName').value.trim();
+            const category = document.getElementById('newProdCategory').value;
+            const price = parseFloat(document.getElementById('newProdPrice').value) || 0;
+            const discountPrice = parseFloat(document.getElementById('newProdDiscountPrice').value) || 0;
+            if (discountPrice && discountPrice >= price) return alert('El precio de oferta debe ser menor que el precio regular.');
+            const fileInput = document.getElementById('newProdImageFile');
+            const newId = Date.now();
+            let image = "";
+            try {
+                if (fileInput.files && fileInput.files[0]) {
+                    image = ajCloudUser ? await ajUploadProductImage(fileInput.files[0], newId) : await ajReadImageLocally(fileInput.files[0]);
+                }
+                products.push({ id: newId, category, name, price, ...(discountPrice > 0 ? { discountPrice } : {}), image });
+                saveData(); renderPriceEditor(); renderProductCatalog(); closeAddProductModal();
+                document.getElementById('newProdName').value = '';
+                document.getElementById('newProdPrice').value = '';
+                document.getElementById('newProdDiscountPrice').value = '';
+                fileInput.value = '';
+                alert(ajCloudUser && image.startsWith('http') ? "¡Producto e imagen guardados en la nube!" : "¡Producto guardado! La imagen queda en este dispositivo; inicia sesión para sincronizarla.");
+            } catch (error) { alert('No se pudo guardar la imagen: ' + error.message); }
+        }
+
+        /* --- Image Edit Modal Handlers --- */
+        function openEditImageModal(prodId) {
+            const prod = products.find(p => p.id === prodId);
+            if (!prod) return;
+
+            document.getElementById('editImageProdId').value = prodId;
+            document.getElementById('editImageProdTitle').innerText = `Foto: ${prod.name}`;
+            document.getElementById('editImageUrlInput').value = prod.image && prod.image.startsWith('http') ? prod.image : '';
+            document.getElementById('editImageFileInput').value = '';
+            window.ajEditingImageRotation = Number(prod.imageRotation || 0);
+            const rotationLabel = document.getElementById('imageRotationLabel');
+            if (rotationLabel) rotationLabel.textContent = 'Rotación: ' + window.ajEditingImageRotation + '°';
+            renderEditImageGalleryPreview(prod);
+
+            tempImageValue = prod.image || "";
+            updateImagePreviewDisplay(tempImageValue);
+
+            document.getElementById('editImageModal').classList.remove('hidden');
+        }
+
+        function closeEditImageModal() {
+            document.getElementById('editImageModal').classList.add('hidden');
+            tempImageValue = null;
+        }
+
+        function updateImagePreviewDisplay(urlOrData) {
+            const preview = document.getElementById('editImagePreview');
+            const placeholder = document.getElementById('editImagePlaceholder');
+
+            if (urlOrData && urlOrData.trim().length > 0) {
+                preview.src = urlOrData;
+                preview.style.transform = 'rotate(' + (window.ajEditingImageRotation || 0) + 'deg)';
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                preview.src = '';
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        }
+
+        function renderEditImageGalleryPreview(product) {
+            const host = document.getElementById('editImageGalleryPreview');
+            if (!host) return;
+            const images = Array.isArray(product?.images) ? product.images : [];
+            host.innerHTML = images.map((src, index) => '<div class="relative"><img src="' + String(src).replace(/"/g, '&quot;') + '" alt="Foto ' + (index + 1) + '" class="w-full aspect-square object-contain rounded-lg border border-beige-200 bg-beige-50"><button type="button" onclick="removeProductGalleryImage(' + index + ')" class="absolute -top-1 -right-1 rounded-full bg-red-600 text-white w-5 h-5 text-xs">×</button></div>').join('');
+        }
+
+        function rotateProductImage(degrees) {
+            window.ajEditingImageRotation = ((Number(window.ajEditingImageRotation || 0) + degrees) % 360 + 360) % 360;
+            const label = document.getElementById('imageRotationLabel');
+            if (label) label.textContent = 'Rotación: ' + window.ajEditingImageRotation + '°';
+            const preview = document.getElementById('editImagePreview');
+            if (preview) preview.style.transform = 'rotate(' + window.ajEditingImageRotation + 'deg)';
+        }
+
+        function removeProductGalleryImage(index) {
+            const id = Number(document.getElementById('editImageProdId')?.value);
+            const prod = products.find(p => Number(p.id) === id);
+            if (!prod || !Array.isArray(prod.images)) return;
+            prod.images.splice(index, 1);
+            if (prod.image && !prod.images.includes(prod.image)) prod.image = prod.images[0] || '';
+            tempImageValue = prod.image || '';
+            updateImagePreviewDisplay(tempImageValue);
+            renderEditImageGalleryPreview(prod);
+        }
+
+        function previewSelectedFile(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempImageValue = e.target.result;
+                    updateImagePreviewDisplay(tempImageValue);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function searchProductImageOnline() {
+            const prodId = Number(document.getElementById('editImageProdId')?.value);
+            const prod = products.find(p => Number(p.id) === prodId);
+            if (!prod) { alert('No se encontró el producto.'); return; }
+            const query = String(prod.name || '').trim() + ' producto';
+            const googleImagesUrl = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(query);
+            window.open(googleImagesUrl, '_blank', 'noopener,noreferrer');
+        }
+
+        function previewUrlImage(url) {
+            tempImageValue = url.trim();
+            updateImagePreviewDisplay(tempImageValue);
+        }
+
+        function removeProductImage() {
+            tempImageValue = "";
+            document.getElementById('editImageUrlInput').value = "";
+            document.getElementById('editImageFileInput').value = "";
+            updateImagePreviewDisplay("");
+        }
+
+        function ajReadImageLocally(file) {
+            return new Promise((resolve, reject) => {
+                if (!file || !file.type.startsWith('image/')) return reject(new Error('Selecciona un archivo de imagen válido.'));
+                if (file.size > 5 * 1024 * 1024) return reject(new Error('La imagen debe pesar 5 MB o menos.'));
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('No se pudo leer el archivo.'));
+                reader.readAsDataURL(file);
+            });
+        }
+        async function ajUploadProductImage(file, productId) {
+            if (!ajSupabase || !ajCloudUser) throw new Error('Inicia sesión en AJ Esencias Cloud para subir imágenes sincronizadas.');
+            if (!file || !file.type.startsWith('image/')) throw new Error('Selecciona un archivo de imagen válido.');
+            if (file.size > 5 * 1024 * 1024) throw new Error('La imagen debe pesar 5 MB o menos.');
+            const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+            const path = ajCloudUser.id + '/' + productId + '-' + Date.now() + '.' + ext;
+            const { error } = await ajSupabase.storage.from('aj-product-images').upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+            if (error) throw error;
+            return ajSupabase.storage.from('aj-product-images').getPublicUrl(path).data.publicUrl;
+        }
+
+        async function saveProductImage() {
+            const prodId = parseInt(document.getElementById('editImageProdId').value);
+            const prod = products.find(p => p.id === prodId);
+            if (!prod) return;
+            const files = Array.from(document.getElementById('editImageFileInput').files || []);
+            const urlInput = document.getElementById('editImageUrlInput').value.trim();
+            const previousImage = prod.image || '';
+            try {
+                let gallery = Array.isArray(prod.images) ? [...prod.images] : (prod.image ? [prod.image] : []);
+                if (files.length) {
+                    const uploaded = [];
+                    for (const file of files) {
+                        uploaded.push(ajCloudUser ? await ajUploadProductImage(file, prodId) : await ajReadImageLocally(file));
+                    }
+                    gallery = [...gallery, ...uploaded];
+                } else if (urlInput) {
+                    if (!gallery.includes(urlInput)) gallery.push(urlInput);
+                } else if (tempImageValue === '') {
+                    gallery = [];
+                }
+                if (tempImageValue && !files.length && !urlInput && !gallery.includes(tempImageValue)) gallery.unshift(tempImageValue);
+                prod.images = [...new Set(gallery.filter(Boolean))];
+                prod.image = urlInput && !files.length ? urlInput : (prod.images[0] || '');
+                prod.imageRotation = Number(window.ajEditingImageRotation || 0);
+                if (ajCloudUser && previousImage.startsWith('http') && previousImage !== prod.image) {
+                    await ajCloudArchiveProductImage(prod, previousImage, prod.image ? 'reemplazada' : 'eliminada');
+                }
+                if (!saveData()) return;
+                if (ajCloudUser) {
+                    const synced = await ajCloudWrite(false);
+                    if (!synced) throw new Error('Las fotos se guardaron en este dispositivo, pero no se pudieron sincronizar. Intenta guardar los datos en la nube nuevamente.');
+                    await ajCloudRecordActivity('galeria_fotografias_actualizada', 'producto', String(prodId), { product_name: prod.name, images_count: prod.images.length });
+                }
+                renderPriceEditor(); renderProductCatalog(); closeEditImageModal();
+                alert(ajCloudUser ? '¡Galería de fotografías guardada y sincronizada!' : '¡Galería actualizada en este dispositivo! Inicia sesión para sincronizarla.');
+            } catch (error) { alert('No se pudo completar el cambio de fotografías: ' + error.message); }
+        }
+
+        const AJ_SUPABASE_URL = 'https://egkqaymaqednmweaqbaz.supabase.co';
+        const AJ_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_zEE8izXWpR3xafes53pjMQ_dP0LQD9k';
+        let ajSupabase = null, ajCloudUser = null;
+        // Bloqueo automático de la administración tras 60 segundos sin actividad.
+        const AJ_IDLE_LIMIT_MS = 60 * 1000;
+        let ajIdleTimer = null;
+        let ajLastActivityAt = 0;
+        let ajIdleLockInProgress = false;
+        function ajStopIdleLock() {
+            if (ajIdleTimer) clearTimeout(ajIdleTimer);
+            ajIdleTimer = null;
+            ajLastActivityAt = 0;
+        }
+        function ajScheduleIdleLock() {
+            if (!ajCloudUser) return ajStopIdleLock();
+            if (ajIdleTimer) clearTimeout(ajIdleTimer);
+            const remaining = Math.max(0, AJ_IDLE_LIMIT_MS - (Date.now() - ajLastActivityAt));
+            ajIdleTimer = setTimeout(ajLockAfterInactivity, remaining);
+        }
+        function ajRegisterActivity() {
+            if (!ajCloudUser || ajIdleLockInProgress || document.hidden) return;
+            ajLastActivityAt = Date.now();
+            ajScheduleIdleLock();
+        }
+        async function ajLockAfterInactivity() {
+            if (!ajCloudUser || ajIdleLockInProgress) return;
+            const elapsed = Date.now() - ajLastActivityAt;
+            if (elapsed < AJ_IDLE_LIMIT_MS) return ajScheduleIdleLock();
+            ajIdleLockInProgress = true;
+            ajStopIdleLock();
+            try {
+                await ajSupabase.auth.signOut({ scope: 'local' });
+                ajCloudSetStatus('Sesión bloqueada por 1 minuto de inactividad. Vuelve a entrar con Face ID o contraseña.');
+            } catch (error) {
+                ajCloudSetStatus('No se pudo cerrar la sesión automáticamente: ' + error.message, true);
+            } finally {
+                ajIdleLockInProgress = false;
+            }
+        }
+        ['pointerdown','keydown','touchstart','scroll','click'].forEach(eventName => {
+            document.addEventListener(eventName, ajRegisterActivity, { passive: true });
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (!ajCloudUser) return;
+            if (document.hidden) {
+                // Al volver a la pestaña se comprueba el tiempo transcurrido sin actividad.
+                if (ajIdleTimer) clearTimeout(ajIdleTimer);
+                ajIdleTimer = null;
+            } else {
+                if (Date.now() - ajLastActivityAt >= AJ_IDLE_LIMIT_MS) ajLockAfterInactivity();
+                else ajScheduleIdleLock();
+            }
+        });
+        const AJ_ADMIN_EMAIL = 'ambardilone06@gmail.com';
+        function ajCloudIsAllowedUser(user) {
+            return !!user && String(user.email || '').toLowerCase() === AJ_ADMIN_EMAIL;
+        }
+        async function ajCloudRegisterPasskey() {
+            if (!ajCloudIsAllowedUser(ajCloudUser)) return ajCloudSetStatus('Esta cuenta no está autorizada para administrar AJ Esencias.', true);
+            try {
+                const { data, error } = await ajSupabase.auth.registerPasskey();
+                if (error) throw error;
+                ajCloudSetStatus('Face ID quedó registrado correctamente en este dispositivo.');
+                alert('¡Listo! Tu llave de acceso quedó registrada. La próxima vez podrás entrar con Face ID.');
+            } catch (error) {
+                ajCloudSetStatus('No se pudo activar Face ID: ' + error.message, true);
+            }
+        }
+        async function ajCloudSignInPasskey() {
+            try {
+                const { data, error } = await ajSupabase.auth.signInWithPasskey();
+                if (error) throw error;
+                if (!ajCloudIsAllowedUser(data.user)) {
+                    await ajSupabase.auth.signOut();
+                    return ajCloudSetStatus('Esta cuenta no está autorizada para administrar AJ Esencias.', true);
+                }
+                ajCloudRefreshUI(data.user);
+            } catch (error) {
+                ajCloudSetStatus('No se pudo iniciar con Face ID. Usa tu correo y contraseña: ' + error.message, true);
+            }
+        }
+        function ajCloudSetStatus(message, isError = false) {
+            const el = document.getElementById('cloudStatus');
+            if (el) {
+                el.textContent = message;
+                el.className = 'text-xs ' + (isError ? 'text-red-700' : 'text-bistre/70');
+                el.classList.remove('hidden');
+                el.setAttribute('role', isError ? 'alert' : 'status');
+            }
+        }
+        const AJ_PRIVATE_STORAGE_KEYS = ['aj_products','aj_credit','aj_appointments','aj_daily_logs','aj_business_sales','aj_business_expenses','aj_business_purchases'];
+        // El catálogo muestra exclusivamente fotografías cargadas por el administrador.
+        // Si un producto no tiene una foto propia, se presenta el marcador visual sin imagen externa.
+        function ajReferenceProductImage(product) {
+            const image = String(product?.image || '').trim();
+            return /^https?:\/\//i.test(image) || /^data:image\//i.test(image) ? image : '';
+        }
+
+        function ajSanitizePublicProduct(product) {
+            return {
+                id: String(product?.id ?? ''),
+                category: String(product?.category ?? 'Productos'),
+                name: String(product?.name ?? ''),
+                price: Math.max(0, Number(product?.price) || 0),
+                image: ajReferenceProductImage(product),
+                images: (Array.isArray(product?.images) ? product.images : []).filter(src => { const value = String(src); return value.startsWith('https://') || value.startsWith('http://') || value.startsWith('data:image/'); }),
+                imageRotation: ((Number(product?.imageRotation) || 0) % 360 + 360) % 360
+            };
+        }
+        function ajClearPrivateLocalData() {
+            AJ_PRIVATE_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
+        }
+        function ajResetPrivateState() {
+            ajClearPrivateLocalData();
+            creditClients = []; appointments = []; dailyLogs = [];
+            businessSales = []; businessExpenses = []; businessPurchases = [];
+            products = readStoredJSON('aj_public_products', initialProducts.map(ajSanitizePublicProduct)).map(ajSanitizePublicProduct);
+            renderProductCatalog();
+            calculateTotal();
+            renderAjShoppingCart();
+            ['section-credit','section-appointments','section-inventory','section-prices','section-accounting'].forEach(id => {
+                const section = document.getElementById(id);
+                if (section) { section.classList.add('hidden'); section.setAttribute('aria-hidden','true'); }
+            });
+        }
+        async function ajLoadPublicCatalog() {
+            if (!ajSupabase) return;
+            const { data, error } = await ajSupabase.from('aj_public_catalog')
+                .select('product_id,category,name,price,image_url,image_gallery,image_rotation')
+                .eq('is_active', true).order('category').order('name');
+            if (error) {
+                console.warn('Catálogo público remoto aún no disponible:', error.message);
+                ajShowProblem('No se pudo actualizar el catálogo', 'La tienda no pudo consultar los productos más recientes.', 'Comprueba tu conexión y recarga la página. Si continúa, contacta al administrador de AJ Esencias.');
+                return;
+            }
+            const safe = (data || []).map(row => ajSanitizePublicProduct({
+                id: row.product_id, category: row.category, name: row.name,
+                price: row.price, image: row.image_url, images: row.image_gallery || [], imageRotation: row.image_rotation || 0
+            })).filter(product => product.id && product.name);
+
+            // Si la tabla pública está vacía, no borrar el catálogo que ya se puede mostrar.
+            if (safe.length) {
+                products = safe;
+                localStorage.setItem('aj_public_products', JSON.stringify(safe));
+            } else {
+                const cached = readStoredJSON('aj_public_products', []);
+                const fallback = Array.isArray(cached) && cached.length ? cached : initialProducts;
+                products = fallback.map(ajSanitizePublicProduct);
+            }
+            renderProductCatalog();
+            calculateTotal();
+        }
+        async function ajPublishPublicCatalog() {
+            if (!ajSupabase || !ajCloudUser || !ajCloudIsAllowedUser(ajCloudUser)) return false;
+            const safeRows = products.map(ajSanitizePublicProduct).filter(p => p.id && p.name).map(p => ({
+                product_id: p.id, owner_id: ajCloudUser.id, category: p.category,
+                name: p.name, price: p.price, image_url: p.image, image_gallery: p.images || [], image_rotation: p.imageRotation || 0, is_active: true,
+                updated_at: new Date().toISOString()
+            }));
+            if (safeRows.length) {
+                const { error: upsertError } = await ajSupabase.from('aj_public_catalog').upsert(safeRows, { onConflict: 'product_id' });
+                if (upsertError) { console.warn('No se pudo publicar el catálogo seguro:', upsertError.message); return false; }
+            }
+            const { data: currentRows, error: readError } = await ajSupabase.from('aj_public_catalog')
+                .select('product_id').eq('owner_id', ajCloudUser.id);
+            if (!readError && currentRows) {
+                const keep = new Set(safeRows.map(row => row.product_id));
+                const stale = currentRows.map(row => row.product_id).filter(id => !keep.has(id));
+                if (stale.length) {
+                    const { error: deleteError } = await ajSupabase.from('aj_public_catalog')
+                        .delete().eq('owner_id', ajCloudUser.id).in('product_id', stale);
+                    if (deleteError) console.warn('No se pudieron retirar productos antiguos del catálogo:', deleteError.message);
+                }
+            }
+            const publicSafe = safeRows.map(row => ajSanitizePublicProduct({
+                id: row.product_id, category: row.category, name: row.name, price: row.price, image: row.image_url, images: row.image_gallery || [], imageRotation: row.image_rotation || 0
+            }));
+            localStorage.setItem('aj_public_products', JSON.stringify(publicSafe));
+            return true;
+        }
+
+        function ajCloudRefreshUI(user) {
+            ajCloudUser = user || null;
+            const logged = !!ajCloudUser;
+            if (logged) { if (!ajLastActivityAt) ajLastActivityAt = Date.now(); ajScheduleIdleLock(); }
+            else {
+                ajStopIdleLock();
+                ajResetPrivateState();
+            }
+            ['section-credit','section-appointments','section-inventory','section-prices','section-accounting'].forEach(id => {
+                const section = document.getElementById(id);
+                if (section) { section.classList.toggle('hidden', !logged); section.setAttribute('aria-hidden', logged ? 'false' : 'true'); }
+            });
+            document.getElementById('cloudAuthFields').classList.toggle('hidden', logged);
+            document.getElementById('cloudAuthActions').classList.toggle('hidden', logged);
+            document.getElementById('cloudDataActions').classList.toggle('hidden', !logged);
+            const passkeyActions = document.getElementById('cloudPasskeyActions');
+            if (passkeyActions) passkeyActions.classList.toggle('hidden', !logged || !ajCloudIsAllowedUser(ajCloudUser));
+            document.getElementById('cloudSignOutBtn').classList.toggle('hidden', !logged);
+            const adminContent=document.getElementById('adminBusinessContent');
+            if(adminContent) adminContent.classList.toggle('hidden', !logged);
+            const adminHeader=document.getElementById('adminBusinessHeader');
+            if(adminHeader) adminHeader.classList.toggle('hidden', !logged);
+            // Oculta TODAS las tarjetas comerciales dentro de Gestión Comercial,
+            // excepto el cuadro de acceso, mientras no exista una sesión autorizada.
+            const businessSection=document.getElementById('section-business');
+            const businessShell=businessSection && businessSection.firstElementChild;
+            const authCard=document.getElementById('cloudAuthFields')?.closest('.border.border-gold-500\\/30');
+            if(businessShell && authCard) {
+                Array.from(businessShell.children).forEach(child => {
+                    const isAuthCard = child === authCard || child.contains(authCard);
+                    child.classList.toggle('hidden', !logged && !isAuthCard);
+                    if (!logged && !isAuthCard) child.setAttribute('aria-hidden','true');
+                    else child.setAttribute('aria-hidden','false');
+                });
+            }
+            const campaignAdmin = document.getElementById('ajCampaignAdmin');
+            if (campaignAdmin) campaignAdmin.classList.toggle('hidden', !logged);
+            if(logged) renderAjCampaignAdmin();
+            const privateWorkspaceNav = document.getElementById('privateWorkspaceNav');
+            if(privateWorkspaceNav) privateWorkspaceNav.classList.toggle('hidden', !logged);
+            const privateTab = document.getElementById('tab-business');
+            if(privateTab) privateTab.innerHTML = logged ? '<i class="fas fa-lock-open text-gold-600"></i> Área privada' : '<i class="fas fa-lock text-gold-600"></i> Área privada';
+            const lockText=document.getElementById('pinLockText');
+            if(lockText) lockText.textContent=logged?'Sesión administrativa activa':'Iniciar sesión';
+            const lockIcon=document.getElementById('pinLockIcon');
+            if(lockIcon) lockIcon.className=logged?'fas fa-lock-open text-green-700':'fas fa-lock text-gold-600';
+            ajCloudSetStatus(logged ? 'Sesión administrativa activa: ' + ajCloudUser.email : 'Inicia sesión para ver ventas, clientes, inventario y finanzas.');
+            if(logged && activeTabToPending) { const next=activeTabToPending; activeTabToPending=null; switchTab(next); }
+            if(!logged) switchTab('calculator');
+        }
+        async function ajCloudSignUp() {
+            ajCloudSetStatus('El registro público está deshabilitado. La propietaria autoriza y crea cada acceso desde Supabase.', true);
+            return false;
+        }
+        async function ajCloudSignIn() {
+            const email = document.getElementById('cloudEmail')?.value.trim().toLowerCase() || '';
+            const password = document.getElementById('cloudPassword')?.value || '';
+            if (!email || !password) return ajCloudSetStatus('Escribe el correo autorizado y tu contraseña.', true);
+            if (email !== AJ_ADMIN_EMAIL) return ajCloudSetStatus('Por ahora, solo ambardilone06@gmail.com puede iniciar sesión como administradora.', true);
+            if (!ajSupabase) return ajCloudSetStatus('El servicio de acceso todavía está cargando. Recarga la página e inténtalo otra vez.', true);
+            const button = document.querySelector('#cloudAuthActions button');
+            if (button) { button.disabled = true; button.textContent = 'Verificando acceso…'; }
+            try {
+                const { data, error } = await ajSupabase.auth.signInWithPassword({ email, password });
+                if (error) {
+                    const message = /invalid login credentials/i.test(error.message)
+                        ? 'El correo o la contraseña no coinciden. Verifica los datos e inténtalo nuevamente.'
+                        : error.message;
+                    return ajCloudSetStatus(message, true);
+                }
+                if (!data?.user || !ajCloudIsAllowedUser(data.user)) {
+                    await ajSupabase.auth.signOut();
+                    return ajCloudSetStatus('La cuenta autenticada no está autorizada para administrar AJ Esencias.', true);
+                }
+                ajCloudRefreshUI(data.user);
+            } catch (error) {
+                ajCloudSetStatus('No se pudo completar el inicio de sesión: ' + (error?.message || 'Error de conexión'), true);
+            } finally {
+                if (button) { button.disabled = false; button.innerHTML = 'Iniciar sesión'; }
+            }
+        }
+        async function ajCloudSignOut() {
+            const { error } = await ajSupabase.auth.signOut();
+            if (error) return ajCloudSetStatus(error.message, true);
+            ajCloudRefreshUI(null);
+        }
+        function ajMktInit() {
+            const sel=document.getElementById('ajMktProduct'); if(!sel)return;
+            sel.innerHTML='<option value="">Selecciona un producto</option>'+products.map(p=>'<option value="'+Number(p.id)+'">'+safeText(p.name)+' · '+moneyRD(p.price)+'</option>').join('');
+            renderAjMarketing();
+        }
+        function ajMktUpdateProductInsight() {
+            const id=Number(document.getElementById('ajMktProduct')?.value),p=products.find(x=>Number(x.id)===id),box=document.getElementById('ajMktProductInsight');
+            if(!box)return;
+            if(!p){box.textContent='Selecciona un producto para revisar su costo, margen y disponibilidad.';return;}
+            const cost=Number(p.cost)||0,price=Number(p.price)||0,stock=Number(p.stock)||0,discount=Math.max(0,Number(document.getElementById('ajMktDiscount')?.value)||0),sale=price*(1-discount/100);
+            const hasCost=cost>0,margin=hasCost&&sale>0?((sale-cost)/sale)*100:null;
+            const safeMax=hasCost&&price>0?Math.max(0,Math.floor((1-(cost/(price*.75)))*100)):null;
+            box.innerHTML='<b>'+safeText(p.name)+'</b><br>Precio: '+moneyRD(price)+' · Existencia: '+stock+'<br>'+(hasCost?'Costo registrado: '+moneyRD(cost)+' · Margen con esta oferta: '+margin.toFixed(1)+'%'+(margin<25?'<br><span class="text-red-700 font-bold">Atención: este descuento deja un margen inferior al 25%.</span>':'<br><span class="text-green-700 font-semibold">Margen estimado aceptable.</span>')+'<br>Descuento máximo estimado para conservar 25% de margen: '+safeMax+'%.':'<span class="text-amber-700 font-semibold">No hay costo registrado. Registra el costo en Inventario y diario para evaluar rentabilidad; no recomendamos inventar descuentos.</span>');
+        }
+        function ajMktGenerate() {
+            const id=Number(document.getElementById('ajMktProduct').value),p=products.find(x=>Number(x.id)===id);
+            if(!p)return alert('Selecciona un producto primero.');
+            const objective=document.getElementById('ajMktObjective').value,duration=document.getElementById('ajMktDuration').value,discount=Math.max(0,Math.min(70,Number(document.getElementById('ajMktDiscount').value)||0));
+            const price=Number(p.price)||0,cost=Number(p.cost)||0,sale=price*(1-discount/100),stock=Number(p.stock)||0;
+            if(discount>0&&cost>0&&sale<cost/.75)return alert('Ese descuento dejaría menos de 25% de margen sobre el precio de venta. Reduce el descuento para proteger tu ganancia.');
+            if(discount>0&&!cost&&!confirm('Este producto no tiene costo registrado. No podemos confirmar si el descuento es rentable. ¿Deseas continuar?'))return;
+            const goals={atraer:'atraer nuevos clientes',rotar:'dar salida al inventario disponible',combo:'motivar la compra de productos complementarios',recompra:'motivar a nuestros clientes a volver',temporada:'aprovechar esta temporada especial'};
+            const offer=discount>0?'Precio especial: '+moneyRD(sale)+' (antes '+moneyRD(price)+').':'Precio: '+moneyRD(price)+'.';
+            const scarcity=stock>0&&stock<=5?' Unidades limitadas según disponibilidad.':'';
+            const copy='✨ ¡Una excelente opción te espera en AJ Esencias! ✨\n\n'+safeText(p.name)+'\n'+offer+'\n\nUna oportunidad ideal para '+goals[objective]+'.'+scarcity+'\nPromoción válida por '+duration.toLowerCase()+', sujeta a disponibilidad.\n\n📲 Escríbenos por WhatsApp para reservar o consultar.\nInstagram: @aj_esenciass\n\nAJ Esencias | Tu esencia, tu estilo.';
+            document.getElementById('ajMktCopy').value=copy;
+            document.getElementById('ajMktGenerated').classList.remove('hidden');
+            ajMktUpdateProductInsight();
+            window.ajMktCurrent={productId:p.id,productName:p.name,objective,discount,price,sale,copy,duration,createdAt:new Date().toISOString()};
+        }
+        function ajMktOpenPlatform(platform) {
+            const text=document.getElementById('ajMktCopy')?.value||'';
+            if(!text)return alert('Primero genera una promoción para compartir.');
+            const urls={whatsapp:'https://wa.me/?text='+encodeURIComponent(text),instagram:'https://www.instagram.com/aj_esenciass/',tiktok:'https://www.tiktok.com/upload'};
+            window.open(urls[platform], '_blank', 'noopener');
+        }
+        async function ajMktCopyText() {
+            const value=document.getElementById('ajMktCopy').value;
+            try { await navigator.clipboard.writeText(value); alert('Texto copiado. Ahora abre la plataforma y pégalo en tu publicación.'); }
+            catch(e) { const box=document.getElementById('ajMktCopy');box.focus();box.select();alert('Selecciona y copia el texto para pegarlo en la plataforma.'); }
+        }
+        function ajMktSaveCampaign() {
+            if(!window.ajMktCurrent)return alert('Genera una promoción antes de guardarla.');
+            ajMarketingCampaigns.unshift({...window.ajMktCurrent,id:Date.now(),reach:0,leads:0,orders:0,revenue:0,spend:0});
+            saveData();renderAjMarketing();alert('Promoción guardada. Podrás registrar sus resultados cuando termine.');
+        }
+        function renderAjMarketing() {
+            const list=document.getElementById('ajMktCampaignList');if(!list)return;
+            list.innerHTML=ajMarketingCampaigns.map((c,i)=>'<article class="rounded-xl border border-[#E6DCD5] bg-white p-3"><div class="flex flex-wrap justify-between gap-2"><b class="text-[#482431]">'+safeText(c.productName)+'</b><span class="text-[10px] text-[#765F65]">'+new Date(c.createdAt).toLocaleDateString('es-DO')+'</span></div><p class="text-xs text-[#765F65]">'+(Number(c.discount)>0?'Descuento '+Number(c.discount)+'%':'Sin descuento')+' · '+safeText(c.duration||'')+'</p><p class="text-xs mt-1">Alcance: '+Number(c.reach||0)+' · Consultas: '+Number(c.leads||0)+' · Ventas: '+Number(c.orders||0)+' · Ingresos: '+moneyRD(c.revenue)+'</p><button type="button" onclick="ajMktSelectMetrics('+i+')" class="mt-2 text-xs font-bold underline text-[#795B32]">Registrar / actualizar resultados</button></article>').join('')||'<p class="text-xs text-[#765F65]">Todavía no hay campañas registradas.</p>';
+            ajMktInitProductsOnly();
+        }
+        function ajMktInitProductsOnly() {
+            const sel=document.getElementById('ajMktProduct');if(!sel)return;
+            const current=sel.value;sel.innerHTML='<option value="">Selecciona un producto</option>'+products.map(p=>'<option value="'+Number(p.id)+'">'+safeText(p.name)+' · '+moneyRD(p.price)+'</option>').join('');if(products.some(p=>String(p.id)===current))sel.value=current;
+        }
+        let ajMktSelectedMetricsIndex=0;
+        function ajMktSelectMetrics(i) {
+            ajMktSelectedMetricsIndex=i;const c=ajMarketingCampaigns[i];if(!c)return;
+            document.getElementById('ajMktReach').value=c.reach||0;document.getElementById('ajMktLeads').value=c.leads||0;document.getElementById('ajMktOrders').value=c.orders||0;document.getElementById('ajMktRevenue').value=c.revenue||0;document.getElementById('ajMktSpend').value=c.spend||0;
+            document.getElementById('ajMktMetricsSummary').textContent='Editando resultados de: '+c.productName;
+        }
+        function ajMktSaveMetrics() {
+            const c=ajMarketingCampaigns[ajMktSelectedMetricsIndex];if(!c)return alert('Primero selecciona una campaña para registrar sus resultados.');
+            c.reach=Number(document.getElementById('ajMktReach').value)||0;c.leads=Number(document.getElementById('ajMktLeads').value)||0;c.orders=Number(document.getElementById('ajMktOrders').value)||0;c.revenue=Number(document.getElementById('ajMktRevenue').value)||0;c.spend=Number(document.getElementById('ajMktSpend').value)||0;
+            const roi=c.spend>0?(c.revenue/c.spend):null;
+            document.getElementById('ajMktMetricsSummary').textContent='Resultados guardados · '+(roi===null?'Registra inversión para calcular retorno.':'ROAS estimado (ingresos por cada RD$1 invertido): RD$ '+roi.toFixed(2)+'.');
+            saveData();renderAjMarketing();
+        }
+
+        function ajCloudSnapshot() {
+            return {
+                products: products.map(p => ({...p, image: (typeof p.image === 'string' && (p.image.startsWith('http://') || p.image.startsWith('https://'))) ? p.image : ''})),
+                creditClients, appointments, dailyLogs, businessSales, businessExpenses, businessPurchases, ajAccountingEntries,
+                campaigns: ajCampaigns, marketingCampaigns: ajMarketingCampaigns,
+                savedAt: new Date().toISOString(), formatVersion: 2
+            };
+        }
+        function ajCloudApplyPayload(payload, updatedAt = null) {
+            if (!payload || typeof payload !== 'object') return;
+            ajCloudApplyingRemote = true;
+            try {
+                if (Array.isArray(payload.products)) products = payload.products;
+                if (Array.isArray(payload.creditClients)) creditClients = payload.creditClients;
+                if (Array.isArray(payload.appointments)) appointments = payload.appointments;
+                if (Array.isArray(payload.dailyLogs)) dailyLogs = payload.dailyLogs;
+                if (Array.isArray(payload.businessSales)) businessSales = payload.businessSales;
+                if (Array.isArray(payload.businessExpenses)) businessExpenses = payload.businessExpenses;
+                if (Array.isArray(payload.businessPurchases)) businessPurchases = payload.businessPurchases;
+                if (Array.isArray(payload.ajAccountingEntries)) ajAccountingEntries = payload.ajAccountingEntries;
+                if (payload.campaigns && typeof payload.campaigns === 'object') ajCampaigns = payload.campaigns;
+                if (Array.isArray(payload.marketingCampaigns)) ajMarketingCampaigns = payload.marketingCampaigns;
+
+                localStorage.setItem('aj_products', JSON.stringify(products));
+                localStorage.setItem('aj_credit', JSON.stringify(creditClients));
+                localStorage.setItem('aj_appointments', JSON.stringify(appointments));
+                localStorage.setItem('aj_daily_logs', JSON.stringify(dailyLogs));
+                localStorage.setItem('aj_business_sales', JSON.stringify(businessSales));
+                localStorage.setItem('aj_business_expenses', JSON.stringify(businessExpenses));
+                localStorage.setItem('aj_business_purchases', JSON.stringify(businessPurchases));
+                localStorage.setItem('aj_accounting_entries', JSON.stringify(ajAccountingEntries));
+                localStorage.setItem('aj_marketing_campaigns', JSON.stringify(ajMarketingCampaigns));
+
+                ajCloudLastUpdatedAt = updatedAt || payload.savedAt || null;
+                applyAjSeasonTheme();
+                renderAjCampaignAdmin();
+                renderProductCatalog();
+                renderPriceEditor();
+                renderCreditTable();
+                renderAppointmentsList();
+                renderDailyLogs();
+                renderBusinessManagement();
+                renderAjMarketing();
+                renderAjAccounting();
+                calculateTotal();
+                ajCloudSetStatus('Datos de la nube actualizados correctamente.');
+            } catch (error) {
+                console.error('No se pudieron aplicar los datos recibidos de AJ Esencias Cloud.', error);
+                ajCloudSetStatus('Error al actualizar datos desde la nube: ' + error.message, true);
+            } finally {
+                ajCloudApplyingRemote = false;
+            }
+        }
+
+        let ajCloudLastBackupAt = 0;
+
+        async function ajCloudRecordActivity(action, entityType, entityId, details = {}) {
+            if (!ajSupabase || !ajCloudUser) return;
+            const { error } = await ajSupabase.from('aj_activity_log').insert({
+                owner_id: ajCloudUser.id, action, entity_type: entityType,
+                entity_id: entityId || null, details
+            });
+            if (error) console.warn('No se pudo registrar la actividad:', error.message);
+        }
+
+        async function ajCloudRefreshBackupClock() {
+            if (!ajSupabase || !ajCloudUser) return;
+            const { data, error } = await ajSupabase.from('aj_business_backups')
+                .select('created_at').eq('owner_id', ajCloudUser.id)
+                .order('created_at', { ascending: false }).limit(1);
+            if (!error && data && data.length) ajCloudLastBackupAt = new Date(data[0].created_at).getTime();
+        }
+
+        async function ajCloudCreateBackup(label = 'Respaldo automático') {
+            if (!ajSupabase || !ajCloudUser) throw new Error('Inicia sesión en AJ Esencias Cloud.');
+            const { error } = await ajSupabase.from('aj_business_backups').insert({
+                owner_id: ajCloudUser.id, payload: ajCloudSnapshot(), label
+            });
+            if (error) throw error;
+            ajCloudLastBackupAt = Date.now();
+            const { data: oldRows, error: listError } = await ajSupabase.from('aj_business_backups')
+                .select('id').eq('owner_id', ajCloudUser.id).order('created_at', { ascending: false }).range(30, 500);
+            if (!listError && oldRows && oldRows.length) {
+                const { error: deleteError } = await ajSupabase.from('aj_business_backups')
+                    .delete().eq('owner_id', ajCloudUser.id).in('id', oldRows.map(row => row.id));
+                if (deleteError) console.warn('No se pudieron depurar respaldos antiguos:', deleteError.message);
+            }
+            await ajCloudRecordActivity('respaldo_creado', 'respaldo', null, { label });
+            return true;
+        }
+
+        async function ajCloudShowBackups() {
+            const panel = document.getElementById('cloudBackupsPanel');
+            if (!panel || !ajCloudUser) return;
+            panel.classList.remove('hidden');
+            panel.innerHTML = '<p>Cargando respaldos…</p>';
+            const { data, error } = await ajSupabase.from('aj_business_backups')
+                .select('id,label,created_at').eq('owner_id', ajCloudUser.id)
+                .order('created_at', { ascending: false }).limit(10);
+            if (error) { panel.innerHTML = '<p class="text-red-600">No se pudieron consultar los respaldos. Ejecuta primero la configuración SQL de AJ Esencias.</p>'; return; }
+            panel.innerHTML = '<h4 class="font-bold">Respaldos disponibles</h4>' +
+                (data || []).map(row => '<div class="flex items-center justify-between gap-2 border rounded-lg p-2"><span>' + safeText(row.label) + ' · ' + new Date(row.created_at).toLocaleString('es-DO') + '</span><button class="text-gold-700 underline font-bold" onclick="ajCloudRestoreBackup(\'' + row.id + '\')">Restaurar</button></div>').join('') ||
+                '<p>No hay respaldos todavía. Crea el primero con «Crear respaldo ahora».</p>';
+        }
+
+        async function ajCloudRestoreBackup(backupId) {
+            if (!confirm('Esto reemplazará los datos actuales por el respaldo seleccionado. ¿Deseas continuar?')) return;
+            const { data, error } = await ajSupabase.from('aj_business_backups').select('payload')
+                .eq('owner_id', ajCloudUser.id).eq('id', backupId).single();
+            if (error || !data) return alert('No se pudo leer el respaldo: ' + (error?.message || 'No encontrado'));
+            ajCloudApplyPayload(data.payload);
+            const synced = await ajCloudWrite(false);
+            if (!synced) return alert('El respaldo se aplicó localmente, pero no se pudo sincronizar.');
+            await ajCloudRecordActivity('respaldo_restaurado', 'respaldo', backupId, {});
+            alert('Respaldo restaurado y sincronizado.');
+        }
+
+        async function ajCloudShowActivity() {
+            const panel = document.getElementById('cloudActivityPanel');
+            if (!panel || !ajCloudUser) return;
+            panel.classList.remove('hidden');
+            panel.innerHTML = '<p>Cargando actividad…</p>';
+            const { data, error } = await ajSupabase.from('aj_activity_log').select('action,entity_type,entity_id,details,created_at')
+                .eq('owner_id', ajCloudUser.id).order('created_at', { ascending: false }).limit(25);
+            if (error) { panel.innerHTML = '<p class="text-red-600">No se pudo consultar el historial. Ejecuta primero la configuración SQL.</p>'; return; }
+            panel.innerHTML = '<h4 class="font-bold">Actividad reciente</h4>' +
+                (data || []).map(row => '<div class="border-b py-2"><strong>' + safeText(row.action) + '</strong> · ' + safeText(row.details?.product_name || row.entity_type) + '<br><span class="text-gray-500">' + new Date(row.created_at).toLocaleString('es-DO') + '</span></div>').join('') ||
+                '<p>Todavía no hay actividad registrada.</p>';
+        }
+
+        async function ajCloudArchiveProductImage(product, imageUrl, action) {
+            if (!ajSupabase || !ajCloudUser || !imageUrl) return;
+            const { error } = await ajSupabase.from('aj_product_image_history').insert({
+                owner_id: ajCloudUser.id, product_id: String(product.id),
+                product_name: product.name, image_url: imageUrl, action
+            });
+            if (error) throw new Error('No se pudo archivar la fotografía anterior. Ejecuta primero la configuración SQL: ' + error.message);
+        }
+
+        async function loadProductImageHistory() {
+            const panel = document.getElementById('productImageHistory');
+            const productId = document.getElementById('editImageProdId').value;
+            if (!panel || !ajCloudUser) return alert('Inicia sesión en AJ Esencias Cloud para consultar el historial.');
+            panel.classList.remove('hidden');
+            panel.innerHTML = '<p>Cargando historial…</p>';
+            const { data, error } = await ajSupabase.from('aj_product_image_history').select('id,image_url,action,created_at')
+                .eq('owner_id', ajCloudUser.id).eq('product_id', String(productId))
+                .order('created_at', { ascending: false }).limit(20);
+            if (error) { panel.innerHTML = '<p class="text-red-600">No se pudo cargar el historial. Ejecuta primero la configuración SQL.</p>'; return; }
+            panel.innerHTML = (data || []).map(row => '<div class="flex items-center gap-2 border rounded-lg p-2"><img src="' + safeText(row.image_url) + '" alt="" class="w-12 h-12 object-cover rounded"><span class="flex-1">' + safeText(row.action) + '<br><span class="text-gray-500">' + new Date(row.created_at).toLocaleString('es-DO') + '</span></span><button class="text-gold-700 underline font-bold" onclick="restoreProductImageHistory(\'' + row.id + '\')">Recuperar</button></div>').join('') || '<p>No hay fotografías anteriores archivadas.</p>';
+        }
+
+        async function restoreProductImageHistory(historyId) {
+            const productId = document.getElementById('editImageProdId').value;
+            const product = products.find(p => String(p.id) === String(productId));
+            if (!product || !confirm('¿Recuperar esta fotografía para ' + product.name + '?')) return;
+            const { data, error } = await ajSupabase.from('aj_product_image_history').select('image_url')
+                .eq('owner_id', ajCloudUser.id).eq('id', historyId).single();
+            if (error || !data) return alert('No se pudo recuperar la fotografía: ' + (error?.message || 'No encontrada'));
+            if (product.image && product.image.startsWith('http') && product.image !== data.image_url) {
+                await ajCloudArchiveProductImage(product, product.image, 'reemplazada');
+            }
+            product.image = data.image_url;
+            if (!saveData()) return;
+            const synced = await ajCloudWrite(false);
+            if (!synced) return alert('La foto se recuperó en este dispositivo, pero no se pudo sincronizar.');
+            await ajCloudRecordActivity('fotografia_recuperada', 'producto', String(product.id), { product_name: product.name });
+            renderProductCatalog(); renderPriceEditor();
+            alert('Fotografía recuperada y sincronizada.');
+            loadProductImageHistory();
+        }
+
+        let ajCloudSyncTimer = null;
+        let ajCloudApplyingRemote = false;
+        let ajCloudChannel = null;
+        let ajCloudLastUpdatedAt = null;
+        let ajCloudWriteInProgress = false;
+        let ajCloudWriteQueued = false;
+
+        async function ajCloudWrite(showAlert = false) {
+            if (!ajCloudUser || !ajSupabase || ajCloudApplyingRemote) return false;
+            if (ajCloudWriteInProgress) { ajCloudWriteQueued = true; return false; }
+            ajCloudWriteInProgress = true;
+            const stamp = new Date().toISOString();
+            const { error } = await ajSupabase.from('aj_business_data').upsert(
+                { owner_id: ajCloudUser.id, payload: ajCloudSnapshot(), updated_at: stamp },
+                { onConflict: 'owner_id' }
+            );
+            ajCloudWriteInProgress = false;
+            if (error) {
+                ajCloudSetStatus('Error al sincronizar. Comprueba tu conexión e inténtalo nuevamente.', true);
+                ajShowProblem('No se pudieron sincronizar los cambios', 'La información sigue en este dispositivo, pero no se pudo enviar a la nube.', 'Comprueba tu conexión a internet. Cuando vuelva, intenta guardar o espera la sincronización automática.');
+                if (ajCloudWriteQueued) { ajCloudWriteQueued = false; ajCloudScheduleSync(); }
+                return false;
+            } else {
+                ajCloudLastUpdatedAt = stamp;
+                await ajPublishPublicCatalog();
+                ajCloudSetStatus('Sincronizado automáticamente: ' + new Date(stamp).toLocaleTimeString('es-DO'));
+                if (Date.now() - ajCloudLastBackupAt > 15 * 60 * 1000) {
+                    try { await ajCloudCreateBackup('Respaldo automático'); }
+                    catch (backupError) { console.warn('La sincronización funcionó, pero falló el respaldo automático:', backupError.message); }
+                }
+                if (showAlert) alert('Datos guardados en la nube correctamente.');
+            }
+            if (ajCloudWriteQueued) { ajCloudWriteQueued = false; ajCloudScheduleSync(); }
+            return true;
+        }
+        function ajCloudScheduleSync() {
+            if (!ajCloudUser || ajCloudApplyingRemote || !ajSupabase) return;
+            clearTimeout(ajCloudSyncTimer);
+            ajCloudSetStatus('Cambios guardados en este dispositivo. Sincronizando…');
+            ajCloudSyncTimer = setTimeout(() => ajCloudWrite(false), 1000);
+        }
+        async function ajCloudSave() {
+            if (!ajCloudUser) return alert('Inicia sesión primero.');
+            clearTimeout(ajCloudSyncTimer);
+            await ajCloudWrite(true);
+        }
+        async function ajCloudLoad() {
+            if (!ajCloudUser) return alert('Inicia sesión primero.');
+            if (!confirm('Esto reemplazará los datos actuales de este navegador por el respaldo de la nube. Descarga antes un respaldo local. ¿Continuar?')) return;
+            const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', ajCloudUser.id).maybeSingle();
+            if (error) return ajCloudSetStatus('No se pudo cargar: ' + error.message, true);
+            if (!data || !data.payload) return ajCloudSetStatus('Todavía no existe un respaldo. Guarda los datos en la nube primero.');
+            ajCloudApplyPayload(data.payload, data.updated_at);
+            alert('Datos cargados correctamente.');
+        }
+        async function ajCloudSubscribe() {
+            if (!ajSupabase || !ajCloudUser) return;
+            if (ajCloudChannel) await ajSupabase.removeChannel(ajCloudChannel);
+            ajCloudChannel = ajSupabase.channel('aj-business-live-' + ajCloudUser.id)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'aj_business_data', filter: 'owner_id=eq.' + ajCloudUser.id }, payload => {
+                    if (!payload.new || !payload.new.payload) return;
+                    const incomingStamp = payload.new.updated_at;
+                    if (incomingStamp && incomingStamp === ajCloudLastUpdatedAt) return;
+                    if (ajCloudWriteInProgress || ajCloudApplyingRemote) return;
+                    ajCloudApplyPayload(payload.new.payload, incomingStamp);
+                })
+                .subscribe(status => {
+                    if (status === 'SUBSCRIBED') ajCloudSetStatus('Sincronización en tiempo real activa.');
+                    else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') ajCloudSetStatus('No se pudo activar tiempo real. Revisa la publicación Realtime en Supabase.', true);
+                });
+        }
+        async function ajCloudInit() {
+            try {
+            if (!window.supabase || !window.supabase.createClient) {
+                ajCloudSetStatus('No se pudo cargar el servicio de conexión. Comprueba internet y recarga la página.', true);
+                ajShowProblem('No se pudo conectar con AJ Esencias', 'El servicio que sincroniza la información no terminó de cargar.', 'Comprueba tu conexión y recarga la página. El catálogo puede seguir disponible, pero la sincronización privada podría no funcionar.');
+                return;
+            }
+            ajSupabase = window.supabase.createClient(AJ_SUPABASE_URL, AJ_SUPABASE_PUBLISHABLE_KEY, { auth: { experimental: { passkey: true } } });
+            const { data: { session } } = await ajSupabase.auth.getSession();
+            if (session && !ajCloudIsAllowedUser(session.user)) await ajSupabase.auth.signOut();
+            const { data: { session: validSession } } = await ajSupabase.auth.getSession();
+            ajCloudRefreshUI(validSession ? validSession.user : null);
+            if (!validSession) await ajLoadPublicCatalog();
+            if (validSession) {
+                const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', validSession.user.id).maybeSingle();
+                if (!error && data && data.payload) {
+                    ajCloudApplyPayload(data.payload, data.updated_at);
+                    await ajPublishPublicCatalog();
+                }
+                await ajCloudRefreshBackupClock();
+                await ajCloudSubscribe();
+            }
+            ajSupabase.auth.onAuthStateChange(async (_event, currentSession) => {
+                if (currentSession && !ajCloudIsAllowedUser(currentSession.user)) { await ajSupabase.auth.signOut(); return; }
+                ajCloudRefreshUI(currentSession ? currentSession.user : null);
+                if (currentSession) {
+                    const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', currentSession.user.id).maybeSingle();
+                    if (!error && data && data.payload) {
+                        ajCloudApplyPayload(data.payload, data.updated_at);
+                        await ajPublishPublicCatalog();
+                    }
+                    await ajCloudRefreshBackupClock();
+                    await ajCloudSubscribe();
+                } else {
+                    if (ajCloudChannel) { await ajSupabase.removeChannel(ajCloudChannel); ajCloudChannel = null; }
+                    await ajLoadPublicCatalog();
+                }
+            });
+            } catch (error) {
+                console.error('Error al iniciar los servicios de AJ Esencias:', error);
+                ajCloudSetStatus('No se pudo iniciar la conexión en línea. Revisa internet y recarga la página.', true);
+                ajShowProblem('No se pudo iniciar la conexión', 'AJ Esencias no pudo conectar con el servicio que administra la sesión y la sincronización.', 'Comprueba tu internet y recarga la página. Si continúa, envía una captura de este aviso.');
+            }
+        }
+
+    
+        // Abre el formulario privado desde el botón de navegación.
+        function openPrivateArea() {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const panel = document.getElementById('section-business');
+            if (!panel) {
+                console.error('No se encontró section-business');
+                return;
+            }
+            panel.classList.remove('hidden');
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('active-tab', 'bg-white', 'shadow-sm', 'border', 'border-gold-500/30');
+                el.classList.add('text-bistre/70');
+            });
+            const tab = document.getElementById('tab-business');
+            if (tab) {
+                tab.classList.add('active-tab', 'bg-white', 'shadow-sm', 'border', 'border-gold-500/30');
+                tab.classList.remove('text-bistre/70');
+            }
+            if (!ajCloudUser) {
+                if (typeof ajCloudSetStatus === 'function') {
+                    ajCloudSetStatus('Introduce el correo y la contraseña de la cuenta administradora para continuar.');
+                }
+            }
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+</script>
+
+<script>
+// AJ Esencias: instalación como aplicación web progresiva (PWA).
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .catch(error => console.warn('No se pudo registrar el modo aplicación:', error));
+  });
+}
+</script>
+</body>
+</html>],['Ventas',r.revenue],['Costo de ventas',r.cost],['Ganancia bruta',r.gross],['Gastos operativos',r.opExpenses],['Resultado estimado',r.net],['Cuentas por cobrar (saldo total)',r.receivable],['Cobros del período',r.collected],['Compras del período',r.purchaseOut],['Gastos pagados/registrados',r.expenseOut],['Flujo neto registrado',r.cashNet],['Unidades disponibles',r.units],['Valor del inventario',r.stock]];
+            const csv='\\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\\r\\n');
+            const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+            a.href=url;a.download='AJ-Esencias-informe-financiero-'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(url);
+        }
 
         function ajAccRegisterEntry(){
             const date=document.getElementById('ajAccDate').value,description=document.getElementById('ajAccDescription').value.trim(),debitCode=document.getElementById('ajAccDebitAccount').value,creditCode=document.getElementById('ajAccCreditAccount').value,debit=Number(document.getElementById('ajAccDebitAmount').value),credit=Number(document.getElementById('ajAccCreditAmount').value);
