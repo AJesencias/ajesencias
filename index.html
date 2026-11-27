@@ -2063,6 +2063,43 @@
                 savedAt: new Date().toISOString(), formatVersion: 1
             };
         }
+        function ajCloudApplyPayload(payload, updatedAt = null) {
+            if (!payload || typeof payload !== 'object') return;
+            ajCloudApplyingRemote = true;
+            try {
+                if (Array.isArray(payload.products)) products = payload.products;
+                if (Array.isArray(payload.creditClients)) creditClients = payload.creditClients;
+                if (Array.isArray(payload.appointments)) appointments = payload.appointments;
+                if (Array.isArray(payload.dailyLogs)) dailyLogs = payload.dailyLogs;
+                if (Array.isArray(payload.businessSales)) businessSales = payload.businessSales;
+                if (Array.isArray(payload.businessExpenses)) businessExpenses = payload.businessExpenses;
+                if (Array.isArray(payload.businessPurchases)) businessPurchases = payload.businessPurchases;
+
+                localStorage.setItem('aj_products', JSON.stringify(products));
+                localStorage.setItem('aj_credit', JSON.stringify(creditClients));
+                localStorage.setItem('aj_appointments', JSON.stringify(appointments));
+                localStorage.setItem('aj_daily_logs', JSON.stringify(dailyLogs));
+                localStorage.setItem('aj_business_sales', JSON.stringify(businessSales));
+                localStorage.setItem('aj_business_expenses', JSON.stringify(businessExpenses));
+                localStorage.setItem('aj_business_purchases', JSON.stringify(businessPurchases));
+
+                ajCloudLastUpdatedAt = updatedAt || payload.savedAt || null;
+                renderProductCatalog();
+                renderPriceEditor();
+                renderCreditTable();
+                renderAppointmentsList();
+                renderDailyLogs();
+                renderBusinessManagement();
+                calculateTotal();
+                ajCloudSetStatus('Datos de la nube actualizados correctamente.');
+            } catch (error) {
+                console.error('No se pudieron aplicar los datos recibidos de AJ Esencias Cloud.', error);
+                ajCloudSetStatus('Error al actualizar datos desde la nube: ' + error.message, true);
+            } finally {
+                ajCloudApplyingRemote = false;
+            }
+        }
+
         let ajCloudSyncTimer = null;
         let ajCloudApplyingRemote = false;
         let ajCloudChannel = null;
