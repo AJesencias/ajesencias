@@ -566,7 +566,7 @@
                     <i class="fas fa-calculator text-gold-600"></i> Catálogo
                 </button>
                 
-                <button type="button" onclick="openPrivateArea(); return false;" id="tab-business" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2"><i class="fas fa-lock text-gold-600"></i> Área privada</button>
+                <button type="button" onclick="if(typeof openPrivateArea==='function'){openPrivateArea();}else{document.querySelectorAll('.tab-content').forEach(function(el){el.classList.add('hidden');});var panel=document.getElementById('section-business');if(panel){panel.classList.remove('hidden');panel.scrollIntoView({behavior:'smooth',block:'start'});}} return false;" id="tab-business" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2"><i class="fas fa-lock text-gold-600"></i> Área privada</button>
             </div>
         </nav>
     </header>
