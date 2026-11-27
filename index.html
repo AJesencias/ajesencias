@@ -1626,7 +1626,7 @@
             box.innerHTML=['offers','blackfriday','christmas'].map(k=>{
                 const c=ajCampaigns[k]; if(!c)return '<div class="rounded-lg border border-dashed p-3 text-xs text-gray-500">'+AJ_CAMPAIGN_NAMES[k]+': sin programar</div>';
                 const count=Array.isArray(c.images)?c.images.length:0;
-                return '<div class="rounded-lg border p-3 text-xs flex flex-wrap justify-between gap-2"><span><b>'+AJ_CAMPAIGN_NAMES[k]+'</b><br>'+safeText(c.start)+' → '+safeText(c.end)+' · '+(c.enabled?'Programada':'Desactivada')+'<br>'+safeText(c.message||'')+'<br>Fotografías: '+count+'</span><button type="button" onclick="editAjCampaign(\\''+k+'\\')" class="underline font-bold">Editar</button></div>';
+                return `<div class="rounded-lg border p-3 text-xs flex flex-wrap justify-between gap-2"><span><b>${AJ_CAMPAIGN_NAMES[k]}</b><br>${safeText(c.start)} → ${safeText(c.end)} · ${c.enabled?'Programada':'Desactivada'}<br>${safeText(c.message||'')}<br>Fotografías: ${count}</span><button type="button" onclick="editAjCampaign('${k}')" class="underline font-bold">Editar</button></div>`;
             }).join('');
             renderAjCampaignImagePreview();
         }
@@ -1634,7 +1634,7 @@
             const box=document.getElementById('ajCampaignImagePreview'); if(!box)return;
             const k=document.getElementById('ajCampaignType')?.value||'offers';
             const images=Array.isArray(ajCampaigns[k]?.images)?ajCampaigns[k].images:[];
-            box.innerHTML=images.map((url,i)=>'<div class="relative"><img src="'+safeText(url)+'" alt="Oferta '+(i+1)+'" class="w-full h-24 rounded-lg object-cover border"><button type="button" onclick="removeAjCampaignImage(\\''+k+'\\','+i+')" class="absolute top-1 right-1 rounded-full bg-white px-2 py-1 text-xs font-bold shadow" aria-label="Quitar foto">×</button></div>').join('')||'<p class="col-span-full text-xs text-gray-500">Aún no hay fotografías cargadas para esta campaña.</p>';
+            box.innerHTML=images.map((url,i)=>`<div class="relative"><img src="${safeText(url)}" alt="Oferta ${i+1}" class="w-full h-24 rounded-lg object-cover border"><button type="button" onclick="removeAjCampaignImage('${k}',${i})" class="absolute top-1 right-1 rounded-full bg-white px-2 py-1 text-xs font-bold shadow" aria-label="Quitar foto">×</button></div>`).join('')||'<p class="col-span-full text-xs text-gray-500">Aún no hay fotografías cargadas para esta campaña.</p>';
         }
         async function uploadAjCampaignImages(){
             if(!ajCloudUser||!ajSupabase)return alert('Inicia sesión en el área privada para subir fotografías.');
