@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#FAF8F5">
 <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>AJ Esencias | Perfumería & Boutique</title>
+    <link rel="icon" type="image/svg+xml" href="assets/aj-esencias-logo.svg">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -102,6 +103,13 @@
             *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
         .luxury-card { border-radius: 1.1rem; }
+        .brand-logo { display:block; object-fit:contain; flex:0 0 auto; filter: drop-shadow(0 3px 7px rgba(132,92,28,.14)); }
+        .brand-header-mark { width:58px; height:58px; }
+        .brand-wordmark { letter-spacing:.16em; }
+        @media (max-width: 480px) {
+            .brand-header-mark { width:48px; height:48px; }
+            .brand-wordmark { font-size:1.2rem; }
+        }
         ::selection { background: #F3E5AB; color: #2B1E16; }
     </style>
 </head>
@@ -110,13 +118,12 @@
     <!-- Top Header -->
     <header class="bg-white border-b border-beige-200 sticky top-0 z-40 shadow-sm no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('calculator')">
-                <div class="w-10 h-10 rounded-full gold-gradient-bg flex items-center justify-center text-white font-serif-title font-bold text-xl shadow-md">
-                    AJ
-                </div>
-                <div>
-                    <h1 class="text-2xl font-serif-title font-bold tracking-wider gold-gradient-text leading-none">AJ esencias</h1>
-                    <p class="text-xs text-bistre/60 tracking-widest uppercase">Boutique & Perfumería Glam</p>
+            <div class="flex items-center gap-3 cursor-pointer min-w-0" onclick="switchTab('calculator')" aria-label="Ir al inicio de AJ Esencias">
+                <img src="assets/aj-esencias-logo.svg" alt="Logotipo oficial de AJ Esencias" class="brand-logo brand-header-mark">
+                <div class="min-w-0">
+                    <h1 class="text-xl sm:text-2xl font-serif-title font-bold brand-wordmark gold-gradient-text leading-none">AJ ESENCIAS</h1>
+                    <p class="text-[10px] sm:text-xs text-bistre/65 tracking-[.16em] uppercase mt-1">Perfumería y más</p>
+                    <p class="text-[10px] text-gold-700 italic">Tu esencia, tu estilo</p>
                 </div>
             </div>
 
