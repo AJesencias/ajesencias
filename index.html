@@ -1070,7 +1070,8 @@
                         <label class="text-xs font-semibold">Estado<select id="ajCampaignEnabled"><option value="true">Programada / activa</option><option value="false">Desactivada</option></select></label>
                     </div>
                     <div class="grid sm:grid-cols-2 gap-3"><label class="text-xs font-semibold">Mensaje de temporada<input id="ajCampaignMessage" maxlength="100" placeholder="¡Llegó Black Friday a AJ Esencias!"></label><label class="text-xs font-semibold">Etiqueta o descuento destacado<input id="ajCampaignBadge" maxlength="40" placeholder="Hasta 20% de descuento"></label></div>
-                    <div class="flex flex-wrap gap-2"><button type="button" onclick="saveAjCampaign()" class="rounded-xl bg-[#482431] px-4 py-3 text-xs font-bold text-white">Guardar campaña</button><button type="button" onclick="previewAjCampaign()" class="rounded-xl border border-gold-500 px-4 py-3 text-xs font-bold">Vista previa</button><button type="button" onclick="clearAjCampaignForm()" class="rounded-xl border px-4 py-3 text-xs">Limpiar</button></div>
+                    <div class="rounded-xl border border-gold-500/25 bg-[#FFFEFC] p-3 space-y-2"><label class="block text-xs font-bold">Fotografías de ofertas (puedes seleccionar varias)<input id="ajCampaignImageFiles" type="file" accept="image/*" multiple class="mt-2 block w-full text-xs"></label><p class="text-[11px] text-bistre/60">Las imágenes se publicarán en el apartado correspondiente de la tienda. Máximo 5 MB por foto.</p><div id="ajCampaignImagePreview" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div><div id="ajCampaignImageStatus" class="text-xs text-bistre/70" aria-live="polite"></div></div>
+                    <div class="flex flex-wrap gap-2"><button type="button" onclick="saveAjCampaign()" class="rounded-xl bg-[#482431] px-4 py-3 text-xs font-bold text-white">Guardar campaña</button><button type="button" onclick="uploadAjCampaignImages()" class="rounded-xl border border-gold-500 px-4 py-3 text-xs font-bold">Subir fotografías</button><button type="button" onclick="previewAjCampaign()" class="rounded-xl border border-gold-500 px-4 py-3 text-xs font-bold">Vista previa</button><button type="button" onclick="clearAjCampaignForm()" class="rounded-xl border px-4 py-3 text-xs">Limpiar</button></div>
                     <p id="ajCampaignStatus" class="text-xs text-bistre/70" aria-live="polite">Las campañas guardadas se sincronizan con la nube al guardar los datos.</p>
                     <div id="ajCampaignList" class="space-y-2"></div>
                 </div>
@@ -1610,8 +1611,45 @@
             const box=document.getElementById('ajCampaignList'); if(!box)return;
             box.innerHTML=['offers','blackfriday','christmas'].map(k=>{
                 const c=ajCampaigns[k]; if(!c)return '<div class="rounded-lg border border-dashed p-3 text-xs text-gray-500">'+AJ_CAMPAIGN_NAMES[k]+': sin programar</div>';
-                return '<div class="rounded-lg border p-3 text-xs flex flex-wrap justify-between gap-2"><span><b>'+AJ_CAMPAIGN_NAMES[k]+'</b><br>'+safeText(c.start)+' → '+safeText(c.end)+' · '+(c.enabled?'Programada':'Desactivada')+'<br>'+safeText(c.message||'')+'</span><button type="button" onclick="editAjCampaign(\''+k+'\')" class="underline font-bold">Editar</button></div>';
+                const count=Array.isArray(c.images)?c.images.length:0;
+                return '<div class="rounded-lg border p-3 text-xs flex flex-wrap justify-between gap-2"><span><b>'+AJ_CAMPAIGN_NAMES[k]+'</b><br>'+safeText(c.start)+' → '+safeText(c.end)+' · '+(c.enabled?'Programada':'Desactivada')+'<br>'+safeText(c.message||'')+'<br>Fotografías: '+count+'</span><button type="button" onclick="editAjCampaign(\\''+k+'\\')" class="underline font-bold">Editar</button></div>';
             }).join('');
+            renderAjCampaignImagePreview();
+        }
+        function renderAjCampaignImagePreview(){
+            const box=document.getElementById('ajCampaignImagePreview'); if(!box)return;
+            const k=document.getElementById('ajCampaignType')?.value||'offers';
+            const images=Array.isArray(ajCampaigns[k]?.images)?ajCampaigns[k].images:[];
+            box.innerHTML=images.map((url,i)=>'<div class="relative"><img src="'+safeText(url)+'" alt="Oferta '+(i+1)+'" class="w-full h-24 rounded-lg object-cover border"><button type="button" onclick="removeAjCampaignImage(\\''+k+'\\','+i+')" class="absolute top-1 right-1 rounded-full bg-white px-2 py-1 text-xs font-bold shadow" aria-label="Quitar foto">×</button></div>').join('')||'<p class="col-span-full text-xs text-gray-500">Aún no hay fotografías cargadas para esta campaña.</p>';
+        }
+        async function uploadAjCampaignImages(){
+            if(!ajCloudUser||!ajSupabase)return alert('Inicia sesión en el área privada para subir fotografías.');
+            const input=document.getElementById('ajCampaignImageFiles'),files=Array.from(input?.files||[]);
+            if(!files.length)return alert('Selecciona al menos una fotografía.');
+            if(files.some(f=>!f.type.startsWith('image/')||f.size>5*1024*1024))return alert('Solo se permiten imágenes de 5 MB o menos cada una.');
+            const k=document.getElementById('ajCampaignType').value,status=document.getElementById('ajCampaignImageStatus');
+            status.textContent='Subiendo fotografías…';
+            try{
+                const current=Array.isArray(ajCampaigns[k]?.images)?[...ajCampaigns[k].images]:[];
+                for(const file of files){
+                    const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+                    const path=ajCloudUser.id+'/campaign-'+k+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+                    const {error}=await ajSupabase.storage.from('aj-product-images').upload(path,file,{cacheControl:'3600',upsert:false,contentType:file.type});
+                    if(error)throw error;
+                    current.push(ajSupabase.storage.from('aj-product-images').getPublicUrl(path).data.publicUrl);
+                }
+                ajCampaigns[k]={...(ajCampaigns[k]||{}),images:current};
+                const ok=await ajCloudWrite(false);
+                status.textContent=ok?'Fotografías subidas y sincronizadas correctamente.':'Fotografías subidas; no se pudo sincronizar la campaña. Intenta guardar de nuevo.';
+                input.value='';renderAjCampaignImagePreview();renderAjCampaignAdmin();
+            }catch(error){status.textContent='No se pudieron subir las fotos: '+error.message;}
+        }
+        async function removeAjCampaignImage(k,index){
+            if(!confirm('¿Quitar esta fotografía de la campaña?'))return;
+            const c=ajCampaigns[k];if(!c||!Array.isArray(c.images))return;
+            c.images.splice(index,1);renderAjCampaignImagePreview();renderAjCampaignAdmin();
+            const ok=await ajCloudWrite(false);
+            document.getElementById('ajCampaignImageStatus').textContent=ok?'Fotografía quitada de la campaña.':'No se pudo sincronizar el cambio.';
         }
         function saveAjCampaign(){
             if(!ajCloudUser)return alert('Inicia sesión para guardar campañas.');
@@ -1624,16 +1662,19 @@
         }
         function editAjCampaign(k){
             const c=ajCampaigns[k]; if(!c)return;
-            document.getElementById('ajCampaignType').value=k;document.getElementById('ajCampaignStart').value=c.start||'';
+            document.getElementById('ajCampaignType').value=k;renderAjCampaignImagePreview();document.getElementById('ajCampaignStart').value=c.start||'';
             document.getElementById('ajCampaignEnd').value=c.end||'';document.getElementById('ajCampaignEnabled').value=String(c.enabled!==false);
             document.getElementById('ajCampaignMessage').value=c.message||'';document.getElementById('ajCampaignBadge').value=c.badge||'';
         }
-        function clearAjCampaignForm(){['ajCampaignStart','ajCampaignEnd','ajCampaignMessage','ajCampaignBadge'].forEach(id=>document.getElementById(id).value='');document.getElementById('ajCampaignEnabled').value='true';}
+        function clearAjCampaignForm(){['ajCampaignStart','ajCampaignEnd','ajCampaignMessage','ajCampaignBadge'].forEach(id=>document.getElementById(id).value='');document.getElementById('ajCampaignEnabled').value='true';document.getElementById('ajCampaignImageFiles').value='';renderAjCampaignImagePreview();}
         function previewAjCampaign(){const k=document.getElementById('ajCampaignType').value;document.body.classList.remove('aj-season-offers','aj-season-blackfriday','aj-season-christmas');document.body.classList.add('aj-season-'+k);const b=document.getElementById('ajSeasonBanner');if(b)b.innerHTML='<span class="aj-spark" aria-hidden="true">✦</span><span class="aj-spark" aria-hidden="true">✧</span><span class="aj-spark" aria-hidden="true">✦</span><span class="aj-spark" aria-hidden="true">✧</span><span class="aj-spark" aria-hidden="true">⋆</span><span class="aj-banner-copy">VISTA PREVIA · '+AJ_CAMPAIGN_NAMES[k]+' · '+safeText(document.getElementById('ajCampaignBadge').value||'Promoción especial')+'</span>';}
         function showAjCampaignPage(k){
             const panel=document.getElementById('ajCampaignPage'),content=document.getElementById('ajCampaignPageContent');if(!panel||!content)return;
             const themes={offers:{title:'Ofertas especiales',symbol:'✦ ✧ ✦',subtitle:'Descubre precios especiales y oportunidades por tiempo limitado.',cls:'bg-gradient-to-br from-[#FFFEFC] via-[#F4EAE7] to-[#E9DCD9] text-[#482431]'},blackfriday:{title:'BLACK FRIDAY',symbol:'✦ ✧ ✦',subtitle:'Descuentos especiales en productos seleccionados.',cls:'bg-gradient-to-br from-[#FFFEFC] via-[#F1E9E5] to-[#DCCBC5] text-[#482431]'},christmas:{title:'Temporada navideña',symbol:'✧ ❄ ✧',subtitle:'Encuentra detalles y regalos para compartir.',cls:'bg-gradient-to-br from-[#FFFEFC] via-[#F1E9E5] to-[#E9DCD9] text-[#482431]'}};
-            const t=themes[k];content.innerHTML='<div class="rounded-2xl p-7 sm:p-10 '+t.cls+'"><div class="text-4xl">'+t.symbol+'</div><h2 class="mt-3 text-3xl sm:text-4xl font-extrabold">'+t.title+'</h2><p class="mt-2">'+t.subtitle+'</p><p class="mt-4 text-sm opacity-80">Próximamente: productos y promociones publicados por AJ Esencias.</p></div>';
+            const t=themes[k],images=Array.isArray(ajCampaigns[k]?.images)?ajCampaigns[k].images:[];
+            const gallery=images.length?'<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">'+images.map((url,i)=>'<img src="'+safeText(url)+'" alt="Oferta '+(i+1)+' de AJ Esencias" loading="lazy" class="w-full rounded-xl object-contain bg-white/70 border border-white/60 shadow-sm">').join('')+'</div>':'<p class="mt-4 text-sm opacity-80">Próximamente: promociones publicadas por AJ Esencias.</p>';
+            const campaign=ajCampaigns[k]||{};
+            content.innerHTML='<div class="rounded-2xl p-7 sm:p-10 '+t.cls+'"><div class="text-4xl">'+t.symbol+'</div><h2 class="mt-3 text-3xl sm:text-4xl font-extrabold">'+t.title+'</h2><p class="mt-2">'+t.subtitle+'</p>'+(campaign.message?'<p class="mt-3 font-semibold">'+safeText(campaign.message)+'</p>':'')+(campaign.badge?'<p class="mt-2 inline-block rounded-full border border-[#B99A62] bg-white/70 px-4 py-2 text-sm font-bold">'+safeText(campaign.badge)+'</p>':'')+gallery+'</div>';
             panel.classList.remove('hidden');panel.scrollIntoView({behavior:'smooth',block:'start'});
         }
         function closeAjCampaignPage(){document.getElementById('ajCampaignPage')?.classList.add('hidden');document.getElementById('ajCampaignPageContent').innerHTML='';}
