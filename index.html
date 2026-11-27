@@ -1768,7 +1768,7 @@
                 ['Flujo neto registrado',r.cashNet],['Unidades disponibles',r.units],
                 ['Valor del inventario',r.stock]
             ];
-            const csv='\\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\\r\\n');
+            const csv='\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
             const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
             const url=URL.createObjectURL(blob),a=document.createElement('a');
             a.href=url;a.download='AJ-Esencias-informe-financiero-'+new Date().toISOString().slice(0,10)+'.csv';
