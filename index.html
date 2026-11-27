@@ -2016,12 +2016,10 @@
                 id: row.product_id, category: row.category, name: row.name,
                 price: row.price, image: row.image_url
             }));
-            if (safe.length) {
-                products = safe;
-                localStorage.setItem('aj_public_products', JSON.stringify(safe));
-                renderProductCatalog();
-                calculateTotal();
-            }
+            products = safe;
+            localStorage.setItem('aj_public_products', JSON.stringify(safe));
+            renderProductCatalog();
+            calculateTotal();
         }
         async function ajPublishPublicCatalog() {
             if (!ajSupabase || !ajCloudUser || !ajCloudIsAllowedUser(ajCloudUser)) return false;
