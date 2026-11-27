@@ -485,7 +485,20 @@
         #section-business > .luxury-card { position:relative !important; z-index:100 !important; }
         #cloudAuthCard { position:relative !important; z-index:9999 !important; isolation:isolate; }
         #cloudAuthCard button { position:relative !important; z-index:10000 !important; cursor:pointer !important; touch-action:manipulation !important; }
-    </style>
+    
+        /* Modal de fotografías: contenido desplazable y acciones siempre accesibles */
+        #editImageModal { overscroll-behavior: contain; }
+        #editImageModal > div { min-height: 0; }
+        #editImageModal .aj-image-modal-scroll { scrollbar-gutter: stable; -webkit-overflow-scrolling: touch; }
+        #editImageModal .aj-image-modal-scroll textarea { min-height: 88px; }
+        #editImageModal #saveProductImageButton,
+        #editImageModal button[onclick="closeEditImageModal()"] { min-height: 42px; }
+        @media (max-width: 480px) {
+            #editImageModal { align-items: flex-start; }
+            #editImageModal > div { margin: auto 0; }
+            #editImageModal > div > div:last-child { padding-bottom: max(.75rem, env(safe-area-inset-bottom)); }
+        }
+</style>
     </style>
 <style>#section-business:target{display:block!important;scroll-margin-top:9rem}
         /* AJ ESENCIAS · Degradado especial Black Friday: espresso, vino y oro */
@@ -1317,15 +1330,15 @@
     </div>
 
     <!-- MODAL: EDIT PRODUCT IMAGE -->
-    <div id="editImageModal" class="fixed inset-0 bg-bistre/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gold-500/40 space-y-4">
-            <div class="flex justify-between items-center pb-2 border-b border-beige-200">
+    <div id="editImageModal" class="fixed inset-0 bg-bistre/60 backdrop-blur-sm z-50 flex items-center justify-center hidden overflow-y-auto p-2 sm:p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-gold-500/40 flex flex-col space-y-3 max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] overflow-hidden">
+            <div class="flex justify-between items-center pb-2 border-b border-beige-200 flex-shrink-0">
                 <h3 class="font-serif-title text-2xl font-bold text-bistre" id="editImageProdTitle">Cambiar Imagen de Producto</h3>
                 <button onclick="closeEditImageModal()" class="text-bistre/50 hover:text-bistre"><i class="fas fa-xmark text-lg"></i></button>
             </div>
             <input type="hidden" id="editImageProdId">
             
-            <div class="text-center space-y-3">
+            <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 aj-image-modal-scroll"><div class="text-center space-y-3">
                 <!-- Image Preview Box -->
                 <div class="w-32 h-32 mx-auto rounded-xl border border-beige-300 bg-beige-50 flex items-center justify-center overflow-hidden relative shadow-inner">
                     <img id="editImagePreview" src="" alt="Vista Previa" class="w-full h-full object-cover hidden">
@@ -1375,16 +1388,16 @@
                     </div>
                     <div id="productImageHistory" class="hidden space-y-2 text-xs"></div>
                 </div>
-            </div>
+            </div></div>
 
-            <div class="flex gap-2 pt-2">
+            <div class="flex flex-wrap gap-2 pt-3 flex-shrink-0 border-t border-beige-200 bg-white">
                 <button type="button" onclick="removeProductImage()" class="px-3 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold">
                     <i class="fas fa-trash-can mr-1"></i> Quitar Foto
                 </button>
                 <button type="button" onclick="closeEditImageModal()" class="flex-1 py-2 rounded-xl border border-beige-200 text-bistre/70 hover:bg-beige-100 text-xs font-semibold">
                     Cancelar
                 </button>
-                <p id="editImageSaveStatus" class="hidden w-full text-center text-xs text-bistre/60" role="status" aria-live="polite"></p>
+                <p id="editImageSaveStatus" class="hidden w-full order-first text-center text-xs text-bistre/60" role="status" aria-live="polite"></p>
                 <button id="saveProductImageButton" type="button" onclick="saveProductImage()" class="flex-1 py-2 rounded-xl gold-gradient-bg text-white text-xs font-bold shadow hover:brightness-105">
                     Guardar Imagen
                 </button>
