@@ -103,6 +103,8 @@
             *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
         .luxury-card { border-radius: 1.1rem; }
+        .store-hero { background:radial-gradient(circle at 92% 20%,rgba(212,175,55,.18),transparent 28%),linear-gradient(125deg,#fff 0%,#faf6ed 58%,#f2e8d7 100%); }
+        .store-hero:after { content:"AJ"; position:absolute; right:5%; bottom:-35%; font-family:Georgia,serif; font-size:clamp(170px,30vw,340px); line-height:1; font-style:italic; color:rgba(169,125,47,.07); pointer-events:none; }
         .finance-bar { height:9px; border-radius:999px; background:linear-gradient(90deg,#c5a059,#e8d18a); min-width:2px; }
         .catalog-grid { align-items:stretch; }
         .catalog-product-card {
@@ -199,6 +201,18 @@
 
         <!-- SECTION 1: CALCULATOR / CATALOG (PUBLIC ACCESS) -->
         <section id="section-calculator" class="tab-content block">
+            <section class="store-hero relative overflow-hidden rounded-[26px] border border-gold-500/25 mb-7 p-6 sm:p-9">
+                <div class="absolute -right-12 -top-16 w-56 h-56 rounded-full border border-gold-500/20"></div><div class="absolute -right-4 -top-8 w-40 h-40 rounded-full border border-gold-500/15"></div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="text-[10px] sm:text-xs font-bold tracking-[.24em] text-gold-700 uppercase">AJ Esencias · Perfumería y más</span>
+                    <h2 class="font-serif-title text-4xl sm:text-5xl font-bold text-bistre leading-tight mt-2">Tu esencia,<br><span class="gold-gradient-text italic">tu estilo.</span></h2>
+                    <p class="text-sm text-bistre/70 mt-3 max-w-lg">Descubre fragancias, cuidado personal y detalles especiales para cada ocasión. Elige tus favoritos y prepara tu pedido fácilmente.</p>
+                    <div class="flex flex-wrap gap-2 mt-5">
+                        <a href="#productsContainer" class="gold-gradient-bg text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-sm"><i class="fas fa-bag-shopping mr-2"></i>Explorar productos</a>
+                        <a href="https://wa.me/18094318218?text=Hola%20AJ%20Esencias%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20productos." target="_blank" rel="noopener noreferrer" class="bg-white border border-gold-500/40 text-bistre font-semibold text-xs sm:text-sm px-5 py-3 rounded-xl"><i class="fab fa-whatsapp text-green-600 mr-2"></i>Hablar por WhatsApp</a>
+                    </div>
+                </div>
+            </section>
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
                 <!-- Product Selector (Left Column) -->
