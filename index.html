@@ -439,9 +439,9 @@
                     <i class="fas fa-ellipsis-h"></i><span>Explorar promociones</span>
                 </button>
                 <div id="ajPromoMenu" class="hidden absolute right-0 top-12 z-30 w-64 rounded-2xl border border-[#E6DCD5] bg-white p-2 shadow-xl">
-                    <a href="#aj-offers" onclick="toggleAjPromoMenu(false)" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#482431] hover:bg-[#F8F5F1]"><i class="fas fa-tags w-5 text-[#B99A62]"></i>Ofertas especiales</a>
-                    <a href="#aj-black-friday" onclick="toggleAjPromoMenu(false)" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#482431] hover:bg-[#F8F5F1]"><i class="fas fa-bolt w-5 text-[#B99A62]"></i>Black Friday</a>
-                    <a href="#aj-christmas" onclick="toggleAjPromoMenu(false)" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#482431] hover:bg-[#F8F5F1]"><i class="fas fa-snowflake w-5 text-[#B99A62]"></i>Temporada navideña</a>
+                    <a href="#aj-offers-page" onclick="toggleAjPromoMenu(false);showAjCampaignPage('offers')" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#482431] hover:bg-[#F8F5F1]"><i class="fas fa-tags w-5 text-[#B99A62]"></i>Ofertas especiales</a>
+                    <a href="#aj-black-friday-page" onclick="toggleAjPromoMenu(false);showAjCampaignPage('blackfriday')" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#482431] hover:bg-[#F8F5F1]"><i class="fas fa-bolt w-5 text-[#B99A62]"></i>Black Friday</a>
+                    <a href="#aj-christmas-page" onclick="toggleAjPromoMenu(false);showAjCampaignPage('christmas')" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#482431] hover:bg-[#F8F5F1]"><i class="fas fa-snowflake w-5 text-[#B99A62]"></i>Temporada navideña</a>
                 </div>
             </div>
             <div class="aj-promo-sections grid grid-cols-1 md:grid-cols-3 gap-4 mb-7">
@@ -2509,6 +2509,8 @@
                 localStorage.setItem('aj_business_purchases', JSON.stringify(businessPurchases));
 
                 ajCloudLastUpdatedAt = updatedAt || payload.savedAt || null;
+                applyAjSeasonTheme();
+                renderAjCampaignAdmin();
                 renderProductCatalog();
                 renderPriceEditor();
                 renderCreditTable();
