@@ -3302,9 +3302,10 @@
                 else ajScheduleIdleLock();
             }
         });
-        const AJ_ADMIN_EMAIL = 'ambardilone06@gmail.com';
+        const AJ_ADMIN_EMAILS = ['ambardilone06@gmail.com', 'mejiajeremy2820@gmail.com'];
         function ajCloudIsAllowedUser(user) {
-            return !!user && String(user.email || '').toLowerCase() === AJ_ADMIN_EMAIL;
+            const email = String(user?.email || '').trim().toLowerCase();
+            return !!email && AJ_ADMIN_EMAILS.includes(email);
         }
         async function ajCloudRegisterPasskey() {
             if (!ajCloudIsAllowedUser(ajCloudUser)) return ajCloudSetStatus('Esta cuenta no está autorizada para administrar AJ Esencias.', true);
@@ -3488,7 +3489,7 @@
             const email = document.getElementById('cloudEmail')?.value.trim().toLowerCase() || '';
             const password = document.getElementById('cloudPassword')?.value || '';
             if (!email || !password) return ajCloudSetStatus('Escribe el correo autorizado y tu contraseña.', true);
-            if (email !== AJ_ADMIN_EMAIL) return ajCloudSetStatus('Por ahora, solo ambardilone06@gmail.com puede iniciar sesión como administradora.', true);
+            if (!AJ_ADMIN_EMAILS.includes(email)) return ajCloudSetStatus('Esta cuenta no está autorizada para administrar AJ Esencias.', true);
             if (!ajSupabase) return ajCloudSetStatus('El servicio de acceso todavía está cargando. Recarga la página e inténtalo otra vez.', true);
             const button = document.querySelector('#cloudAuthActions button');
             if (button) { button.disabled = true; button.textContent = 'Verificando acceso…'; }
