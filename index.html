@@ -384,6 +384,17 @@
             72% { transform:translate3d(27px,8px,0) rotate(205deg) scale(.85); opacity:.9; }
             100% { transform:translate3d(-9px,13px,0) rotate(325deg) scale(.65); opacity:0; }
         }
+        .aj-promo-card { display:block; min-height:190px; position:relative; overflow:hidden; border:1px solid #DCCBC5; color:#482431; background:linear-gradient(135deg,#FFFEFC 0%,#F5ECE8 58%,#E9DCD9 100%); box-shadow:0 7px 20px rgba(72,36,49,.055); transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease; }
+        .aj-promo-card:before { content:""; position:absolute; width:170px; height:170px; right:-65px; top:-80px; border:1px solid rgba(185,154,98,.28); border-radius:50%; pointer-events:none; }
+        .aj-promo-card:after { content:""; position:absolute; width:120px; height:120px; right:-35px; top:-55px; border:1px solid rgba(185,154,98,.20); border-radius:50%; pointer-events:none; }
+        .aj-promo-card:hover { transform:translateY(-3px); border-color:#B99A62; box-shadow:0 12px 26px rgba(72,36,49,.10); }
+        .aj-promo-card > * { position:relative; z-index:1; }
+        .aj-promo-card .aj-promo-symbol { color:#B99A62; letter-spacing:.18em; }
+        .aj-promo-card h3 { color:#482431; }
+        .aj-promo-card p { color:#765F65; }
+        .aj-promo-card a,.aj-promo-card span:last-child { color:#795B32; }
+        @media(max-width:639px) { .aj-promo-card { min-height:0; padding:22px !important; } }
+        @media(prefers-reduced-motion:reduce) { .aj-promo-card { transition:none; } }
         .aj-campaign-admin { border:1px solid #dfd2c2; border-radius:18px; padding:16px; background:#fff; }
         .aj-campaign-admin input,.aj-campaign-admin select { width:100%; border:1px solid #ded5cc; border-radius:10px; padding:10px; background:#fff; font-size:13px; }
     </style>
@@ -461,9 +472,9 @@
                 </div>
             </div>
             <div class="aj-promo-sections grid grid-cols-1 md:grid-cols-3 gap-4 mb-7">
-                <a href="#aj-offers-page" onclick="showAjCampaignPage('offers')" class="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-yellow-100 via-amber-100 to-orange-300 p-5 shadow-md text-[#713b00]"><span class="text-2xl">✨ ⭐</span><h3 class="mt-2 text-xl font-extrabold">Ofertas especiales</h3><p class="text-sm mt-1">Promociones y precios especiales</p><span class="inline-block mt-3 text-xs font-bold underline">Explorar ofertas →</span></a>
-                <a href="#aj-black-friday-page" onclick="showAjCampaignPage('blackfriday')" class="rounded-2xl border-2 border-orange-500 bg-gradient-to-br from-[#171311] via-[#2b170f] to-[#f05a00] p-5 shadow-md text-white"><span class="text-2xl">⚡ 🏷️</span><h3 class="mt-2 text-xl font-extrabold">BLACK FRIDAY</h3><p class="text-sm mt-1">Descuentos especiales de temporada</p><span class="inline-block mt-3 text-xs font-bold underline">Ver descuentos →</span></a>
-                <a href="#aj-christmas-page" onclick="showAjCampaignPage('christmas')" class="rounded-2xl border-2 border-red-300 bg-gradient-to-br from-green-800 via-green-700 to-red-700 p-5 shadow-md text-white"><span class="text-2xl">❄️ 🎄</span><h3 class="mt-2 text-xl font-extrabold">Temporada navideña</h3><p class="text-sm mt-1">Regalos, fragancias y detalles</p><span class="inline-block mt-3 text-xs font-bold underline">Ver Navidad →</span></a>
+                <a href="#aj-offers-page" onclick="showAjCampaignPage('offers')" class="aj-promo-card aj-promo-offers rounded-2xl border p-5 sm:p-6 shadow-sm"><span class="aj-promo-symbol text-2xl">✦ ✧</span><h3 class="mt-3 text-xl font-extrabold">Ofertas especiales</h3><p class="text-sm mt-1">Promociones y precios especiales</p><span class="inline-flex items-center gap-2 mt-4 text-xs font-bold underline">Explorar ofertas <span>→</span></span></a>
+                <a href="#aj-black-friday-page" onclick="showAjCampaignPage('blackfriday')" class="aj-promo-card aj-promo-blackfriday rounded-2xl border p-5 sm:p-6 shadow-sm"><span class="aj-promo-symbol text-2xl">✦ ✧</span><h3 class="mt-3 text-xl font-extrabold">BLACK FRIDAY</h3><p class="text-sm mt-1">Descuentos especiales de temporada</p><span class="inline-flex items-center gap-2 mt-4 text-xs font-bold underline">Ver descuentos <span>→</span></span></a>
+                <a href="#aj-christmas-page" onclick="showAjCampaignPage('christmas')" class="aj-promo-card aj-promo-christmas rounded-2xl border p-5 sm:p-6 shadow-sm"><span class="aj-promo-symbol text-2xl">✦ ❄</span><h3 class="mt-3 text-xl font-extrabold">Temporada navideña</h3><p class="text-sm mt-1">Regalos, fragancias y detalles</p><span class="inline-flex items-center gap-2 mt-4 text-xs font-bold underline">Ver Navidad <span>→</span></span></a>
             </div>
             <div id="ajCampaignPage" class="hidden mb-7 rounded-2xl border p-5 sm:p-7" aria-live="polite">
                 <button type="button" onclick="closeAjCampaignPage()" class="mb-4 rounded-lg border px-3 py-2 text-xs font-bold">← Volver al catálogo</button>
