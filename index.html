@@ -1288,7 +1288,8 @@
                 <button type="button" onclick="closeEditImageModal()" class="flex-1 py-2 rounded-xl border border-beige-200 text-bistre/70 hover:bg-beige-100 text-xs font-semibold">
                     Cancelar
                 </button>
-                <button type="button" onclick="saveProductImage()" class="flex-1 py-2 rounded-xl gold-gradient-bg text-white text-xs font-bold shadow hover:brightness-105">
+                <p id="editImageSaveStatus" class="hidden w-full text-center text-xs text-bistre/60" role="status" aria-live="polite"></p>
+                <button id="saveProductImageButton" type="button" onclick="saveProductImage()" class="flex-1 py-2 rounded-xl gold-gradient-bg text-white text-xs font-bold shadow hover:brightness-105">
                     Guardar Imagen
                 </button>
             </div>
@@ -2919,42 +2920,83 @@
             return ajSupabase.storage.from('aj-product-images').getPublicUrl(path).data.publicUrl;
         }
 
+        let ajImageSaveInProgress = false;
+        function ajSetImageSaveStatus(message, isError = false) {
+            const status = document.getElementById('editImageSaveStatus');
+            if (!status) return;
+            status.textContent = message;
+            status.classList.toggle('text-red-700', !!isError);
+            status.classList.toggle('text-bistre/60', !isError);
+            status.classList.remove('hidden');
+        }
+        function ajWithImageTimeout(promise, milliseconds, label) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => setTimeout(() => reject(new Error(label + ' tardó demasiado. Comprueba tu conexión e inténtalo nuevamente.')), milliseconds))
+            ]);
+        }
         async function saveProductImage() {
-            const prodId = parseInt(document.getElementById('editImageProdId').value);
-            const prod = products.find(p => p.id === prodId);
+            if (ajImageSaveInProgress) return;
+            const prodId = Number(document.getElementById('editImageProdId').value);
+            const prod = products.find(p => Number(p.id) === prodId);
             if (!prod) return;
+            const button = document.getElementById('saveProductImageButton');
+            const originalLabel = button ? button.textContent : 'Guardar Imagen';
             const files = Array.from(document.getElementById('editImageFileInput').files || []);
             const urlInput = document.getElementById('editImageUrlInput').value.trim();
             const previousImage = prod.image || '';
+            ajImageSaveInProgress = true;
+            if (button) { button.disabled = true; button.textContent = 'Procesando fotografía…'; button.classList.add('opacity-60'); }
+            ajSetImageSaveStatus('Preparando fotografía…');
             try {
                 let gallery = Array.isArray(prod.images) ? [...prod.images] : (prod.image ? [prod.image] : []);
                 if (files.length) {
                     const uploaded = [];
-                    for (const file of files) {
-                        uploaded.push(ajCloudUser ? await ajUploadProductImage(file, prodId) : await ajReadImageLocally(file));
+                    for (let index = 0; index < files.length; index++) {
+                        const file = files[index];
+                        if (!file.type.startsWith('image/')) throw new Error('El archivo ' + file.name + ' no es una imagen válida.');
+                        if (file.size > 5 * 1024 * 1024) throw new Error('La fotografía ' + file.name + ' supera el límite de 5 MB. Reduce su tamaño e inténtalo de nuevo.');
+                        ajSetImageSaveStatus(ajCloudUser ? 'Subiendo fotografía ' + (index + 1) + ' de ' + files.length + ' a la nube…' : 'Procesando fotografía ' + (index + 1) + ' de ' + files.length + '…');
+                        uploaded.push(ajCloudUser
+                            ? await ajWithImageTimeout(ajUploadProductImage(file, prodId), 60000, 'La subida de la fotografía')
+                            : await ajReadImageLocally(file));
                     }
                     gallery = [...gallery, ...uploaded];
                 } else if (urlInput) {
+                    if (!/^https?:\/\//i.test(urlInput)) throw new Error('Introduce un enlace directo válido que comience con https:// o http://.');
                     if (!gallery.includes(urlInput)) gallery.push(urlInput);
                 } else if (tempImageValue === '') {
                     gallery = [];
                 }
                 if (tempImageValue && !files.length && !urlInput && !gallery.includes(tempImageValue)) gallery.unshift(tempImageValue);
-                prod.images = [...new Set(gallery.filter(Boolean))];
-                prod.image = urlInput && !files.length ? urlInput : (prod.images[0] || '');
+                const newImages = [...new Set(gallery.filter(Boolean))];
+                const newImage = urlInput && !files.length ? urlInput : (newImages[0] || '');
+                if (ajCloudUser && previousImage.startsWith('http') && previousImage !== newImage) {
+                    ajSetImageSaveStatus('Archivando fotografía anterior…');
+                    await ajWithImageTimeout(ajCloudArchiveProductImage(prod, previousImage, newImage ? 'reemplazada' : 'eliminada'), 30000, 'El archivo de la fotografía anterior');
+                }
+                prod.images = newImages;
+                prod.image = newImage;
                 prod.imageRotation = Number(window.ajEditingImageRotation || 0);
-                if (ajCloudUser && previousImage.startsWith('http') && previousImage !== prod.image) {
-                    await ajCloudArchiveProductImage(prod, previousImage, prod.image ? 'reemplazada' : 'eliminada');
-                }
-                if (!saveData()) return;
+                if (!saveData()) throw new Error('No se pudieron guardar los cambios en este dispositivo.');
                 if (ajCloudUser) {
-                    const synced = await ajCloudWrite(false);
-                    if (!synced) throw new Error('Las fotos se guardaron en este dispositivo, pero no se pudieron sincronizar. Intenta guardar los datos en la nube nuevamente.');
-                    await ajCloudRecordActivity('galeria_fotografias_actualizada', 'producto', String(prodId), { product_name: prod.name, images_count: prod.images.length });
+                    ajSetImageSaveStatus('Fotografía cargada. Sincronizando el catálogo…');
+                    const synced = await ajWithImageTimeout(ajCloudWrite(false), 60000, 'La sincronización del catálogo');
+                    if (!synced) throw new Error('La fotografía quedó guardada localmente, pero la sincronización no terminó. Comprueba la conexión y pulsa Guardar datos en la nube.');
+                    await ajWithImageTimeout(ajCloudRecordActivity('galeria_fotografias_actualizada', 'producto', String(prodId), { product_name: prod.name, images_count: prod.images.length }), 15000, 'El registro de actividad');
                 }
-                renderPriceEditor(); renderProductCatalog(); closeEditImageModal();
+                renderPriceEditor(); renderProductCatalog();
+                ajSetImageSaveStatus('¡Fotografía guardada correctamente!');
+                closeEditImageModal();
                 alert(ajCloudUser ? '¡Galería de fotografías guardada y sincronizada!' : '¡Galería actualizada en este dispositivo! Inicia sesión para sincronizarla.');
-            } catch (error) { alert('No se pudo completar el cambio de fotografías: ' + error.message); }
+            } catch (error) {
+                console.error('Error al guardar la fotografía de AJ Esencias:', error);
+                ajSetImageSaveStatus('No se pudo guardar: ' + (error?.message || 'Error desconocido'), true);
+                alert('No se pudo completar el cambio de fotografías: ' + (error?.message || 'Error desconocido'));
+            } finally {
+                ajImageSaveInProgress = false;
+                if (button) { button.disabled = false; button.textContent = originalLabel; button.classList.remove('opacity-60'); }
+            }
         }
 
         const AJ_SUPABASE_URL = 'https://egkqaymaqednmweaqbaz.supabase.co';
