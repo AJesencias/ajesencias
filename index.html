@@ -165,7 +165,7 @@
             <!-- Lock / Admin Session Status -->
             <div class="flex items-center space-x-2">
                 
-                <button id="pinStatusBtn" onclick="checkProtectedTab('business')" class="px-3 py-1.5 text-xs rounded-full border border-gold-500/40 text-bistre hover:bg-beige-100 transition flex items-center space-x-2">
+                <button id="pinStatusBtn" type="button" onclick="openPrivateArea(); return false;" class="px-3 py-1.5 text-xs rounded-full border border-gold-500/40 text-bistre hover:bg-beige-100 transition flex items-center space-x-2">
                     <i id="pinLockIcon" class="fas fa-lock text-gold-600"></i>
                     <span id="pinLockText">Sección Protegida</span>
                 </button>
@@ -179,7 +179,7 @@
                     <i class="fas fa-calculator text-gold-600"></i> Cotizador & Pedidos (Público)
                 </button>
                 
-                <button onclick="checkProtectedTab('business')" id="tab-business" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2"><i class="fas fa-lock text-gold-600"></i> Área privada</button>
+                <button type="button" onclick="openPrivateArea(); return false;" id="tab-business" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2"><i class="fas fa-lock text-gold-600"></i> Área privada</button>
             </div>
         </nav>
     </header>
