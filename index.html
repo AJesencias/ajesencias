@@ -639,6 +639,10 @@
                     </button>
                 </div>
 
+                <div id="ajCreditReminders" class="mb-6 rounded-2xl border border-[#DCCBC5] bg-[#FBF7F4] p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3"><div><h3 class="font-bold text-[#482431]"><i class="fas fa-bell text-[#B99A62] mr-2"></i>Recordatorios de cobro</h3><p class="text-xs text-[#765F65]">Mensajes personalizados para pagos que vencen hoy o están atrasados.</p></div><span id="ajCreditReminderCount" class="rounded-full bg-[#482431] px-3 py-1 text-xs font-bold text-white">0 pendientes</span></div>
+                    <div id="ajCreditReminderList" class="space-y-3"><p class="text-sm text-[#765F65]">Los recordatorios aparecerán aquí cuando llegue la fecha de pago.</p></div>
+                </div>
                 <!-- Credit Clients List Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-bistre">
@@ -649,6 +653,7 @@
                                 <th class="p-3">Monto Original</th>
                                 <th class="p-3">Total Abonado</th>
                                 <th class="p-3">Deuda Restante</th>
+                                <th class="p-3">Fecha de pago</th>
                                 <th class="p-3">Estado</th>
                                 <th class="p-3 rounded-r-lg text-center">Acciones</th>
                             </tr>
@@ -1958,7 +1963,7 @@
             tbody.innerHTML = '';
 
             if (creditClients.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-bistre/50 italic">No hay registros de clientes a crédito.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-bistre/50 italic">No hay registros de clientes a crédito.</td></tr>';
                 return;
             }
 
@@ -1967,9 +1972,10 @@
                 tr.className = "hover:bg-beige-50 transition";
                 
                 const isPaid = client.remaining <= 0;
-                const statusBadge = isPaid 
-                    ? '<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded font-bold">PAGADO</span>' 
+                const statusBadge = isPaid
+                    ? '<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded font-bold">PAGADO</span>'
                     : '<span class="bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold">PENDIENTE</span>';
+                const dueLabel = client.dueDate ? new Date(client.dueDate + 'T12:00:00').toLocaleDateString('es-DO') : 'Sin definir';
 
                 tr.innerHTML = `
                     <td class="p-3 font-semibold text-bistre">${client.name}</td>
@@ -1977,6 +1983,7 @@
                     <td class="p-3 font-medium">RD$ ${client.totalAmount.toLocaleString()}</td>
                     <td class="p-3 text-green-700 font-semibold">RD$ ${client.paidAmount.toLocaleString()}</td>
                     <td class="p-3 text-red-700 font-bold">RD$ ${client.remaining.toLocaleString()}</td>
+                    <td class="p-3 whitespace-nowrap">${dueLabel}<br><button onclick="editCreditDueDate(${idx})" class="text-[10px] text-[#956F39] underline">Cambiar fecha</button></td>
                     <td class="p-3">${statusBadge}</td>
                     <td class="p-3 text-center space-x-2">
                         <button onclick="addCreditAbono(${idx})" title="Registrar Abono" class="px-2 py-1 bg-gold-500 hover:bg-gold-600 text-white rounded text-[11px] font-bold">
@@ -1989,6 +1996,35 @@
                 `;
                 tbody.appendChild(tr);
             });
+            renderAjCreditReminders();
+        }
+
+        function ajLocalToday() {
+            const d = new Date();
+            return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-');
+        }
+        function ajBuildCreditReminder(client) {
+            const date = client.dueDate ? new Date(client.dueDate + 'T12:00:00').toLocaleDateString('es-DO') : '';
+            return 'Hola ' + client.name + ' ✨, esperamos que estés muy bien. Te escribimos de *AJ Esencias* para recordarte cordialmente que tienes un saldo pendiente de *RD$ ' + Number(client.remaining).toLocaleString('es-DO') + '*, con fecha de pago acordada para el *' + date + '*.' + '\\n\\nCuando te sea posible, agradecemos que nos confirmes tu pago o nos indiques cuándo podrías realizarlo. Estamos a tu disposición. ¡Muchas gracias por tu preferencia! 💛';
+        }
+        function renderAjCreditReminders() {
+            const list = document.getElementById('ajCreditReminderList'), count = document.getElementById('ajCreditReminderCount');
+            if (!list || !count) return;
+            const today = ajLocalToday();
+            const due = creditClients.map((client,index)=>({client,index})).filter(x=>Number(x.client.remaining)>0 && x.client.dueDate && x.client.dueDate<=today).sort((a,b)=>a.client.dueDate.localeCompare(b.client.dueDate));
+            count.textContent = due.length + (due.length===1?' recordatorio':' recordatorios');
+            if (!due.length) { list.innerHTML='<p class="text-sm text-[#765F65]">No hay pagos vencidos ni programados para hoy. Los próximos aparecerán aquí automáticamente.</p>'; return; }
+            list.innerHTML = due.map(({client,index})=>{
+                const late=client.dueDate<today, date=new Date(client.dueDate+'T12:00:00').toLocaleDateString('es-DO');
+                const href='https://wa.me/'+(String(client.phone||'').replace(/[^0-9]/g,'')||AJ_FIXED_WHATSAPP)+'?text='+encodeURIComponent(ajBuildCreditReminder(client));
+                return '<article class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#E8DCD7] bg-white p-3"><div><div class="font-bold text-[#482431]">'+safeText(client.name)+'</div><div class="text-xs text-[#765F65]">'+(late?'Vencido':'Vence hoy')+' · '+date+'</div><div class="text-sm font-bold text-[#956F39]">Saldo: RD$ '+Number(client.remaining).toLocaleString('es-DO')+'</div></div><a href="'+href+'" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#287A4B] px-4 py-2 text-xs font-bold text-white"><i class="fab fa-whatsapp"></i> Enviar recordatorio</a></article>';
+            }).join('');
+        }
+        function editCreditDueDate(index) {
+            const c=creditClients[index], value=prompt('Fecha acordada de pago para '+c.name+' (AAAA-MM-DD):',c.dueDate||'');
+            if(value===null)return;
+            if(value && !/^\\d{4}-\\d{2}-\\d{2}$/.test(value))return alert('Usa el formato AAAA-MM-DD.');
+            c.dueDate=value||null; if(saveData())renderCreditTable();
         }
 
         function openNewCreditModal() {
@@ -1998,16 +2034,10 @@
             if (!phone) return;
             const amount = parseFloat(prompt("Monto total adeudado (RD$):")) || 0;
             const initialAbono = parseFloat(prompt("Abono inicial entregado (RD$ - colocar 0 si no abonó):")) || 0;
-
+            const dueDate = prompt("Fecha acordada de pago (AAAA-MM-DD). Déjalo vacío si aún no está definida:", "");
+            if (dueDate && !/^\\d{4}-\\d{2}-\\d{2}$/.test(dueDate)) return alert("La fecha debe tener el formato AAAA-MM-DD.");
             const remaining = Math.max(0, amount - initialAbono);
-
-            creditClients.unshift({
-                name,
-                phone,
-                totalAmount: amount,
-                paidAmount: initialAbono,
-                remaining: remaining
-            });
+            creditClients.unshift({ name, phone, totalAmount: amount, paidAmount: initialAbono, remaining, dueDate: dueDate || null });
 
             saveData();
             renderCreditTable();
@@ -2037,10 +2067,9 @@
 
         function sendCreditWhatsAppReminder(index) {
             const client = creditClients[index];
-            let text = `Hola ${client.name} ✨, te saludamos de *AJ esencias*. Te recordamos tu cuenta de crédito. Saldo pendiente actual: *RD$ ${client.remaining.toLocaleString()}*.\n\nPuedes abonar mediante transferencias a nuestras cuentas BHD, Banreservas o Banco Popular a nombre de Jeremy Mejía. Quedamos a tu orden. ¡Muchas gracias!`;
-            const encoded = encodeURIComponent(text);
-            const phone = client.phone.replace(/[^0-9]/g, '') || AJ_FIXED_WHATSAPP;
-            window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
+            const text = ajBuildCreditReminder(client);
+            const phone = String(client.phone || '').replace(/[^0-9]/g, '') || AJ_FIXED_WHATSAPP;
+            window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(text), '_blank');
         }
 
         function sendWhatsAppPaymentReminder() {
