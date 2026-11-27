@@ -1171,10 +1171,15 @@
 
                 <div class="text-xs text-bistre/50 font-semibold uppercase tracking-widest my-1">- Ó bien -</div>
 
-                <!-- Image URL Input -->
-                <div class="space-y-1 text-left">
-                    <label class="block text-xs font-bold text-bistre/80"><i class="fas fa-link text-gold-600 mr-1"></i> Pegar Enlace URL de la Foto:</label>
-                    <input type="url" id="editImageUrlInput" placeholder="https://ejemplo.com/imagen.jpg" oninput="previewUrlImage(this.value)" class="w-full text-xs p-2.5 border border-beige-200 rounded-xl bg-white focus:outline-none focus:border-gold-500">
+                <!-- Buscar imagen en Internet y pegar su enlace -->
+                <div class="space-y-2 text-left">
+                    <label class="block text-xs font-bold text-bistre/80"><i class="fab fa-google text-gold-600 mr-1"></i> Buscar una foto en Internet:</label>
+                    <button type="button" onclick="searchProductImageOnline()" class="w-full rounded-xl border border-gold-500/50 bg-white px-3 py-2.5 text-sm font-semibold text-bistre hover:bg-beige-50">
+                        <i class="fab fa-google mr-2 text-gold-600"></i>Buscar este producto en Google Imágenes
+                    </button>
+                    <p class="text-[11px] leading-relaxed text-bistre/60">Abre Google Imágenes con el nombre del producto. Elige una foto, copia la dirección de la imagen y pégala aquí. También puedes guardar la foto en tu teléfono y subirla desde el dispositivo.</p>
+                    <label class="block text-xs font-bold text-bistre/80"><i class="fas fa-link text-gold-600 mr-1"></i> Pegar enlace directo de la foto:</label>
+                    <input type="url" id="editImageUrlInput" placeholder="https://sitio.com/foto-del-producto.jpg" oninput="previewUrlImage(this.value)" class="w-full text-xs p-2.5 border border-beige-200 rounded-xl bg-white focus:outline-none focus:border-gold-500">
                 </div>
                 <div class="border border-beige-200 rounded-xl p-3 text-left space-y-2">
                     <div class="flex items-center justify-between gap-2">
@@ -2615,6 +2620,15 @@
                 };
                 reader.readAsDataURL(input.files[0]);
             }
+        }
+
+        function searchProductImageOnline() {
+            const prodId = Number(document.getElementById('editImageProdId')?.value);
+            const prod = products.find(p => Number(p.id) === prodId);
+            if (!prod) { alert('No se encontró el producto.'); return; }
+            const query = String(prod.name || '').trim() + ' producto';
+            const googleImagesUrl = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(query);
+            window.open(googleImagesUrl, '_blank', 'noopener,noreferrer');
         }
 
         function previewUrlImage(url) {
