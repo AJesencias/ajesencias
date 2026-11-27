@@ -1901,7 +1901,7 @@
         async function ajCloudRegisterPasskey() {
             if (!ajCloudIsAllowedUser(ajCloudUser)) return ajCloudSetStatus('Esta cuenta no está autorizada para administrar AJ Esencias.', true);
             try {
-                const { data, error } = await ajSupabase.auth.registerPasskey({ friendlyName: 'Face ID · AJ Esencias' });
+                const { data, error } = await ajSupabase.auth.registerPasskey();
                 if (error) throw error;
                 ajCloudSetStatus('Face ID quedó registrado correctamente en este dispositivo.');
                 alert('¡Listo! Tu llave de acceso quedó registrada. La próxima vez podrás entrar con Face ID.');
