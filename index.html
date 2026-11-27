@@ -2571,18 +2571,11 @@
             if (el) { el.textContent = message; el.className = 'text-xs ' + (isError ? 'text-red-700' : 'text-bistre/70'); }
         }
         const AJ_PRIVATE_STORAGE_KEYS = ['aj_products','aj_credit','aj_appointments','aj_daily_logs','aj_business_sales','aj_business_expenses','aj_business_purchases'];
-        // Fotografías provisionales de referencia para el catálogo público.
-        // Se usan solo cuando el producto aún no tiene una imagen propia.
+        // El catálogo muestra exclusivamente fotografías cargadas por el administrador.
+        // Si un producto no tiene una foto propia, se presenta el marcador visual sin imagen externa.
         function ajReferenceProductImage(product) {
-            if (product?.image && /^https?:\\/\\//i.test(product.image)) return product.image;
-            const name = String(product?.name || '').toUpperCase();
-            const refs = [
-                { match: /COLONIA BATH AND BODY|CREMA BATH AND BODY|GEL DE BAÑO BATH AND BODY|VELONES BATH AND BODY/, url: "https://xcdn.next.co.uk/common/items/default/default/itemimages/3_4Ratio/product/lge/AU7348s.jpg?im=Resize%2Cwidth%3D750" },
-                { match: /CREMA EOS|MANTEQUILLA CORPORAL EOS|CREMA DE AFEITAR EOS|GEL DE BAÑO EOS/, url: "https://evolutionofsmooth.com/cdn/shop/files/eos-bundle-fragrance-free-body-lotion-sensitive-shave-cream-the-hero-2-pack-sticks-main.jpg?v=1688571545&width=1200" },
-                { match: /CREMA PALMERS ANTI ESTRIAS/, url: "https://cloudinary.images-iherb.com/image/upload/f_auto%2Cq_auto%3Aeco/images/pal/pal04035/y/70.jpg" },
-                { match: /ACEITE PALMERS ANTI ESTRIAS/, url: "https://bolandlaura.sa/image/cache/catalog/products/4971/%D8%A8%D8%A7%D9%84%D9%85%D8%B1%D8%B2%E2%80%8F-%D8%AA%D8%B1%D9%83%D9%8A%D8%A8%D8%A9-%D8%B2%D8%A8%D8%AF%D8%A9-%D8%A7%D9%84%D9%83%D8%A7%D9%83%D8%A7%D9%88%D8%8C-%D8%B2%D9%8A%D8%AA-%D8%AA%D8%AF%D9%84%D9%8A%D9%83-%D8%A7%D9%84%D8%AC%D8%B3%D9%85-%D9%84%D8%B9%D9%84%D8%A7%D9%85%D8%A7%D8%AA-%D8%AA%D9%85%D8%AF%D8%AF-%D8%A7%D9%84%D8%A8%D8%B4%D8%B1%D8%A9%D8%8C-3-4-%D8%A3%D9%88%D9%86%D8%B5%D8%A9-%D8%B3%D8%A7%D8%A6%D9%84%D8%A9-100-%D9%85%D9%84-800x800.jpg" }
-            ];
-            return refs.find(item => item.match.test(name))?.url || '';
+            const image = String(product?.image || '').trim();
+            return /^https?:\/\//i.test(image) || /^data:image\//i.test(image) ? image : '';
         }
 
         function ajSanitizePublicProduct(product) {
