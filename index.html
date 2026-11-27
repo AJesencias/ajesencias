@@ -1325,10 +1325,11 @@
                         <label for="editImageProductNotes" class="block text-xs font-bold text-bistre mb-1">Notas olfativas (si aplica)</label>
                         <textarea id="editImageProductNotes" rows="3" maxlength="600" placeholder="Salida, corazón y fondo; solo si se conocen." class="w-full text-sm p-2.5 border border-beige-200 rounded-lg bg-white"></textarea>
                     </div>
-                    <button type="button" onclick="ajOpenProductTextAI()" class="w-full rounded-xl border border-[#B99A62] bg-[#482431] px-3 py-3 text-sm font-bold text-white hover:bg-[#603044]">
+                    <button id="ajGenerateProductCopyButton" type="button" onclick="ajOpenProductTextAI()" class="w-full rounded-xl border border-[#B99A62] bg-[#482431] px-3 py-3 text-sm font-bold text-white hover:bg-[#603044] disabled:opacity-60">
                         <i class="fas fa-wand-magic-sparkles mr-2 text-[#E7C77E]"></i>Generar texto sugerido con IA
                     </button>
-                    <p class="text-[10px] leading-relaxed text-bistre/60">Se abrirá ChatGPT con los datos del producto y una instrucción preparada. Revisa la propuesta, copia cada texto en su campo y guarda los cambios. Verifica las notas con el fabricante antes de publicarlas.</p>
+                    <p id="ajGenerateProductCopyStatus" class="text-[11px] leading-relaxed text-bistre/60" role="status" aria-live="polite">Genera la propuesta aquí mismo, sin salir de AJ Esencias. Revisa el contenido antes de guardarlo.</p>
+                    <p class="text-[10px] leading-relaxed text-bistre/60">La IA no debe inventar notas olfativas ni beneficios; confirma los datos del fabricante antes de publicarlos.</p>
                 </div>
                 <div class="text-xs text-bistre/50 font-semibold uppercase tracking-widest my-1">- Ó bien -</div>
 
@@ -3068,31 +3069,45 @@
             return ajSupabase.storage.from('aj-product-images').getPublicUrl(path).data.publicUrl;
         }
 
-        function ajOpenProductTextAI() {
+        async function ajOpenProductTextAI() {
             const prodId = Number(document.getElementById('editImageProdId')?.value);
             const prod = products.find(item => Number(item.id) === prodId);
             if (!prod) return alert('No se encontró el producto.');
-            const description = document.getElementById('editImageProductDescription')?.value.trim() || '';
-            const notes = document.getElementById('editImageProductNotes')?.value.trim() || '';
-            const prompt = [
-                'Actúa como redactor especializado en perfumería, cosmética y comercio minorista para AJ ESENCIAS, una tienda de República Dominicana.',
-                'Prepara dos textos breves, elegantes, claros y atractivos para la ficha de un producto de catálogo.',
-                'PRODUCTO: ' + (prod.name || ''),
-                'CATEGORÍA: ' + (prod.category || 'No especificada'),
-                'DESCRIPCIÓN O DATOS CONOCIDOS: ' + (description || 'No suministrados'),
-                'NOTAS OLFATIVAS CONOCIDAS: ' + (notes || 'No suministradas'),
-                'Devuelve exactamente dos apartados: DESCRIPCIÓN DEL PRODUCTO (máximo 45 palabras) y NOTAS OLFATIVAS (máximo 35 palabras).',
-                'No inventes ingredientes, beneficios, composición, notas, concentración ni afirmaciones del fabricante. Si no hay datos suficientes para identificar notas reales, indícalo claramente y sugiere dejar ese apartado pendiente de confirmar. Si el producto no es perfumado, escribe "No aplica".',
-                'Usa español natural, tono comercial refinado y sin emojis. No incluyas precio.'
-            ].join('\n');
-            const url = 'https://chatgpt.com/?q=' + encodeURIComponent(prompt);
-            const opened = window.open(url, '_blank');
-            if (opened) {
-                opened.opener = null;
-            } else {
-                navigator.clipboard.writeText(prompt)
-                    .then(() => alert('El navegador bloqueó la nueva pestaña. Copié la instrucción: abre ChatGPT y pégala para generar el texto.'))
-                    .catch(() => alert('Permite las ventanas emergentes para este sitio y vuelve a pulsar el botón.'));
+            if (!ajSupabase || !ajCloudUser || !ajCloudIsAllowedUser(ajCloudUser)) {
+                return alert('Inicia sesión con la cuenta administrativa de AJ Esencias para generar textos.');
+            }
+            const descriptionField = document.getElementById('editImageProductDescription');
+            const notesField = document.getElementById('editImageProductNotes');
+            const button = document.getElementById('ajGenerateProductCopyButton');
+            const status = document.getElementById('ajGenerateProductCopyStatus');
+            const original = button?.innerHTML || 'Generar texto sugerido con IA';
+            if (button) { button.disabled = true; button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generando propuesta…'; }
+            if (status) { status.textContent = 'La IA está preparando la descripción y las notas…'; status.classList.remove('text-red-700'); }
+            try {
+                const { data, error } = await ajSupabase.functions.invoke('generate-product-copy', {
+                    body: {
+                        name: prod.name || '',
+                        category: prod.category || '',
+                        description: descriptionField?.value.trim() || '',
+                        notes: notesField?.value.trim() || ''
+                    }
+                });
+                if (error) {
+                    let detail = error.message || 'No se pudo conectar con el generador.';
+                    try { const context = error.context; if (context && typeof context.json === 'function') { const payload = await context.json(); if (payload?.error) detail = payload.error; } } catch (_) {}
+                    if (/404|not found|function/i.test(detail)) detail = 'El generador aún no está desplegado en Supabase. Falta publicar la función generate-product-copy y configurar OPENAI_API_KEY.';
+                    throw new Error(detail);
+                }
+                if (!data || (!data.description && !data.olfactoryNotes)) throw new Error(data?.error || 'La IA no devolvió textos válidos.');
+                if (descriptionField && data.description) descriptionField.value = data.description;
+                if (notesField && data.olfactoryNotes) notesField.value = data.olfactoryNotes;
+                if (status) status.textContent = '¡Texto generado! Revísalo y pulsa «Guardar Imagen» para conservarlo.';
+            } catch (error) {
+                console.error('Error al generar texto de producto:', error);
+                if (status) { status.textContent = error.message || 'No se pudo generar el texto.'; status.classList.add('text-red-700'); }
+                else alert(error.message || 'No se pudo generar el texto.');
+            } finally {
+                if (button) { button.disabled = false; button.innerHTML = original; }
             }
         }
 
