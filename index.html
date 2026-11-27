@@ -2676,6 +2676,7 @@
                 .eq('is_active', true).order('category').order('name');
             if (error) {
                 console.warn('Catálogo público remoto aún no disponible:', error.message);
+                ajShowProblem('No se pudo actualizar el catálogo', 'La tienda no pudo consultar los productos más recientes.', 'Comprueba tu conexión y recarga la página. Si continúa, contacta al administrador de AJ Esencias.');
                 return;
             }
             const safe = (data || []).map(row => ajSanitizePublicProduct({
@@ -3056,7 +3057,8 @@
             );
             ajCloudWriteInProgress = false;
             if (error) {
-                ajCloudSetStatus('Error al sincronizar: ' + error.message, true);
+                ajCloudSetStatus('Error al sincronizar. Comprueba tu conexión e inténtalo nuevamente.', true);
+                ajShowProblem('No se pudieron sincronizar los cambios', 'La información sigue en este dispositivo, pero no se pudo enviar a la nube.', 'Comprueba tu conexión a internet. Cuando vuelva, intenta guardar o espera la sincronización automática.');
                 if (ajCloudWriteQueued) { ajCloudWriteQueued = false; ajCloudScheduleSync(); }
                 return false;
             } else {
