@@ -2093,6 +2093,19 @@
             if(adminContent) adminContent.classList.toggle('hidden', !logged);
             const adminHeader=document.getElementById('adminBusinessHeader');
             if(adminHeader) adminHeader.classList.toggle('hidden', !logged);
+            // Oculta TODAS las tarjetas comerciales dentro de Gestión Comercial,
+            // excepto el cuadro de acceso, mientras no exista una sesión autorizada.
+            const businessSection=document.getElementById('section-business');
+            const businessShell=businessSection && businessSection.firstElementChild;
+            const authCard=document.getElementById('cloudAuthFields')?.closest('.border.border-gold-500\\/30');
+            if(businessShell && authCard) {
+                Array.from(businessShell.children).forEach(child => {
+                    const isAuthCard = child === authCard || child.contains(authCard);
+                    child.classList.toggle('hidden', !logged && !isAuthCard);
+                    if (!logged && !isAuthCard) child.setAttribute('aria-hidden','true');
+                    else child.setAttribute('aria-hidden','false');
+                });
+            }
             const privateWorkspaceNav = document.getElementById('privateWorkspaceNav');
             if(privateWorkspaceNav) privateWorkspaceNav.classList.toggle('hidden', !logged);
             const privateTab = document.getElementById('tab-business');
