@@ -935,22 +935,17 @@
         window.onload = function() {
             document.getElementById('currYear').innerText = new Date().getFullYear();
             
-            // Load LocalStorage data if exists
-            products = readStoredJSON('aj_products', [...initialProducts]);
-            creditClients = readStoredJSON('aj_credit', []);
-            appointments = readStoredJSON('aj_appointments', []);
-            dailyLogs = readStoredJSON('aj_daily_logs', []);
-            businessSales = readStoredJSON('aj_business_sales', []);
-            businessExpenses = readStoredJSON('aj_business_expenses', []);
-            businessPurchases = readStoredJSON('aj_business_purchases', []);
+            // La tienda pública nunca lee los registros privados del almacenamiento local.
+            products = initialProducts.map(ajSanitizePublicProduct);
+            creditClients = [];
+            appointments = [];
+            dailyLogs = [];
+            businessSales = [];
+            businessExpenses = [];
+            businessPurchases = [];
 
-            // Render Products & Tables
+            // Solo se renderiza el catálogo público antes de autenticar.
             renderProductCatalog();
-            renderPriceEditor();
-            renderCreditTable();
-            renderAppointmentsList();
-            renderDailyLogs();
-            renderBusinessManagement();
             const today = new Date().toISOString().slice(0,10);
             document.getElementById('bizSaleDate').value = today;
             document.getElementById('bizExpenseDate').value = today;
@@ -972,6 +967,8 @@
         }
 
         function saveData() {
+            // La parte pública no puede persistir ni leer información administrativa.
+            if (!ajCloudUser) return true;
             try {
                 localStorage.setItem('aj_products', JSON.stringify(products));
                 localStorage.setItem('aj_credit', JSON.stringify(creditClients));
@@ -983,7 +980,7 @@
                 if (typeof ajCloudScheduleSync === 'function') ajCloudScheduleSync();
                 return true;
             } catch (error) {
-                console.error('No fue posible guardar los datos en este navegador.', error);
+                console.error('No fue posible guardar los datos privados en este navegador.', error);
                 alert('No se pudieron guardar los cambios. Libera espacio del navegador e inténtalo de nuevo.');
                 return false;
             }
@@ -1980,11 +1977,91 @@
             const el = document.getElementById('cloudStatus');
             if (el) { el.textContent = message; el.className = 'text-xs ' + (isError ? 'text-red-700' : 'text-bistre/70'); }
         }
+        const AJ_PRIVATE_STORAGE_KEYS = ['aj_products','aj_credit','aj_appointments','aj_daily_logs','aj_business_sales','aj_business_expenses','aj_business_purchases'];
+        function ajSanitizePublicProduct(product) {
+            return {
+                id: String(product?.id ?? ''),
+                category: String(product?.category ?? 'Productos'),
+                name: String(product?.name ?? ''),
+                price: Math.max(0, Number(product?.price) || 0),
+                image: typeof product?.image === 'string' && /^https?:\\/\\//i.test(product.image) ? product.image : ''
+            };
+        }
+        function ajClearPrivateLocalData() {
+            AJ_PRIVATE_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
+        }
+        function ajResetPrivateState() {
+            ajClearPrivateLocalData();
+            creditClients = []; appointments = []; dailyLogs = [];
+            businessSales = []; businessExpenses = []; businessPurchases = [];
+            products = readStoredJSON('aj_public_products', initialProducts.map(ajSanitizePublicProduct)).map(ajSanitizePublicProduct);
+            renderProductCatalog();
+            selectedQuantities = {};
+            calculateTotal();
+            ['section-credit','section-appointments','section-inventory','section-prices'].forEach(id => {
+                const section = document.getElementById(id);
+                if (section) { section.classList.add('hidden'); section.setAttribute('aria-hidden','true'); }
+            });
+        }
+        async function ajLoadPublicCatalog() {
+            if (!ajSupabase) return;
+            const { data, error } = await ajSupabase.from('aj_public_catalog')
+                .select('product_id,category,name,price,image_url')
+                .eq('is_active', true).order('category').order('name');
+            if (error) {
+                console.warn('Catálogo público remoto aún no disponible:', error.message);
+                return;
+            }
+            const safe = (data || []).map(row => ajSanitizePublicProduct({
+                id: row.product_id, category: row.category, name: row.name,
+                price: row.price, image: row.image_url
+            }));
+            if (safe.length) {
+                products = safe;
+                localStorage.setItem('aj_public_products', JSON.stringify(safe));
+                renderProductCatalog();
+                calculateTotal();
+            }
+        }
+        async function ajPublishPublicCatalog() {
+            if (!ajSupabase || !ajCloudUser || !ajCloudIsAllowedUser(ajCloudUser)) return false;
+            const safeRows = products.map(ajSanitizePublicProduct).filter(p => p.id && p.name).map(p => ({
+                product_id: p.id, owner_id: ajCloudUser.id, category: p.category,
+                name: p.name, price: p.price, image_url: p.image, is_active: true,
+                updated_at: new Date().toISOString()
+            }));
+            const { error: upsertError } = await ajSupabase.from('aj_public_catalog').upsert(safeRows, { onConflict: 'product_id' });
+            if (upsertError) { console.warn('No se pudo publicar el catálogo seguro:', upsertError.message); return false; }
+            const { data: currentRows, error: readError } = await ajSupabase.from('aj_public_catalog')
+                .select('product_id').eq('owner_id', ajCloudUser.id);
+            if (!readError && currentRows) {
+                const keep = new Set(safeRows.map(row => row.product_id));
+                const stale = currentRows.map(row => row.product_id).filter(id => !keep.has(id));
+                if (stale.length) {
+                    const { error: deleteError } = await ajSupabase.from('aj_public_catalog')
+                        .delete().eq('owner_id', ajCloudUser.id).in('product_id', stale);
+                    if (deleteError) console.warn('No se pudieron retirar productos antiguos del catálogo:', deleteError.message);
+                }
+            }
+            const publicSafe = safeRows.map(row => ajSanitizePublicProduct({
+                id: row.product_id, category: row.category, name: row.name, price: row.price, image: row.image_url
+            }));
+            localStorage.setItem('aj_public_products', JSON.stringify(publicSafe));
+            return true;
+        }
+
         function ajCloudRefreshUI(user) {
             ajCloudUser = user || null;
             const logged = !!ajCloudUser;
             if (logged) { if (!ajLastActivityAt) ajLastActivityAt = Date.now(); ajScheduleIdleLock(); }
-            else ajStopIdleLock();
+            else {
+                ajStopIdleLock();
+                ajResetPrivateState();
+            }
+            ['section-credit','section-appointments','section-inventory','section-prices'].forEach(id => {
+                const section = document.getElementById(id);
+                if (section) { section.classList.toggle('hidden', !logged); section.setAttribute('aria-hidden', logged ? 'false' : 'true'); }
+            });
             document.getElementById('cloudAuthFields').classList.toggle('hidden', logged);
             document.getElementById('cloudAuthActions').classList.toggle('hidden', logged);
             document.getElementById('cloudDataActions').classList.toggle('hidden', !logged);
@@ -2214,6 +2291,7 @@
                 return false;
             } else {
                 ajCloudLastUpdatedAt = stamp;
+                await ajPublishPublicCatalog();
                 ajCloudSetStatus('Sincronizado automáticamente: ' + new Date(stamp).toLocaleTimeString('es-DO'));
                 if (Date.now() - ajCloudLastBackupAt > 15 * 60 * 1000) {
                     try { await ajCloudCreateBackup('Respaldo automático'); }
@@ -2267,10 +2345,12 @@
             if (session && !ajCloudIsAllowedUser(session.user)) await ajSupabase.auth.signOut();
             const { data: { session: validSession } } = await ajSupabase.auth.getSession();
             ajCloudRefreshUI(validSession ? validSession.user : null);
+            if (!validSession) await ajLoadPublicCatalog();
             if (validSession) {
                 const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', validSession.user.id).maybeSingle();
                 if (!error && data && data.payload) ajCloudApplyPayload(data.payload, data.updated_at);
                 await ajCloudRefreshBackupClock();
+                await ajPublishPublicCatalog();
                 await ajCloudSubscribe();
             }
             ajSupabase.auth.onAuthStateChange(async (_event, currentSession) => {
@@ -2280,9 +2360,11 @@
                     const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', currentSession.user.id).maybeSingle();
                     if (!error && data && data.payload) ajCloudApplyPayload(data.payload, data.updated_at);
                     await ajCloudRefreshBackupClock();
+                    await ajPublishPublicCatalog();
                     await ajCloudSubscribe();
-                } else if (ajCloudChannel) {
-                    await ajSupabase.removeChannel(ajCloudChannel); ajCloudChannel = null;
+                } else {
+                    if (ajCloudChannel) { await ajSupabase.removeChannel(ajCloudChannel); ajCloudChannel = null; }
+                    await ajLoadPublicCatalog();
                 }
             });
         }
