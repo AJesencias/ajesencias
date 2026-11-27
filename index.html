@@ -1166,7 +1166,14 @@
                 <!-- Upload Local File -->
                 <div class="space-y-1 text-left">
                     <label class="block text-xs font-bold text-bistre/80"><i class="fas fa-upload text-gold-600 mr-1"></i> Subir Foto desde tu Dispositivo:</label>
-                    <input type="file" id="editImageFileInput" accept="image/*" onchange="previewSelectedFile(this)" class="w-full text-xs p-2 border border-beige-200 rounded-xl bg-beige-50">
+                    <input type="file" id="editImageFileInput" accept="image/*" multiple onchange="previewSelectedFile(this)" class="w-full text-xs p-2 border border-beige-200 rounded-xl bg-beige-50">
+                    <p class="text-[11px] text-bistre/60">Puedes seleccionar varias fotos a la vez. La primera será la imagen principal.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="rotateProductImage(-90)" class="px-3 py-2 rounded-lg border border-gold-300 text-xs font-semibold"><i class="fas fa-rotate-left mr-1"></i> Girar izquierda</button>
+                        <button type="button" onclick="rotateProductImage(90)" class="px-3 py-2 rounded-lg border border-gold-300 text-xs font-semibold"><i class="fas fa-rotate-right mr-1"></i> Girar derecha</button>
+                        <span id="imageRotationLabel" class="self-center text-xs text-bistre/60">Rotación: 0°</span>
+                    </div>
+                    <div id="editImageGalleryPreview" class="grid grid-cols-4 gap-2"></div>
                 </div>
 
                 <div class="text-xs text-bistre/50 font-semibold uppercase tracking-widest my-1">- Ó bien -</div>
@@ -1824,6 +1831,21 @@
             }
         }
 
+        function changeProductGalleryImage(productId, direction) {
+            const product = products.find(item => String(item.id) === String(productId));
+            if (!product) return;
+            const images = (Array.isArray(product.images) && product.images.length ? product.images : [product.image]).filter(Boolean);
+            if (images.length < 2) return;
+            const image = document.getElementById('aj-product-image-' + productId);
+            if (!image) return;
+            let index = Number(image.dataset.galleryIndex || 0);
+            index = (index + direction + images.length) % images.length;
+            image.dataset.galleryIndex = String(index);
+            image.src = images[index];
+            const counter = image.parentElement.querySelector('span');
+            if (counter) counter.textContent = (index + 1) + ' / ' + images.length;
+        }
+
         function renderProductCatalog() {
             const container = document.getElementById('productsContainer');
             const quickLinks = document.getElementById('categoryQuickLinks');
@@ -1865,10 +1887,11 @@
                     card.setAttribute('data-category', String(p.category || '').toLowerCase());
 
                     // Image Display Element
+                    const productImages = (Array.isArray(p.images) && p.images.length ? p.images : [p.image]).filter(Boolean);
                     const productImage = ajReferenceProductImage(p);
                     const hasImg = productImage.length > 0;
-                    const imgHtml = hasImg 
-                        ? `<div class="catalog-product-media"><img src="${productImage}" alt="${p.name}" loading="lazy" referrerpolicy="no-referrer"></div>`
+                    const imgHtml = hasImg
+                        ? `<div class="catalog-product-media relative"><img id="aj-product-image-${p.id}" src="${productImages[0] || productImage}" alt="${p.name}" loading="lazy" referrerpolicy="no-referrer" style="transform:rotate(${Number(p.imageRotation || 0)}deg)"><span class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[10px] text-bistre">${productImages.length > 1 ? '1 / ' + productImages.length : ''}</span>${productImages.length > 1 ? `<button type="button" onclick="changeProductGalleryImage('${p.id}',-1)" class="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 w-8 h-8 shadow text-bistre" aria-label="Foto anterior">‹</button><button type="button" onclick="changeProductGalleryImage('${p.id}',1)" class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 w-8 h-8 shadow text-bistre" aria-label="Foto siguiente">›</button>` : ''}</div>`
                         : `<div class="catalog-product-media text-gold-600/50"><i class="fas fa-spray-can-sparkles text-4xl"></i></div>`;
 
                     card.innerHTML = `
@@ -2584,6 +2607,10 @@
             document.getElementById('editImageProdTitle').innerText = `Foto: ${prod.name}`;
             document.getElementById('editImageUrlInput').value = prod.image && prod.image.startsWith('http') ? prod.image : '';
             document.getElementById('editImageFileInput').value = '';
+            window.ajEditingImageRotation = Number(prod.imageRotation || 0);
+            const rotationLabel = document.getElementById('imageRotationLabel');
+            if (rotationLabel) rotationLabel.textContent = 'Rotación: ' + window.ajEditingImageRotation + '°';
+            renderEditImageGalleryPreview(prod);
 
             tempImageValue = prod.image || "";
             updateImagePreviewDisplay(tempImageValue);
@@ -2602,6 +2629,7 @@
 
             if (urlOrData && urlOrData.trim().length > 0) {
                 preview.src = urlOrData;
+                preview.style.transform = 'rotate(' + (window.ajEditingImageRotation || 0) + 'deg)';
                 preview.classList.remove('hidden');
                 placeholder.classList.add('hidden');
             } else {
@@ -2609,6 +2637,32 @@
                 preview.classList.add('hidden');
                 placeholder.classList.remove('hidden');
             }
+        }
+
+        function renderEditImageGalleryPreview(product) {
+            const host = document.getElementById('editImageGalleryPreview');
+            if (!host) return;
+            const images = Array.isArray(product?.images) ? product.images : [];
+            host.innerHTML = images.map((src, index) => '<div class="relative"><img src="' + String(src).replace(/"/g, '&quot;') + '" alt="Foto ' + (index + 1) + '" class="w-full aspect-square object-contain rounded-lg border border-beige-200 bg-beige-50"><button type="button" onclick="removeProductGalleryImage(' + index + ')" class="absolute -top-1 -right-1 rounded-full bg-red-600 text-white w-5 h-5 text-xs">×</button></div>').join('');
+        }
+
+        function rotateProductImage(degrees) {
+            window.ajEditingImageRotation = ((Number(window.ajEditingImageRotation || 0) + degrees) % 360 + 360) % 360;
+            const label = document.getElementById('imageRotationLabel');
+            if (label) label.textContent = 'Rotación: ' + window.ajEditingImageRotation + '°';
+            const preview = document.getElementById('editImagePreview');
+            if (preview) preview.style.transform = 'rotate(' + window.ajEditingImageRotation + 'deg)';
+        }
+
+        function removeProductGalleryImage(index) {
+            const id = Number(document.getElementById('editImageProdId')?.value);
+            const prod = products.find(p => Number(p.id) === id);
+            if (!prod || !Array.isArray(prod.images)) return;
+            prod.images.splice(index, 1);
+            if (prod.image && !prod.images.includes(prod.image)) prod.image = prod.images[0] || '';
+            tempImageValue = prod.image || '';
+            updateImagePreviewDisplay(tempImageValue);
+            renderEditImageGalleryPreview(prod);
         }
 
         function previewSelectedFile(input) {
@@ -2668,28 +2722,40 @@
             const prodId = parseInt(document.getElementById('editImageProdId').value);
             const prod = products.find(p => p.id === prodId);
             if (!prod) return;
-            const file = document.getElementById('editImageFileInput').files[0];
+            const files = Array.from(document.getElementById('editImageFileInput').files || []);
             const urlInput = document.getElementById('editImageUrlInput').value.trim();
             const previousImage = prod.image || '';
             try {
-                let nextImage;
-                if (file) nextImage = ajCloudUser ? await ajUploadProductImage(file, prodId) : await ajReadImageLocally(file);
-                else nextImage = urlInput || tempImageValue || "";
-                if (ajCloudUser && previousImage.startsWith('http') && previousImage !== nextImage) {
-                    await ajCloudArchiveProductImage(prod, previousImage, nextImage ? 'reemplazada' : 'eliminada');
+                let gallery = Array.isArray(prod.images) ? [...prod.images] : (prod.image ? [prod.image] : []);
+                if (files.length) {
+                    const uploaded = [];
+                    for (const file of files) {
+                        uploaded.push(ajCloudUser ? await ajUploadProductImage(file, prodId) : await ajReadImageLocally(file));
+                    }
+                    gallery = [...gallery, ...uploaded];
+                } else if (urlInput) {
+                    if (!gallery.includes(urlInput)) gallery.push(urlInput);
+                } else if (tempImageValue === '') {
+                    gallery = [];
                 }
-                prod.image = nextImage;
+                if (tempImageValue && !files.length && !urlInput && !gallery.includes(tempImageValue)) gallery.unshift(tempImageValue);
+                prod.images = [...new Set(gallery.filter(Boolean))];
+                prod.image = urlInput && !files.length ? urlInput : (prod.images[0] || '');
+                prod.imageRotation = Number(window.ajEditingImageRotation || 0);
+                if (ajCloudUser && previousImage.startsWith('http') && previousImage !== prod.image) {
+                    await ajCloudArchiveProductImage(prod, previousImage, prod.image ? 'reemplazada' : 'eliminada');
+                }
                 if (!saveData()) return;
                 if (ajCloudUser) {
                     const synced = await ajCloudWrite(false);
-                    if (!synced) throw new Error('La foto se subió, pero no se pudo guardar su enlace en la nube. No cierres esta página; vuelve a intentar Guardar datos en la nube.');
-                    await ajCloudRecordActivity(nextImage ? 'fotografia_actualizada' : 'fotografia_eliminada', 'producto', String(prodId), { product_name: prod.name });
+                    if (!synced) throw new Error('Las fotos se guardaron en este dispositivo, pero no se pudieron sincronizar. Intenta guardar los datos en la nube nuevamente.');
+                    await ajCloudRecordActivity('galeria_fotografias_actualizada', 'producto', String(prodId), { product_name: prod.name, images_count: prod.images.length });
                 }
                 renderPriceEditor(); renderProductCatalog(); closeEditImageModal();
-                alert(ajCloudUser && nextImage.startsWith('http') ? "¡Fotografía guardada y sincronizada en la nube!" : "¡Fotografía actualizada en este dispositivo!");
-            } catch (error) { alert('No se pudo completar el cambio de fotografía: ' + error.message); }
+                alert(ajCloudUser ? '¡Galería de fotografías guardada y sincronizada!' : '¡Galería actualizada en este dispositivo! Inicia sesión para sincronizarla.');
+            } catch (error) { alert('No se pudo completar el cambio de fotografías: ' + error.message); }
         }
-    
+
         const AJ_SUPABASE_URL = 'https://egkqaymaqednmweaqbaz.supabase.co';
         const AJ_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_zEE8izXWpR3xafes53pjMQ_dP0LQD9k';
         let ajSupabase = null, ajCloudUser = null;
@@ -2794,7 +2860,9 @@
                 category: String(product?.category ?? 'Productos'),
                 name: String(product?.name ?? ''),
                 price: Math.max(0, Number(product?.price) || 0),
-                image: ajReferenceProductImage(product)
+                image: ajReferenceProductImage(product),
+                images: (Array.isArray(product?.images) ? product.images : []).filter(src => /^https?:\\/\\//i.test(String(src)) || /^data:image\\//i.test(String(src))),
+                imageRotation: ((Number(product?.imageRotation) || 0) % 360 + 360) % 360
             };
         }
         function ajClearPrivateLocalData() {
@@ -2816,7 +2884,7 @@
         async function ajLoadPublicCatalog() {
             if (!ajSupabase) return;
             const { data, error } = await ajSupabase.from('aj_public_catalog')
-                .select('product_id,category,name,price,image_url')
+                .select('product_id,category,name,price,image_url,image_gallery,image_rotation')
                 .eq('is_active', true).order('category').order('name');
             if (error) {
                 console.warn('Catálogo público remoto aún no disponible:', error.message);
@@ -2825,7 +2893,7 @@
             }
             const safe = (data || []).map(row => ajSanitizePublicProduct({
                 id: row.product_id, category: row.category, name: row.name,
-                price: row.price, image: row.image_url
+                price: row.price, image: row.image_url, images: row.image_gallery || [], imageRotation: row.image_rotation || 0
             })).filter(product => product.id && product.name);
 
             // Si la tabla pública está vacía, no borrar el catálogo que ya se puede mostrar.
@@ -2844,7 +2912,7 @@
             if (!ajSupabase || !ajCloudUser || !ajCloudIsAllowedUser(ajCloudUser)) return false;
             const safeRows = products.map(ajSanitizePublicProduct).filter(p => p.id && p.name).map(p => ({
                 product_id: p.id, owner_id: ajCloudUser.id, category: p.category,
-                name: p.name, price: p.price, image_url: p.image, is_active: true,
+                name: p.name, price: p.price, image_url: p.image, image_gallery: p.images || [], image_rotation: p.imageRotation || 0, is_active: true,
                 updated_at: new Date().toISOString()
             }));
             if (safeRows.length) {
@@ -2863,7 +2931,7 @@
                 }
             }
             const publicSafe = safeRows.map(row => ajSanitizePublicProduct({
-                id: row.product_id, category: row.category, name: row.name, price: row.price, image: row.image_url
+                id: row.product_id, category: row.category, name: row.name, price: row.price, image: row.image_url, images: row.image_gallery || [], imageRotation: row.image_rotation || 0
             }));
             localStorage.setItem('aj_public_products', JSON.stringify(publicSafe));
             return true;
