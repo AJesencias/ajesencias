@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="112" fill="#FAF8F3"/>
+<circle cx="256" cy="256" r="222" fill="none" stroke="#B58A3B" stroke-width="12"/>
+<circle cx="256" cy="256" r="204" fill="none" stroke="#D9B967" stroke-width="3"/>
+<path d="M198 118l18-34 20 34 20-24 12 43h-82z" fill="#B58A3B"/>
+<path d="M184 146h116v12H184z" fill="#B58A3B"/>
+<text x="256" y="296" text-anchor="middle" font-family="Georgia,serif" font-size="190" font-style="italic" letter-spacing="-18" fill="#A7792B">AJ</text>
+<path d="M132 330h248" stroke="#B58A3B" stroke-width="5"/>
+<text x="256" y="378" text-anchor="middle" font-family="Georgia,serif" font-size="39" letter-spacing="6" fill="#79521D">ESENCIAS</text>
+<text x="256" y="414" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" letter-spacing="4" fill="#8C6427">PERFUMERÍA Y MÁS</text>
+</svg>
