@@ -306,6 +306,22 @@
         }
         @media (max-width:360px) { .catalog-grid { grid-template-columns:1fr !important; } }
 
+
+        /* Marca centrada y menú desplegable de campañas */
+        .store-hero:before {
+            width:clamp(230px,42vw,430px) !important;
+            right:auto !important; left:50% !important; top:50% !important;
+            transform:translate(-50%,-50%) !important;
+            opacity:.13 !important; filter:grayscale(.1) sepia(.2) !important;
+        }
+        .store-hero > * { position:relative; z-index:1; }
+        .aj-promo-menu-wrap { z-index:25; }
+        .aj-promo-sections article { scroll-margin-top:120px; }
+        @media(max-width:639px) {
+            .aj-promo-menu-wrap { justify-content:flex-end; }
+            .aj-promo-sections article { padding:17px !important; }
+        }
+
         /* Detalles de marca y navegación del catálogo */
         .store-hero { isolation:isolate !important; }
         .store-hero:before {
@@ -400,7 +416,39 @@
 
         <!-- SECTION 1: CALCULATOR / CATALOG (PUBLIC ACCESS) -->
         <section id="section-calculator" class="tab-content block">
-            <section class="store-hero relative overflow-hidden rounded-[26px] border border-gold-500/25 mb-7 p-6 sm:p-9">
+            
+            <div class="aj-promo-menu-wrap relative mb-5 flex justify-end">
+                <button type="button" id="ajPromoMenuButton" aria-expanded="false" aria-controls="ajPromoMenu"
+                    onclick="toggleAjPromoMenu()" class="inline-flex items-center gap-2 rounded-full border border-[#B99A62] bg-white px-4 py-2.5 text-sm font-bold text-[#482431] shadow-sm hover:bg-[#F4ECE9]">
+                    <i class="fas fa-ellipsis-h"></i><span>Explorar promociones</span>
+                </button>
+                <div id="ajPromoMenu" class="hidden absolute right-0 top-12 z-30 w-64 rounded-2xl border border-[#E6DCD5] bg-white p-2 shadow-xl">
+                    <a href="#aj-offers" onclick="toggleAjPromoMenu(false)" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#482431] hover:bg-[#F8F5F1]"><i class="fas fa-tags w-5 text-[#B99A62]"></i>Ofertas especiales</a>
+                    <a href="#aj-black-friday" onclick="toggleAjPromoMenu(false)" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#482431] hover:bg-[#F8F5F1]"><i class="fas fa-bolt w-5 text-[#B99A62]"></i>Black Friday</a>
+                    <a href="#aj-christmas" onclick="toggleAjPromoMenu(false)" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-[#482431] hover:bg-[#F8F5F1]"><i class="fas fa-snowflake w-5 text-[#B99A62]"></i>Temporada navideña</a>
+                </div>
+            </div>
+            <div class="aj-promo-sections grid grid-cols-1 md:grid-cols-3 gap-4 mb-7">
+                <article id="aj-offers" class="rounded-2xl border border-[#DCCBC5] bg-white p-5 shadow-sm scroll-mt-28">
+                    <span class="text-[10px] font-bold uppercase tracking-[.2em] text-[#A7834D]">Selección especial</span>
+                    <h3 class="mt-2 font-serif-title text-2xl font-bold text-[#482431]">Ofertas especiales</h3>
+                    <p class="mt-2 text-sm text-[#6F5A60]">Descubre promociones y precios especiales de AJ Esencias.</p>
+                    <a href="https://wa.me/18094318218?text=Hola%20AJ%20Esencias%2C%20quiero%20conocer%20las%20ofertas%20disponibles." target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex rounded-xl bg-[#482431] px-4 py-2.5 text-xs font-bold text-white">Consultar ofertas</a>
+                </article>
+                <article id="aj-black-friday" class="rounded-2xl border border-[#DCCBC5] bg-[#482431] p-5 shadow-sm scroll-mt-28">
+                    <span class="text-[10px] font-bold uppercase tracking-[.2em] text-[#E2C995]">Edición especial</span>
+                    <h3 class="mt-2 font-serif-title text-2xl font-bold text-white">Black Friday</h3>
+                    <p class="mt-2 text-sm text-white/80">Aprovecha las ofertas especiales de temporada. Consulta disponibilidad y precios.</p>
+                    <a href="https://wa.me/18094318218?text=Hola%20AJ%20Esencias%2C%20quiero%20informaci%C3%B3n%20de%20Black%20Friday." target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex rounded-xl border border-[#D9C08B] px-4 py-2.5 text-xs font-bold text-white">Ver promociones</a>
+                </article>
+                <article id="aj-christmas" class="rounded-2xl border border-[#DCCBC5] bg-[#F3ECE8] p-5 shadow-sm scroll-mt-28">
+                    <span class="text-[10px] font-bold uppercase tracking-[.2em] text-[#A7834D]">Momentos para compartir</span>
+                    <h3 class="mt-2 font-serif-title text-2xl font-bold text-[#482431]">Temporada navideña</h3>
+                    <p class="mt-2 text-sm text-[#6F5A60]">Encuentra detalles, fragancias y regalos para esta Navidad.</p>
+                    <a href="https://wa.me/18094318218?text=Hola%20AJ%20Esencias%2C%20quiero%20ver%20las%20opciones%20navide%C3%B1as." target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex rounded-xl bg-[#482431] px-4 py-2.5 text-xs font-bold text-white">Ver opciones navideñas</a>
+                </article>
+            </div>
+<section class="store-hero relative overflow-hidden rounded-[26px] border border-gold-500/25 mb-7 p-6 sm:p-9">
                 <div class="absolute -right-12 -top-16 w-56 h-56 rounded-full border border-gold-500/20"></div><div class="absolute -right-4 -top-8 w-40 h-40 rounded-full border border-gold-500/15"></div>
                 <div class="relative z-10 max-w-2xl">
                     <span class="text-[10px] sm:text-xs font-bold tracking-[.24em] text-gold-700 uppercase">AJ Esencias · Perfumería y más</span>
@@ -1324,6 +1372,15 @@
                 lockIcon.className = "fas fa-lock-open text-green-700";
                 lockText.innerText = "Sesión local abierta";
             }
+        }
+
+        function toggleAjPromoMenu(force) {
+            const menu = document.getElementById('ajPromoMenu');
+            const button = document.getElementById('ajPromoMenuButton');
+            if (!menu || !button) return;
+            const shouldOpen = typeof force === 'boolean' ? force : menu.classList.contains('hidden');
+            menu.classList.toggle('hidden', !shouldOpen);
+            button.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
         }
 
         function switchTab(tabId) {
