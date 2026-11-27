@@ -3083,6 +3083,8 @@
             const original = button?.innerHTML || 'Generar texto sugerido con IA';
             if (button) { button.disabled = true; button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generando propuesta…'; }
             if (status) { status.textContent = 'La IA está preparando la descripción y las notas…'; status.classList.remove('text-red-700'); }
+            const aiController = new AbortController();
+            const aiTimeout = setTimeout(() => aiController.abort(), 45000);
             try {
                 const { data, error } = await ajSupabase.functions.invoke('generate-product-copy', {
                     body: {
@@ -3090,7 +3092,8 @@
                         category: prod.category || '',
                         description: descriptionField?.value.trim() || '',
                         notes: notesField?.value.trim() || ''
-                    }
+                    },
+                    signal: aiController.signal
                 });
                 if (error) {
                     let detail = error.message || 'No se pudo conectar con el generador.';
@@ -3104,9 +3107,13 @@
                 if (status) status.textContent = '¡Texto generado! Revísalo y pulsa «Guardar Imagen» para conservarlo.';
             } catch (error) {
                 console.error('Error al generar texto de producto:', error);
-                if (status) { status.textContent = error.message || 'No se pudo generar el texto.'; status.classList.add('text-red-700'); }
-                else alert(error.message || 'No se pudo generar el texto.');
+                const detail = error?.name === 'AbortError'
+                    ? 'La solicitud tardó más de 45 segundos. Revisa la conexión y los registros de la función en Supabase; luego inténtalo otra vez.'
+                    : (error.message || 'No se pudo generar el texto.');
+                if (status) { status.textContent = detail; status.classList.add('text-red-700'); }
+                else alert(detail);
             } finally {
+                clearTimeout(aiTimeout);
                 if (button) { button.disabled = false; button.innerHTML = original; }
             }
         }
