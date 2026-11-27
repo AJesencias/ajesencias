@@ -1489,13 +1489,16 @@
             document.getElementById('ajProblemSolution').textContent = solution;
         }
         window.addEventListener('error', function(event) {
+            // Los recursos opcionales (iconos, fuentes y exportación PDF) no deben bloquear toda la tienda.
             if (event.target && (event.target.src || event.target.href)) {
                 const file = String(event.target.src || event.target.href);
-                const name = file.includes('supabase') ? 'servicio de conexión' : file.includes('tailwind') ? 'estilos de la página' : 'recurso externo';
-                ajShowProblem('No se pudo cargar un componente', 'La página no logró cargar '+name+'. Algunas funciones podrían no estar disponibles.', 'Comprueba tu conexión a internet y recarga la página. Si continúa, inténtalo más tarde.');
+                console.warn('AJ Esencias: recurso externo no disponible:', file);
+                if (file.includes('supabase')) {
+                    ajShowProblem('Servicio de conexión no disponible', 'No se pudo cargar Supabase. El acceso privado y la sincronización podrían no funcionar.', 'Comprueba tu conexión y recarga la página.');
+                }
                 return;
             }
-            ajShowProblem('Ocurrió un error en la página', 'Una función encontró un problema inesperado y puede que esa acción no se haya completado.', 'Recarga la página e inténtalo nuevamente. Si vuelve a ocurrir, envíanos una captura de este aviso.');
+            console.error('AJ Esencias: error JavaScript:', event.message, event.filename, event.lineno);
         }, true);
         window.addEventListener('unhandledrejection', function(event) {
             const raw = event.reason && event.reason.message ? event.reason.message : '';
