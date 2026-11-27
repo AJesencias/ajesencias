@@ -425,36 +425,53 @@
         .aj-campaign-admin { border:1px solid #dfd2c2; border-radius:18px; padding:16px; background:#fff; }
         .aj-campaign-admin input,.aj-campaign-admin select { width:100%; border:1px solid #ded5cc; border-radius:10px; padding:10px; background:#fff; font-size:13px; }
 
-        /* Black Friday global: cortina animada desde el techo hasta media pantalla */
+        /* Black Friday premium · cortina satinada y detalles champagne */
         #ajBlackFridayCurtain {
-            position:fixed; inset:0 0 auto; height:54vh; max-height:560px; min-height:260px;
+            position:fixed; inset:0 0 auto; height:52vh; max-height:590px; min-height:250px;
             overflow:hidden; pointer-events:none; z-index:30;
-            background:linear-gradient(180deg,rgba(248,245,241,.10) 0%,rgba(248,245,241,.035) 66%,rgba(248,245,241,0) 100%);
-            -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 72%,transparent 100%);
-            mask-image:linear-gradient(to bottom,#000 0%,#000 72%,transparent 100%);
+            -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 68%,transparent 100%);
+            mask-image:linear-gradient(to bottom,#000 0%,#000 68%,transparent 100%);
+        }
+        #ajBlackFridayCurtain:before {
+            content:""; position:absolute; inset:0 0 auto; height:100%;
+            background:linear-gradient(180deg,rgba(248,245,241,.18),rgba(248,245,241,.045) 68%,transparent);
         }
         #ajBlackFridayCurtain .aj-bf-piece {
-            position:absolute; top:-64px; left:var(--x); display:block;
-            color:var(--piece-color); font-family:'Plus Jakarta Sans',sans-serif;
-            font-size:var(--piece-size); font-weight:900; line-height:1;
-            text-shadow:0 2px 8px rgba(72,36,49,.10);
-            opacity:0; white-space:nowrap; will-change:transform,opacity;
-            animation:ajBFCurtainFall var(--fall-time) linear var(--fall-delay) infinite;
+            position:absolute; top:-110px; left:var(--x); display:flex; align-items:center; justify-content:center;
+            color:var(--piece-color); opacity:0; white-space:nowrap; will-change:transform,opacity;
+            animation:ajBFCurtainFall var(--fall-time) cubic-bezier(.35,.05,.55,.95) var(--fall-delay) infinite;
         }
-        #ajBlackFridayCurtain .aj-bf-piece.megaphone { filter:drop-shadow(0 3px 5px rgba(72,36,49,.16)); }
+        #ajBlackFridayCurtain .aj-bf-ribbon {
+            width:var(--ribbon-width); height:var(--ribbon-height); border-radius:0 0 50% 50%;
+            background:linear-gradient(90deg,rgba(185,154,98,.04),rgba(217,190,137,.34),rgba(255,255,255,.42),rgba(185,154,98,.08));
+            border-left:1px solid rgba(185,154,98,.18); border-right:1px solid rgba(185,154,98,.16);
+            filter:drop-shadow(0 3px 7px rgba(72,36,49,.035));
+        }
+        #ajBlackFridayCurtain .aj-bf-tag {
+            padding:7px 12px; border:1px solid rgba(185,154,98,.78); border-radius:999px;
+            background:linear-gradient(145deg,rgba(255,254,252,.94),rgba(242,231,219,.82));
+            box-shadow:0 5px 16px rgba(72,36,49,.09),inset 0 0 0 2px rgba(255,255,255,.62);
+            color:#482431; font:700 var(--piece-size)/1 'Plus Jakarta Sans',sans-serif;
+            letter-spacing:.04em; text-shadow:0 1px 0 #fff;
+        }
+        #ajBlackFridayCurtain .aj-bf-tag small { color:#A7834D; font-size:.62em; margin-left:3px; }
+        #ajBlackFridayCurtain .aj-bf-bullhorn {
+            color:#B99A62; font-size:var(--piece-size); filter:drop-shadow(0 3px 5px rgba(72,36,49,.13));
+        }
+        #ajBlackFridayCurtain .aj-bf-star { color:#C7A66A; font-size:var(--piece-size); text-shadow:0 1px 8px rgba(185,154,98,.35); }
         @keyframes ajBFCurtainFall {
-            0% { transform:translate3d(0,-30px,0) rotate(-16deg); opacity:0; }
-            10% { opacity:.78; }
-            48% { transform:translate3d(var(--sway),27vh,0) rotate(12deg); opacity:.72; }
-            88% { opacity:.62; }
-            100% { transform:translate3d(calc(var(--sway) * -0.55),56vh,0) rotate(-12deg); opacity:0; }
+            0% { transform:translate3d(0,-24px,0) rotate(var(--tilt)); opacity:0; }
+            12% { opacity:var(--opacity); }
+            50% { transform:translate3d(var(--sway),25vh,0) rotate(calc(var(--tilt) * -0.45)); opacity:var(--opacity); }
+            88% { opacity:calc(var(--opacity) * .8); }
+            100% { transform:translate3d(calc(var(--sway) * -.55),53vh,0) rotate(var(--tilt)); opacity:0; }
         }
         @media(max-width:639px) {
-            #ajBlackFridayCurtain { height:49vh; min-height:230px; }
-            #ajBlackFridayCurtain .aj-bf-piece { font-size:calc(var(--piece-size) * .78); }
+            #ajBlackFridayCurtain { height:48vh; min-height:220px; }
+            #ajBlackFridayCurtain .aj-bf-tag { padding:6px 9px; }
         }
         @media(prefers-reduced-motion:reduce) {
-            #ajBlackFridayCurtain .aj-bf-piece { animation:none !important; opacity:.12; }
+            #ajBlackFridayCurtain .aj-bf-piece { animation:none !important; opacity:.18; }
         }
     </style>
 </head>
@@ -466,20 +483,50 @@
         const curtain = document.getElementById('ajBlackFridayCurtain');
         if (!curtain || curtain.dataset.ready) return;
         curtain.dataset.ready = '1';
-        const pieces = ['15%','20%','30%','📣','✦','✧','✳','★','15%','20%','30%','📣','✦','🎉'];
-        for (let i = 0; i < 34; i++) {
-            const piece = document.createElement('span');
-            const value = pieces[i % pieces.length];
-            piece.className = 'aj-bf-piece' + (value === '📣' ? ' megaphone' : '');
-            piece.textContent = value;
-            piece.style.setProperty('--x', (2 + Math.random() * 94) + '%');
-            piece.style.setProperty('--piece-size', (value.includes('%') ? 14 + Math.random() * 13 : 17 + Math.random() * 15) + 'px');
-            piece.style.setProperty('--piece-color', ['#B99A62','#482431','#C58A9D','#D0B77F'][i % 4]);
-            piece.style.setProperty('--fall-time', (8 + Math.random() * 8) + 's');
-            piece.style.setProperty('--fall-delay', (-Math.random() * 16) + 's');
-            piece.style.setProperty('--sway', (Math.random() * 70 - 35) + 'px');
-            curtain.appendChild(piece);
-        }
+        const ornaments = [
+            {type:'ribbon',x:5,w:15,h:260,t:13,d:-4},
+            {type:'ribbon',x:18,w:10,h:190,t:16,d:-10},
+            {type:'tag',x:27,v:'15%',t:14,d:-7},
+            {type:'star',x:38,v:'✧',t:18,d:-12},
+            {type:'bullhorn',x:49,t:15,d:-3},
+            {type:'ribbon',x:61,w:13,h:235,t:17,d:-13},
+            {type:'tag',x:70,v:'20%',t:13,d:-9},
+            {type:'star',x:81,v:'✦',t:19,d:-5},
+            {type:'bullhorn',x:91,t:16,d:-14},
+            {type:'tag',x:12,v:'30%',t:18,d:-16},
+            {type:'star',x:57,v:'✧',t:14,d:-2},
+            {type:'tag',x:88,v:'15%',t:17,d:-11}
+        ];
+        ornaments.forEach((item,i) => {
+            const node = document.createElement('span');
+            node.className = 'aj-bf-piece';
+            node.style.left = item.x + '%';
+            node.style.setProperty('--fall-time',(12 + (i%4)*2.2) + 's');
+            node.style.setProperty('--fall-delay',item.d + 's');
+            node.style.setProperty('--sway',((i%2 ? -1 : 1)*(12+(i%3)*8))+'px');
+            node.style.setProperty('--tilt',((i%2 ? -1 : 1)*(5+(i%4)*3))+'deg');
+            node.style.setProperty('--opacity', item.type === 'ribbon' ? '.38' : '.82');
+            if(item.type === 'ribbon') {
+                node.classList.add('aj-bf-ribbon');
+                node.style.setProperty('--ribbon-width',item.w+'px');
+                node.style.setProperty('--ribbon-height',item.h+'px');
+            } else if(item.type === 'tag') {
+                node.classList.add('aj-bf-tag');
+                node.style.setProperty('--piece-size','13px');
+                node.innerHTML = item.v + '<small>OFF</small>';
+            } else if(item.type === 'bullhorn') {
+                node.classList.add('aj-bf-bullhorn');
+                node.style.setProperty('--piece-size','25px');
+                const icon = document.createElement('i');
+                icon.className = 'fa-solid fa-bullhorn';
+                node.appendChild(icon);
+            } else {
+                node.classList.add('aj-bf-star');
+                node.style.setProperty('--piece-size','20px');
+                node.textContent=item.v;
+            }
+            curtain.appendChild(node);
+        });
     })();
     </script>
 
