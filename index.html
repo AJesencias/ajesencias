@@ -1048,14 +1048,35 @@
         function exportBusinessData(){const data={app:'AJ Esencias',version:1,exportedAt:new Date().toISOString(),products,creditClients,appointments,dailyLogs,businessSales,businessExpenses,businessPurchases},blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='AJ-Esencias-respaldo-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);}
         function importBusinessData(input){const file=input.files&&input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result),keys=['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses','businessPurchases'];if(d.app!=='AJ Esencias'||!['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses'].every(k=>Array.isArray(d[k]))||(d.businessPurchases!==undefined&&!Array.isArray(d.businessPurchases)))throw new Error('Formato de respaldo inválido.');d.businessPurchases=d.businessPurchases||[];if(!confirm('El respaldo reemplazará los datos actuales de este navegador. ¿Continuar?'))return;products=d.products;creditClients=d.creditClients;appointments=d.appointments;dailyLogs=d.dailyLogs;businessSales=d.businessSales;businessExpenses=d.businessExpenses;businessPurchases=d.businessPurchases;if(saveData()){renderProductCatalog();renderPriceEditor();renderCreditTable();renderAppointmentsList();renderDailyLogs();renderBusinessManagement();alert('Respaldo restaurado.');}}catch(e){alert('No se pudo restaurar: '+e.message);}finally{input.value='';}};reader.readAsText(file);}
 
+        function openPrivateArea() {
+            // La pantalla de acceso debe estar disponible incluso sin sesión.
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const panel = document.getElementById('section-business');
+            if (panel) panel.classList.remove('hidden');
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('active-tab', 'bg-white', 'shadow-sm', 'border', 'border-gold-500/30');
+                el.classList.add('text-bistre/70');
+            });
+            const tab = document.getElementById('tab-business');
+            if (tab) {
+                tab.classList.add('active-tab', 'bg-white', 'shadow-sm', 'border', 'border-gold-500/30');
+                tab.classList.remove('text-bistre/70');
+            }
+            if (!ajCloudUser) {
+                ajCloudSetStatus('Introduce el correo y la contraseña de la cuenta administradora para continuar.');
+                const email = document.getElementById('cloudEmail');
+                if (email) setTimeout(() => email.focus(), 250);
+            }
+            if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function checkProtectedTab(tabId) {
             if (tabId === 'calculator') { switchTab('calculator'); return; }
-            if (tabId === 'business') { switchTab('business'); return; }
+            if (tabId === 'business') { openPrivateArea(); return; }
             if (!ajCloudUser) {
                 activeTabToPending = tabId;
-                switchTab('business');
+                openPrivateArea();
                 ajCloudSetStatus('Inicia sesión con tu cuenta autorizada para acceder al área administrativa.', true);
-                const email=document.getElementById('cloudEmail'); if(email) email.focus();
                 return;
             }
             switchTab(tabId);
