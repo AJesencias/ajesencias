@@ -2005,7 +2005,7 @@
                 category: String(product?.category ?? 'Productos'),
                 name: String(product?.name ?? ''),
                 price: Math.max(0, Number(product?.price) || 0),
-                image: typeof product?.image === 'string' && /^https?:\\/\\//i.test(product.image) ? product.image : ''
+                image: typeof product?.image === 'string' && (product.image.startsWith('https://') || product.image.startsWith('http://')) ? product.image : ''
             };
         }
         function ajClearPrivateLocalData() {
