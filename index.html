@@ -224,6 +224,87 @@
             #pinStatusBtn span { white-space:nowrap; }
         }
         ::selection { background: #F3E5AB; color: #2B1E16; }
+
+        /* AJ ESENCIAS · Identidad boutique: vino, marfil y champagne */
+        :root {
+            --aj-ivory:#F8F5F1;
+            --aj-wine:#482431;
+            --aj-wine-deep:#321923;
+            --aj-champagne:#B99A62;
+            --aj-blush:#E9DCD9;
+            --aj-line:#E6DCD5;
+            --aj-text:#30252A;
+        }
+        body { background:#F8F5F1 !important; color:var(--aj-text) !important; }
+        header { background:#FFFEFC !important; box-shadow:0 5px 22px rgba(50,25,35,.08) !important; }
+        header nav { background:#F1E9E5 !important; border-color:#E4D6D2 !important; }
+        .gold-gradient-bg {
+            background:linear-gradient(135deg,#B99A62 0%,#D0B77F 48%,#A9864E 100%) !important;
+            box-shadow:0 7px 18px rgba(75,43,53,.17) !important;
+        }
+        .gold-gradient-text {
+            background:linear-gradient(120deg,#A7834D 0%,#C6A76D 55%,#92703E 100%) !important;
+            -webkit-background-clip:text !important; background-clip:text !important;
+        }
+        .gold-border-glow { border-color:rgba(185,154,98,.38) !important; box-shadow:0 8px 24px rgba(72,36,49,.07) !important; }
+        .luxury-card { background:#FFFEFC !important; border-color:var(--aj-line) !important; box-shadow:0 8px 24px rgba(72,36,49,.045) !important; }
+        .luxury-card:hover { border-color:var(--aj-champagne) !important; box-shadow:0 14px 32px rgba(72,36,49,.10) !important; }
+        .nav-tab { min-height:46px; font-weight:700 !important; }
+        .nav-tab.active-tab { background:var(--aj-wine) !important; color:#fff !important; border-color:var(--aj-wine) !important; box-shadow:0 5px 14px rgba(72,36,49,.18) !important; }
+        .nav-tab.active-tab i { color:#E2C995 !important; }
+        .store-hero {
+            background:radial-gradient(circle at 88% 16%,rgba(185,154,98,.19),transparent 29%),linear-gradient(125deg,#FFFEFC 0%,#F4EAE7 62%,#E9DCD9 100%) !important;
+            border:1px solid #DCC8C1 !important; box-shadow:0 14px 34px rgba(72,36,49,.075) !important;
+        }
+        .store-hero:after { color:rgba(72,36,49,.055) !important; }
+        .store-hero h2, .store-hero h1 { color:var(--aj-wine-deep) !important; }
+        .store-hero p { color:#6F5A60 !important; }
+        .store-hero a:first-of-type {
+            background:var(--aj-wine) !important; color:#fff !important; border:1px solid var(--aj-wine) !important;
+            box-shadow:0 7px 18px rgba(72,36,49,.18) !important;
+        }
+        .store-hero a:first-of-type:hover { background:var(--aj-wine-deep) !important; }
+        .store-hero a:nth-of-type(2) { background:#FFFEFC !important; color:var(--aj-wine) !important; border:1px solid #CDB8B1 !important; }
+        #productSearch { min-height:52px; background:#FFFEFC !important; border:1.5px solid #D8C6C0 !important; color:var(--aj-text) !important; }
+        #productSearch:focus { border-color:var(--aj-wine) !important; box-shadow:0 0 0 4px rgba(72,36,49,.10) !important; }
+        #categoryQuickLinks { padding:5px 2px 12px; }
+        #categoryQuickLinks a {
+            display:inline-flex; align-items:center; min-height:39px; padding:9px 15px !important;
+            background:#FFFEFC !important; color:var(--aj-wine) !important; border:1px solid #D9C9C3 !important;
+            border-radius:999px !important; font-size:12px !important; font-weight:700 !important;
+            box-shadow:0 3px 9px rgba(72,36,49,.045) !important;
+        }
+        #categoryQuickLinks a:hover, #categoryQuickLinks a:focus {
+            background:var(--aj-wine) !important; color:#fff !important; border-color:var(--aj-wine) !important;
+        }
+        .catalog-product-card {
+            background:#FFFEFC !important; border:1px solid #E4DAD5 !important;
+            box-shadow:0 8px 22px rgba(72,36,49,.065) !important;
+        }
+        .catalog-product-card:hover { border-color:var(--aj-champagne) !important; }
+        .catalog-product-media { background:linear-gradient(145deg,#FAF7F4,#F0E7E3) !important; border-color:#E9DEDA !important; }
+        .catalog-product-name { color:var(--aj-wine-deep) !important; }
+        .catalog-product-price { color:#956F39 !important; }
+        .catalog-brand-tag { background:#F2E8E5 !important; color:var(--aj-wine) !important; border-color:#E3D2CD !important; }
+        .catalog-qty-control { background:#F4ECE9 !important; border-color:#E3D4CE !important; }
+        .catalog-qty-control button:last-child { background:var(--aj-wine) !important; color:#fff !important; }
+        .catalog-qty-control button:last-child:hover { background:var(--aj-wine-deep) !important; }
+        .catalog-qty-control button:first-child { color:var(--aj-wine) !important; background:#fff !important; border-color:#DCCBC5 !important; }
+        #cartCountBadge { background:var(--aj-wine) !important; color:#fff !important; border-color:var(--aj-wine) !important; }
+        .finance-bar { background:linear-gradient(90deg,#482431,#B99A62) !important; }
+        ::-webkit-scrollbar-track { background:#F1E9E5 !important; }
+        ::-webkit-scrollbar-thumb { background:#B99A62 !important; }
+        :focus-visible { outline-color:var(--aj-wine) !important; }
+        ::selection { background:#E9DCD9 !important; color:#321923 !important; }
+        @media (max-width:639px) {
+            .store-hero { padding:24px !important; }
+            .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:12px !important; }
+            .catalog-product-card { padding:10px !important; }
+            .catalog-product-media { aspect-ratio:1/1 !important; }
+            .catalog-product-name { font-size:.88rem !important; }
+            .catalog-product-price { font-size:1.2rem !important; }
+        }
+        @media (max-width:360px) { .catalog-grid { grid-template-columns:1fr !important; } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
