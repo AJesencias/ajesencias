@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.0"></script>
     <!-- html2pdf JS for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -539,7 +539,8 @@
                 <div class="border border-gold-500/30 rounded-xl p-4 bg-beige-50 space-y-3">
                     <div class="flex flex-wrap justify-between items-center gap-2"><div><h3 class="font-bold text-bistre">Sincronización privada en la nube</h3><p id="cloudStatus" class="text-xs text-bistre/70">No has iniciado sesión en AJ Esencias Cloud.</p></div><button id="cloudSignOutBtn" onclick="ajCloudSignOut()" class="hidden px-3 py-2 border rounded-lg text-xs">Cerrar sesión</button></div>
                     <div id="cloudAuthFields" class="grid sm:grid-cols-2 gap-2"><input id="cloudEmail" type="email" autocomplete="email" placeholder="Correo electrónico" class="p-2 border rounded-lg text-sm"><input id="cloudPassword" type="password" autocomplete="current-password" minlength="8" placeholder="Contraseña (mínimo 8 caracteres)" class="p-2 border rounded-lg text-sm"></div>
-                    <div id="cloudAuthActions" class="flex flex-wrap gap-2"><button onclick="ajCloudSignIn()" class="px-4 py-2 rounded-lg gold-gradient-bg text-white text-xs font-bold">Iniciar sesión</button><button onclick="ajCloudSignUp()" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold">Crear cuenta</button></div>
+                    <div id="cloudAuthActions" class="flex flex-wrap gap-2"><button onclick="ajCloudSignIn()" class="px-4 py-2 rounded-lg gold-gradient-bg text-white text-xs font-bold">Iniciar sesión</button><button onclick="ajCloudSignInPasskey()" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold"><i class="fas fa-face-smile mr-1"></i>Entrar con Face ID</button><button onclick="ajCloudSignUp()" class="px-4 py-2 rounded-lg border border-beige-300 text-xs font-bold">Crear mi cuenta</button></div>
+                    <div id="cloudPasskeyActions" class="hidden flex flex-wrap gap-2"><button onclick="ajCloudRegisterPasskey()" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold"><i class="fas fa-fingerprint mr-1"></i>Activar Face ID en este dispositivo</button></div>
                     <div id="cloudDataActions" class="hidden flex flex-wrap gap-2"><button onclick="ajCloudSave()" class="px-4 py-2 rounded-lg gold-gradient-bg text-white text-xs font-bold">Guardar datos en la nube</button><button onclick="ajCloudLoad()" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold">Cargar datos de la nube</button><button onclick="ajCloudCreateBackup('Respaldo manual').then(()=>alert('Respaldo creado correctamente.')).catch(e=>alert('No se pudo crear el respaldo: '+e.message))" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold">Crear respaldo ahora</button><button onclick="ajCloudShowBackups()" class="px-4 py-2 rounded-lg border border-beige-300 text-xs">Ver respaldos</button><button onclick="ajCloudShowActivity()" class="px-4 py-2 rounded-lg border border-beige-300 text-xs">Historial de actividad</button></div>
                     <div id="cloudBackupsPanel" class="hidden text-xs space-y-2"></div>
                     <div id="cloudActivityPanel" class="hidden text-xs space-y-2"></div>
@@ -1893,6 +1894,34 @@
         const AJ_SUPABASE_URL = 'https://egkqaymaqednmweaqbaz.supabase.co';
         const AJ_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_zEE8izXWpR3xafes53pjMQ_dP0LQD9k';
         let ajSupabase = null, ajCloudUser = null;
+        const AJ_ADMIN_EMAIL = 'ambardilone06@gmail.com';
+        function ajCloudIsAllowedUser(user) {
+            return !!user && String(user.email || '').toLowerCase() === AJ_ADMIN_EMAIL;
+        }
+        async function ajCloudRegisterPasskey() {
+            if (!ajCloudIsAllowedUser(ajCloudUser)) return ajCloudSetStatus('Esta cuenta no está autorizada para administrar AJ Esencias.', true);
+            try {
+                const { data, error } = await ajSupabase.auth.registerPasskey({ friendlyName: 'Face ID · AJ Esencias' });
+                if (error) throw error;
+                ajCloudSetStatus('Face ID quedó registrado correctamente en este dispositivo.');
+                alert('¡Listo! Tu llave de acceso quedó registrada. La próxima vez podrás entrar con Face ID.');
+            } catch (error) {
+                ajCloudSetStatus('No se pudo activar Face ID: ' + error.message, true);
+            }
+        }
+        async function ajCloudSignInPasskey() {
+            try {
+                const { data, error } = await ajSupabase.auth.signInWithPasskey();
+                if (error) throw error;
+                if (!ajCloudIsAllowedUser(data.user)) {
+                    await ajSupabase.auth.signOut();
+                    return ajCloudSetStatus('Esta cuenta no está autorizada para administrar AJ Esencias.', true);
+                }
+                ajCloudRefreshUI(data.user);
+            } catch (error) {
+                ajCloudSetStatus('No se pudo iniciar con Face ID. Usa tu correo y contraseña: ' + error.message, true);
+            }
+        }
         function ajCloudSetStatus(message, isError = false) {
             const el = document.getElementById('cloudStatus');
             if (el) { el.textContent = message; el.className = 'text-xs ' + (isError ? 'text-red-700' : 'text-bistre/70'); }
@@ -1903,6 +1932,8 @@
             document.getElementById('cloudAuthFields').classList.toggle('hidden', logged);
             document.getElementById('cloudAuthActions').classList.toggle('hidden', logged);
             document.getElementById('cloudDataActions').classList.toggle('hidden', !logged);
+            const passkeyActions = document.getElementById('cloudPasskeyActions');
+            if (passkeyActions) passkeyActions.classList.toggle('hidden', !logged || !ajCloudIsAllowedUser(ajCloudUser));
             document.getElementById('cloudSignOutBtn').classList.toggle('hidden', !logged);
             const adminContent=document.getElementById('adminBusinessContent');
             if(adminContent) adminContent.classList.toggle('hidden', !logged);
@@ -1915,8 +1946,9 @@
             if(!logged) switchTab('calculator');
         }
         async function ajCloudSignUp() {
-            const email = document.getElementById('cloudEmail').value.trim();
+            const email = document.getElementById('cloudEmail').value.trim().toLowerCase();
             const password = document.getElementById('cloudPassword').value;
+            if (email !== AJ_ADMIN_EMAIL) return ajCloudSetStatus('Por ahora, solo ambardilone06@gmail.com puede crear una cuenta administrativa.', true);
             if (!email || password.length < 8) return alert('Introduce un correo válido y una contraseña de al menos 8 caracteres.');
             const { data, error } = await ajSupabase.auth.signUp({ email, password });
             if (error) return ajCloudSetStatus(error.message, true);
@@ -1925,8 +1957,9 @@
             alert(data.session ? 'Cuenta creada e iniciada.' : 'Te enviamos un correo de confirmación. Revisa también Spam.');
         }
         async function ajCloudSignIn() {
-            const email = document.getElementById('cloudEmail').value.trim();
+            const email = document.getElementById('cloudEmail').value.trim().toLowerCase();
             const password = document.getElementById('cloudPassword').value;
+            if (email !== AJ_ADMIN_EMAIL) return ajCloudSetStatus('Por ahora, solo ambardilone06@gmail.com puede iniciar sesión como administradora.', true);
             const { data, error } = await ajSupabase.auth.signInWithPassword({ email, password });
             if (error) return ajCloudSetStatus(error.message, true);
             ajCloudRefreshUI(data.user);
@@ -2169,16 +2202,19 @@
         }
         async function ajCloudInit() {
             if (!window.supabase || !window.supabase.createClient) return ajCloudSetStatus('No se pudo cargar la librería Supabase.', true);
-            ajSupabase = window.supabase.createClient(AJ_SUPABASE_URL, AJ_SUPABASE_PUBLISHABLE_KEY);
+            ajSupabase = window.supabase.createClient(AJ_SUPABASE_URL, AJ_SUPABASE_PUBLISHABLE_KEY, { auth: { experimental: { passkey: true } } });
             const { data: { session } } = await ajSupabase.auth.getSession();
-            ajCloudRefreshUI(session ? session.user : null);
-            if (session) {
-                const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', session.user.id).maybeSingle();
+            if (session && !ajCloudIsAllowedUser(session.user)) await ajSupabase.auth.signOut();
+            const { data: { session: validSession } } = await ajSupabase.auth.getSession();
+            ajCloudRefreshUI(validSession ? validSession.user : null);
+            if (validSession) {
+                const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', validSession.user.id).maybeSingle();
                 if (!error && data && data.payload) ajCloudApplyPayload(data.payload, data.updated_at);
                 await ajCloudRefreshBackupClock();
                 await ajCloudSubscribe();
             }
             ajSupabase.auth.onAuthStateChange(async (_event, currentSession) => {
+                if (currentSession && !ajCloudIsAllowedUser(currentSession.user)) { await ajSupabase.auth.signOut(); return; }
                 ajCloudRefreshUI(currentSession ? currentSession.user : null);
                 if (currentSession) {
                     const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', currentSession.user.id).maybeSingle();
