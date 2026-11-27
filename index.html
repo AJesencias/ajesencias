@@ -2030,8 +2030,10 @@
                 name: p.name, price: p.price, image_url: p.image, is_active: true,
                 updated_at: new Date().toISOString()
             }));
-            const { error: upsertError } = await ajSupabase.from('aj_public_catalog').upsert(safeRows, { onConflict: 'product_id' });
-            if (upsertError) { console.warn('No se pudo publicar el catálogo seguro:', upsertError.message); return false; }
+            if (safeRows.length) {
+                const { error: upsertError } = await ajSupabase.from('aj_public_catalog').upsert(safeRows, { onConflict: 'product_id' });
+                if (upsertError) { console.warn('No se pudo publicar el catálogo seguro:', upsertError.message); return false; }
+            }
             const { data: currentRows, error: readError } = await ajSupabase.from('aj_public_catalog')
                 .select('product_id').eq('owner_id', ajCloudUser.id);
             if (!readError && currentRows) {
@@ -2348,9 +2350,11 @@
             if (!validSession) await ajLoadPublicCatalog();
             if (validSession) {
                 const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', validSession.user.id).maybeSingle();
-                if (!error && data && data.payload) ajCloudApplyPayload(data.payload, data.updated_at);
+                if (!error && data && data.payload) {
+                    ajCloudApplyPayload(data.payload, data.updated_at);
+                    await ajPublishPublicCatalog();
+                }
                 await ajCloudRefreshBackupClock();
-                await ajPublishPublicCatalog();
                 await ajCloudSubscribe();
             }
             ajSupabase.auth.onAuthStateChange(async (_event, currentSession) => {
@@ -2358,9 +2362,11 @@
                 ajCloudRefreshUI(currentSession ? currentSession.user : null);
                 if (currentSession) {
                     const { data, error } = await ajSupabase.from('aj_business_data').select('payload,updated_at').eq('owner_id', currentSession.user.id).maybeSingle();
-                    if (!error && data && data.payload) ajCloudApplyPayload(data.payload, data.updated_at);
+                    if (!error && data && data.payload) {
+                        ajCloudApplyPayload(data.payload, data.updated_at);
+                        await ajPublishPublicCatalog();
+                    }
                     await ajCloudRefreshBackupClock();
-                    await ajPublishPublicCatalog();
                     await ajCloudSubscribe();
                 } else {
                     if (ajCloudChannel) { await ajSupabase.removeChannel(ajCloudChannel); ajCloudChannel = null; }
