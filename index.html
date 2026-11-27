@@ -583,6 +583,61 @@
             header.no-print .brand-header-mark { width:72px !important; height:72px !important; }
         }
 </style>
+
+<style id="aj-image-modal-viewport-fix">
+/* Ajuste definitivo: el cuadro completo queda dentro del alto visible de la ventana */
+#editImageModal{
+  box-sizing:border-box !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow-y:auto !important;
+  padding:12px !important;
+}
+#editImageModal > div{
+  box-sizing:border-box !important;
+  width:min(448px, calc(100vw - 24px)) !important;
+  height:min(720px, calc(100dvh - 24px)) !important;
+  max-height:calc(100dvh - 24px) !important;
+  min-height:0 !important;
+  margin:auto !important;
+  overflow:hidden !important;
+  flex:0 1 auto !important;
+}
+#editImageModal .aj-image-modal-scroll{
+  flex:1 1 0% !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain !important;
+}
+#editImageModal > div > div:last-child{
+  flex:0 0 auto !important;
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:8px !important;
+  padding-top:10px !important;
+  padding-bottom:max(8px, env(safe-area-inset-bottom)) !important;
+}
+#editImageModal > div > div:last-child button{
+  min-width:0 !important;
+  min-height:42px !important;
+}
+#editImageModal #saveProductImageButton{
+  grid-column:2 !important;
+  grid-row:1 !important;
+}
+#editImageModal > div > div:last-child button[onclick="removeProductImage()"]{
+  grid-column:1 !important;
+  grid-row:1 !important;
+}
+#editImageModal > div > div:last-child button[onclick="closeEditImageModal()"]{
+  grid-column:1 / -1 !important;
+  grid-row:2 !important;
+}
+@media(max-height:560px){
+  #editImageModal > div{height:calc(100dvh - 16px) !important;max-height:calc(100dvh - 16px) !important;}
+  #editImageModal .aj-image-modal-scroll textarea{min-height:64px !important;}
+}
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
