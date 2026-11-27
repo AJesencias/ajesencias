@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "AJ Esencias",
+  "short_name": "AJ Esencias",
+  "description": "Perfumería, cuidado personal, cosméticos y detalles especiales.",
+  "lang": "es-DO",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF8F5",
+  "theme_color": "#FAF8F5",
+  "icons": [
+    {
+      "src": "./assets/aj-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
