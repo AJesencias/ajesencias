@@ -103,6 +103,7 @@
             *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
         .luxury-card { border-radius: 1.1rem; }
+        .finance-bar { height:9px; border-radius:999px; background:linear-gradient(90deg,#c5a059,#e8d18a); min-width:2px; }
         .catalog-grid { align-items:stretch; }
         .catalog-product-card {
             min-width:0; overflow:hidden; background:linear-gradient(180deg,#fff 0%,#fffdfa 100%);
@@ -520,6 +521,15 @@
         <section id="section-business" class="tab-content hidden space-y-6">
             <div class="luxury-card rounded-2xl p-6 border-gold-500/20 space-y-5">
                 <div class="flex flex-wrap justify-between gap-3 items-center"><div><h2 class="font-serif-title text-3xl font-bold">Gestión Comercial</h2><p class="text-xs text-bistre/60">Ventas, costos, inventario, gastos y cuentas por cobrar</p></div><div class="flex gap-2"><button onclick="exportBusinessData()" class="px-3 py-2 bg-bistre text-white rounded-lg text-xs">Respaldar datos</button><label class="px-3 py-2 border rounded-lg text-xs cursor-pointer">Restaurar respaldo<input type="file" accept="application/json,.json" class="hidden" onchange="importBusinessData(this)"></label></div></div>
+                <section class="rounded-2xl border border-gold-500/25 bg-gradient-to-br from-white to-[#faf6ed] p-4 sm:p-5 space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3"><div><span class="text-[10px] font-bold tracking-[.2em] text-gold-700 uppercase">AJ Esencias · Finanzas</span><h3 class="font-serif-title text-2xl sm:text-3xl font-bold text-bistre">Resumen financiero</h3><p class="text-xs text-bistre/60">Lectura gerencial basada en las ventas y gastos registrados.</p></div><select id="financePeriod" onchange="renderFinancialDashboard()" class="rounded-xl border border-beige-300 bg-white px-3 py-2 text-xs text-bistre"><option value="month">Este mes</option><option value="30">Últimos 30 días</option><option value="all">Todo el historial</option></select></div>
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div class="rounded-xl bg-white border border-beige-200 p-3"><small>Ventas registradas</small><div id="finRevenue" class="font-bold text-lg">RD$ 0.00</div></div><div class="rounded-xl bg-white border border-beige-200 p-3"><small>Efectivo cobrado</small><div id="finCollected" class="font-bold text-lg text-green-700">RD$ 0.00</div></div><div class="rounded-xl bg-white border border-beige-200 p-3"><small>Costo de ventas</small><div id="finCost" class="font-bold text-lg">RD$ 0.00</div></div><div class="rounded-xl bg-white border border-beige-200 p-3"><small>Ganancia bruta</small><div id="finGross" class="font-bold text-lg text-green-700">RD$ 0.00</div></div><div class="rounded-xl bg-white border border-beige-200 p-3"><small>Gastos operativos</small><div id="finExpenses" class="font-bold text-lg">RD$ 0.00</div></div><div class="rounded-xl bg-white border border-gold-300 p-3"><small>Resultado estimado</small><div id="finNet" class="font-bold text-xl text-gold-700">RD$ 0.00</div></div>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-3"><div class="rounded-xl bg-white border border-beige-200 p-3"><div class="flex justify-between gap-2 text-xs"><span class="font-semibold">Cuentas por cobrar</span><b id="finReceivables">RD$ 0.00</b></div><p class="text-[10px] text-bistre/55 mt-1">Saldo pendiente de clientes.</p></div><div class="rounded-xl bg-white border border-beige-200 p-3"><div class="flex justify-between gap-2 text-xs"><span class="font-semibold">Valor del inventario</span><b id="finStockValue">RD$ 0.00</b></div><p class="text-[10px] text-bistre/55 mt-1">Existencias por costo unitario actual.</p></div></div>
+                    <div class="rounded-xl bg-white border border-beige-200 p-3 space-y-2"><div class="flex items-center justify-between"><h4 class="font-semibold text-sm">Ventas por mes</h4><span class="text-[10px] text-bistre/50">Últimos 6 meses</span></div><div id="finMonthlyChart" class="space-y-2"><p class="text-xs text-bistre/50">No hay ventas registradas.</p></div></div>
+                    <p class="text-[10px] leading-relaxed text-bistre/55">Estimación gerencial, no utilidad fiscal ni estado financiero formal. Las compras de mercancía se mantienen como inventario; el costo se reconoce al vender. Los abonos se consideran cobros, no ventas adicionales.</p>
+                </section>
                 <div class="border border-gold-500/30 rounded-xl p-4 bg-beige-50 space-y-3">
                     <div class="flex flex-wrap justify-between items-center gap-2"><div><h3 class="font-bold text-bistre">Sincronización privada en la nube</h3><p id="cloudStatus" class="text-xs text-bistre/70">No has iniciado sesión en AJ Esencias Cloud.</p></div><button id="cloudSignOutBtn" onclick="ajCloudSignOut()" class="hidden px-3 py-2 border rounded-lg text-xs">Cerrar sesión</button></div>
                     <div id="cloudAuthFields" class="grid sm:grid-cols-2 gap-2"><input id="cloudEmail" type="email" autocomplete="email" placeholder="Correo electrónico" class="p-2 border rounded-lg text-sm"><input id="cloudPassword" type="password" autocomplete="current-password" minlength="8" placeholder="Contraseña (mínimo 8 caracteres)" class="p-2 border rounded-lg text-sm"></div>
@@ -978,6 +988,24 @@
             document.getElementById('bizReceivablesTable').innerHTML=debtors.map(x=>'<tr><td class="p-2">'+safeText(x.date)+'<br>'+safeText(x.customer||'Sin cliente')+'</td><td class="p-2">'+moneyRD(x.total)+'</td><td class="p-2">'+moneyRD(x.total-x.paid)+'</td><td class="p-2"><button onclick="addBusinessPayment(\''+safeText(x.id)+'\')" class="px-2 py-1 bg-gold-500 text-white rounded">Abonar</button></td></tr>').join('')||'<tr><td colspan="4" class="p-3 text-center">Sin saldos pendientes.</td></tr>';
             document.getElementById('bizExpensesList').innerHTML=businessExpenses.slice(0,12).map(x=>'<div class="flex justify-between border-b pb-2"><span>'+safeText(x.date)+' · '+safeText(x.description)+' ('+safeText(x.category)+')</span><b>'+moneyRD(x.amount)+'</b></div>').join('')||'<p>Sin gastos registrados.</p>';
             fillSaleDefaults();
+            renderFinancialDashboard();
+        }
+        function renderFinancialDashboard(){
+            const period=document.getElementById('financePeriod')?.value||'month';
+            const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+            const cutoff=period==='month'?new Date(now.getFullYear(),now.getMonth(),1):period==='30'?new Date(today.getTime()-29*86400000):null;
+            const inRange=x=>{if(!cutoff)return true;const d=new Date((x.date||'')+'T00:00:00');return !Number.isNaN(d.getTime())&&d>=cutoff&&d<=today;};
+            const sales=businessSales.filter(inRange),expenses=businessExpenses.filter(x=>inRange(x)&&x.category!=='Compra de mercancía');
+            const revenue=sales.reduce((a,x)=>a+(Number(x.total)||0),0),collected=sales.reduce((a,x)=>a+(Number(x.paid)||0),0),cost=sales.reduce((a,x)=>a+(Number(x.costTotal)||0),0),opExpenses=expenses.reduce((a,x)=>a+(Number(x.amount)||0),0);
+            const put=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=moneyRD(v);};
+            put('finRevenue',revenue);put('finCollected',collected);put('finCost',cost);put('finGross',revenue-cost);put('finExpenses',opExpenses);put('finNet',revenue-cost-opExpenses);
+            put('finReceivables',businessSales.reduce((a,x)=>a+Math.max(0,(Number(x.total)||0)-(Number(x.paid)||0)),0));
+            put('finStockValue',products.reduce((a,p)=>a+(Number(p.stock)||0)*(Number(p.cost)||0),0));
+            const chart=document.getElementById('finMonthlyChart');if(!chart)return;
+            const months=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({key:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),label:d.toLocaleDateString('es-DO',{month:'short'}),total:0});}
+            businessSales.forEach(x=>{const m=months.find(v=>v.key===String(x.date||'').slice(0,7));if(m)m.total+=Number(x.total)||0;});
+            const max=Math.max(1,...months.map(m=>m.total));
+            chart.innerHTML=months.map(m=>'<div class="grid grid-cols-[42px_1fr_88px] items-center gap-2 text-[10px]"><span class="capitalize text-bistre/60">'+safeText(m.label)+'</span><div class="h-2 rounded-full bg-beige-100 overflow-hidden"><div class="finance-bar" style="width:'+((m.total/max)*100).toFixed(1)+'%"></div></div><b class="text-right text-bistre">'+moneyRD(m.total)+'</b></div>').join('');
         }
         function fillSaleDefaults(){const p=products.find(x=>Number(x.id)===Number(document.getElementById('bizSaleProduct').value));if(!p)return;document.getElementById('bizSalePrice').value=Number(p.price)||0;document.getElementById('bizSaleCost').value=Number(p.cost)||0;updateSalePreview();}
         function updateSalePreview(){const q=Math.max(0,Number(document.getElementById('bizSaleQty').value)||0),p=Math.max(0,Number(document.getElementById('bizSalePrice').value)||0),total=q*p;document.getElementById('bizSalePreview').textContent=moneyRD(total);if(document.getElementById('bizSalePayment').value==='Contado')document.getElementById('bizSalePaid').value=total.toFixed(2);}
