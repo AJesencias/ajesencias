@@ -671,9 +671,9 @@
                     <div class="rounded-2xl border border-[#E6DCD5] bg-[#FFFEFC] p-4 sm:p-5 space-y-4">
                         <h3 class="font-bold text-[#482431] text-lg">2. Publicar y compartir</h3>
                         <p class="text-xs text-[#765F65]">Prepara el contenido aquí y abre la plataforma para publicarlo manualmente.</p>
-                        <a href="https://wa.me/?text=Descubre%20las%20promociones%20de%20AJ%20Esencias" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-3 text-sm font-bold text-green-800"><i class="fab fa-whatsapp text-2xl"></i><span>WhatsApp <small class="block font-normal">Compartir texto con tus contactos</small></span><i class="fas fa-arrow-up-right-from-square ml-auto"></i></a>
-                        <a href="https://www.instagram.com/aj_esenciass/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-xl border border-pink-200 bg-pink-50 p-3 text-sm font-bold text-pink-800"><i class="fab fa-instagram text-2xl"></i><span>Instagram <small class="block font-normal">Abrir @aj_esenciass</small></span><i class="fas fa-arrow-up-right-from-square ml-auto"></i></a>
-                        <a href="https://www.tiktok.com/upload" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-xl border border-gray-300 bg-gray-50 p-3 text-sm font-bold text-gray-900"><i class="fab fa-tiktok text-2xl"></i><span>TikTok <small class="block font-normal">Abrir herramienta de publicación</small></span><i class="fas fa-arrow-up-right-from-square ml-auto"></i></a>
+                        <button type="button" onclick="ajMktOpenPlatform('whatsapp')" class="w-full text-left flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-3 text-sm font-bold text-green-800"><i class="fab fa-whatsapp text-2xl"></i><span>WhatsApp <small class="block font-normal">Compartir el texto generado</small></span><i class="fas fa-arrow-up-right-from-square ml-auto"></i></button>
+                        <button type="button" onclick="ajMktOpenPlatform('instagram')" class="w-full text-left flex items-center gap-3 rounded-xl border border-pink-200 bg-pink-50 p-3 text-sm font-bold text-pink-800"><i class="fab fa-instagram text-2xl"></i><span>Instagram <small class="block font-normal">Abrir @aj_esenciass</small></span><i class="fas fa-arrow-up-right-from-square ml-auto"></i></button>
+                        <button type="button" onclick="ajMktOpenPlatform('tiktok')" class="w-full text-left flex items-center gap-3 rounded-xl border border-gray-300 bg-gray-50 p-3 text-sm font-bold text-gray-900"><i class="fab fa-tiktok text-2xl"></i><span>TikTok <small class="block font-normal">Abrir herramienta de publicación</small></span><i class="fas fa-arrow-up-right-from-square ml-auto"></i></button>
                         <div class="rounded-xl bg-[#F8F5F1] p-3 text-xs text-[#765F65]"><b class="text-[#482431]">Consejo:</b> usa la misma oferta en las tres plataformas, pero adapta el formato: estado y mensaje en WhatsApp, historia/reel en Instagram y video corto demostrativo en TikTok.</div>
                     </div>
                 </div>
@@ -2725,6 +2725,12 @@
             ajMktUpdateProductInsight();
             window.ajMktCurrent={productId:p.id,productName:p.name,objective,discount,price,sale,copy,duration,createdAt:new Date().toISOString()};
         }
+        function ajMktOpenPlatform(platform) {
+            const text=document.getElementById('ajMktCopy')?.value||'';
+            if(!text)return alert('Primero genera una promoción para compartir.');
+            const urls={whatsapp:'https://wa.me/?text='+encodeURIComponent(text),instagram:'https://www.instagram.com/aj_esenciass/',tiktok:'https://www.tiktok.com/upload'};
+            window.open(urls[platform], '_blank', 'noopener');
+        }
         async function ajMktCopyText() {
             const value=document.getElementById('ajMktCopy').value;
             try { await navigator.clipboard.writeText(value); alert('Texto copiado. Ahora abre la plataforma y pégalo en tu publicación.'); }
@@ -2753,8 +2759,8 @@
         function ajMktSaveMetrics() {
             const c=ajMarketingCampaigns[ajMktSelectedMetricsIndex];if(!c)return alert('Primero selecciona una campaña para registrar sus resultados.');
             c.reach=Number(document.getElementById('ajMktReach').value)||0;c.leads=Number(document.getElementById('ajMktLeads').value)||0;c.orders=Number(document.getElementById('ajMktOrders').value)||0;c.revenue=Number(document.getElementById('ajMktRevenue').value)||0;c.spend=Number(document.getElementById('ajMktSpend').value)||0;
-            const roi=c.spend>0?((c.revenue-c.spend)/c.spend)*100:null;
-            document.getElementById('ajMktMetricsSummary').textContent='Resultados guardados · '+(roi===null?'Registra inversión para calcular retorno.':'Retorno sobre inversión (ROI) estimado: '+roi.toFixed(1)+'%.');
+            const roi=c.spend>0?(c.revenue/c.spend):null;
+            document.getElementById('ajMktMetricsSummary').textContent='Resultados guardados · '+(roi===null?'Registra inversión para calcular retorno.':'ROAS estimado (ingresos por cada RD$1 invertido): RD$ '+roi.toFixed(2)+'.');
             saveData();renderAjMarketing();
         }
 
