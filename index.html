@@ -1037,6 +1037,26 @@
                     </div>
                 </div>
 
+                <div class="grid lg:grid-cols-2 gap-5 mb-6">
+                    <div class="rounded-xl border border-beige-200 bg-white p-4 space-y-3">
+                        <div><h3 class="font-serif-title text-2xl font-bold">Entrada de productos al inventario</h3><p class="text-xs text-bistre/60">Selecciona productos creados en Productos e imágenes para aumentar existencias y actualizar su costo promedio.</p></div>
+                        <label class="block text-xs font-semibold">Producto creado<select id="invProductSelect" class="mt-1 w-full rounded-lg border p-2"></select></label>
+                        <div class="grid sm:grid-cols-3 gap-2"><label class="text-xs">Cantidad<input id="invQty" type="number" min="1" step="1" class="mt-1 w-full rounded-lg border p-2"></label><label class="text-xs">Costo unitario (RD$)<input id="invUnitCost" type="number" min="0" step=".01" class="mt-1 w-full rounded-lg border p-2"></label><label class="text-xs">Fecha<input id="invDate" type="date" class="mt-1 w-full rounded-lg border p-2"></label></div>
+                        <label class="block text-xs font-semibold">Proveedor<select id="invSupplierSelect" class="mt-1 w-full rounded-lg border p-2"></select></label>
+                        <button type="button" onclick="registerInventoryEntry()" class="w-full rounded-xl gold-gradient-bg p-3 text-sm font-bold text-white">Registrar entrada y actualizar inventario</button>
+                        <p class="text-[10px] text-bistre/60">El sistema calcula el costo promedio ponderado y guarda el historial de compras.</p>
+                    </div>
+                    <div class="rounded-xl border border-beige-200 bg-white p-4 space-y-3">
+                        <div><h3 class="font-serif-title text-2xl font-bold">Crear y administrar proveedores</h3><p class="text-xs text-bistre/60">Registra tus proveedores para seleccionarlos al recibir mercancía.</p></div>
+                        <input id="invSupplierName" maxlength="120" placeholder="Nombre o razón social *" class="w-full rounded-lg border p-2 text-sm">
+                        <div class="grid sm:grid-cols-2 gap-2"><input id="invSupplierPhone" maxlength="30" placeholder="Teléfono / WhatsApp" class="w-full rounded-lg border p-2 text-sm"><input id="invSupplierRnc" maxlength="20" placeholder="RNC / Cédula (opcional)" class="w-full rounded-lg border p-2 text-sm"></div>
+                        <input id="invSupplierContact" maxlength="100" placeholder="Persona de contacto (opcional)" class="w-full rounded-lg border p-2 text-sm">
+                        <button type="button" onclick="createInventorySupplier()" class="w-full rounded-xl bg-[#482431] p-3 text-sm font-bold text-white">Guardar proveedor</button>
+                        <div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Proveedor</th><th class="p-2">Teléfono</th><th class="p-2">RNC</th><th class="p-2">Acción</th></tr></thead><tbody id="invSuppliersTable"></tbody></table></div>
+                    </div>
+                </div>
+                <div class="rounded-xl border border-beige-200 bg-white p-4 space-y-3 mb-6"><h3 class="font-serif-title text-2xl font-bold">Existencias actuales</h3><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Producto</th><th class="p-2">Categoría</th><th class="p-2">Existencia</th><th class="p-2">Costo unitario</th><th class="p-2">Valor al costo</th></tr></thead><tbody id="invStockTable"></tbody></table></div></div>
+                <div class="rounded-xl border border-beige-200 bg-white p-4 space-y-3 mb-6"><h3 class="font-serif-title text-2xl font-bold">Historial de entradas</h3><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Fecha</th><th class="p-2">Producto</th><th class="p-2">Proveedor</th><th class="p-2">Cantidad</th><th class="p-2">Costo unitario</th><th class="p-2">Total</th></tr></thead><tbody id="invEntriesTable"></tbody></table></div></div>
                 <!-- Daily Entries Table -->
                 <div class="overflow-x-auto pt-4">
                     <h3 class="font-serif-title text-xl font-bold text-bistre mb-3">Historial de Registro Diario</h3>
@@ -1483,6 +1503,7 @@
         let businessSales = [];
         let businessExpenses = [];
         let businessPurchases = [];
+        let ajSuppliers = [];
         let ajAccountingEntries = [];
         const ajAccountingChart = [
             {code:'101',name:'Caja',type:'Activo'},{code:'102',name:'Bancos',type:'Activo'},{code:'103',name:'Cuentas por cobrar',type:'Activo'},{code:'104',name:'Inventario de mercancías',type:'Activo'},{code:'201',name:'Cuentas por pagar',type:'Pasivo'},{code:'202',name:'ITBIS por pagar',type:'Pasivo'},{code:'301',name:'Capital',type:'Patrimonio'},{code:'401',name:'Ventas',type:'Ingresos'},{code:'501',name:'Costo de ventas',type:'Costos'},{code:'601',name:'Gastos operativos',type:'Gastos'}
@@ -1632,6 +1653,7 @@
             document.getElementById('bizSaleDate').value = today;
             document.getElementById('bizExpenseDate').value = today;
             document.getElementById('bizPurchaseDate').value = today;
+            document.getElementById('invDate').value = today;
             calculateTotal();
             if (typeof ajCloudInit === 'function') ajCloudInit();
         };
@@ -1745,6 +1767,7 @@
                 localStorage.setItem('aj_business_sales', JSON.stringify(businessSales));
                 localStorage.setItem('aj_business_expenses', JSON.stringify(businessExpenses));
                 localStorage.setItem('aj_business_purchases', JSON.stringify(businessPurchases));
+                localStorage.setItem('aj_suppliers', JSON.stringify(ajSuppliers));
                 localStorage.setItem('aj_accounting_entries', JSON.stringify(ajAccountingEntries));
                 localStorage.setItem('aj_marketing_campaigns', JSON.stringify(ajMarketingCampaigns));
                 if (typeof ajCloudScheduleSync === 'function') ajCloudScheduleSync();
@@ -1815,8 +1838,8 @@
         }
         function registerBusinessExpense(){const description=document.getElementById('bizExpenseDesc').value.trim(),category=document.getElementById('bizExpenseCategory').value,amount=Number(document.getElementById('bizExpenseAmount').value),date=document.getElementById('bizExpenseDate').value;if(!description||!Number.isFinite(amount)||amount<=0||!date){alert('Completa la descripción, el monto y la fecha.');return;}businessExpenses.unshift({id:String(Date.now()),description,category,amount,date});saveData();document.getElementById('bizExpenseDesc').value='';document.getElementById('bizExpenseAmount').value='';renderBusinessManagement();alert('Gasto registrado.');}
         function addBusinessPayment(id){const x=businessSales.find(v=>String(v.id)===String(id));if(!x)return;const balance=Number(x.total)-Number(x.paid),n=Number(prompt('Saldo pendiente '+moneyRD(balance)+'. Monto del abono:'));if(!Number.isFinite(n)||n<=0||n>balance){alert('Abono no válido.');return;}x.paid=Number(x.paid)+n;x.payments=x.payments||[];x.payments.push({date:new Date().toISOString().slice(0,10),amount:n});saveData();renderBusinessManagement();}
-        function exportBusinessData(){const data={app:'AJ Esencias',version:1,exportedAt:new Date().toISOString(),products,creditClients,appointments,dailyLogs,businessSales,businessExpenses,businessPurchases,ajAccountingEntries},blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='AJ-Esencias-respaldo-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);}
-        function importBusinessData(input){const file=input.files&&input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result),keys=['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses','businessPurchases'];if(d.app!=='AJ Esencias'||!['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses'].every(k=>Array.isArray(d[k]))||(d.businessPurchases!==undefined&&!Array.isArray(d.businessPurchases)))throw new Error('Formato de respaldo inválido.');d.businessPurchases=d.businessPurchases||[];d.ajAccountingEntries=d.ajAccountingEntries||[];if(!Array.isArray(d.ajAccountingEntries))throw new Error('Libro diario inválido.');if(!confirm('El respaldo reemplazará los datos actuales de este navegador. ¿Continuar?'))return;products=d.products;creditClients=d.creditClients;appointments=d.appointments;dailyLogs=d.dailyLogs;businessSales=d.businessSales;businessExpenses=d.businessExpenses;businessPurchases=d.businessPurchases;ajAccountingEntries=d.ajAccountingEntries;if(saveData()){renderProductCatalog();renderPriceEditor();renderCreditTable();renderAppointmentsList();renderDailyLogs();renderBusinessManagement();renderAjAccounting();alert('Respaldo restaurado.');}}catch(e){alert('No se pudo restaurar: '+e.message);}finally{input.value='';}};reader.readAsText(file);}
+        function exportBusinessData(){const data={app:'AJ Esencias',version:1,exportedAt:new Date().toISOString(),products,creditClients,appointments,dailyLogs,businessSales,businessExpenses,businessPurchases,ajSuppliers,ajAccountingEntries},blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='AJ-Esencias-respaldo-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);}
+        function importBusinessData(input){const file=input.files&&input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result),keys=['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses','businessPurchases'];if(d.app!=='AJ Esencias'||!['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses'].every(k=>Array.isArray(d[k]))||(d.businessPurchases!==undefined&&!Array.isArray(d.businessPurchases)))throw new Error('Formato de respaldo inválido.');d.businessPurchases=d.businessPurchases||[];d.ajSuppliers=d.ajSuppliers||[];d.ajAccountingEntries=d.ajAccountingEntries||[];if(!Array.isArray(d.ajAccountingEntries))throw new Error('Libro diario inválido.');if(!confirm('El respaldo reemplazará los datos actuales de este navegador. ¿Continuar?'))return;products=d.products;creditClients=d.creditClients;appointments=d.appointments;dailyLogs=d.dailyLogs;businessSales=d.businessSales;businessExpenses=d.businessExpenses;businessPurchases=d.businessPurchases;ajSuppliers=d.ajSuppliers;ajAccountingEntries=d.ajAccountingEntries;if(saveData()){renderProductCatalog();renderPriceEditor();renderCreditTable();renderAppointmentsList();renderDailyLogs();renderBusinessManagement();renderInventoryWorkspace();renderAjAccounting();alert('Respaldo restaurado.');}}catch(e){alert('No se pudo restaurar: '+e.message);}finally{input.value='';}};reader.readAsText(file);}
 
         function ajAccReportRows(){
             const period=document.getElementById('ajAccReportPeriod')?.value||'month';
@@ -2609,6 +2632,31 @@
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
+        function renderInventoryWorkspace(){
+            const ps=document.getElementById('invProductSelect');if(!ps)return;
+            ps.innerHTML=products.map(p=>'<option value="'+Number(p.id)+'">'+safeText(p.name)+' · '+safeText(p.category||'Sin categoría')+' · Existencia: '+(Number(p.stock)||0)+'</option>').join('')||'<option value="">Primero crea un producto en Productos e imágenes</option>';
+            const ss=document.getElementById('invSupplierSelect');if(ss)ss.innerHTML='<option value="">Selecciona proveedor (opcional)</option>'+ajSuppliers.map(v=>'<option value="'+safeText(v.id)+'">'+safeText(v.name)+'</option>').join('');
+            const sb=document.getElementById('invSuppliersTable');if(sb)sb.innerHTML=ajSuppliers.map(v=>'<tr class="border-b border-beige-100"><td class="p-2 font-semibold">'+safeText(v.name)+'</td><td class="p-2">'+safeText(v.phone||'—')+'</td><td class="p-2">'+safeText(v.rnc||'—')+'</td><td class="p-2"><button type="button" onclick="deleteInventorySupplier(\''+safeText(v.id)+'\')" class="text-red-700 underline">Eliminar</button></td></tr>').join('')||'<tr><td colspan="4" class="p-3 text-center">Todavía no hay proveedores.</td></tr>';
+            const ib=document.getElementById('invStockTable');if(ib)ib.innerHTML=products.map(p=>'<tr class="border-b border-beige-100"><td class="p-2 font-semibold">'+safeText(p.name)+'</td><td class="p-2">'+safeText(p.category||'—')+'</td><td class="p-2">'+(Number(p.stock)||0)+'</td><td class="p-2">'+moneyRD(p.cost)+'</td><td class="p-2">'+moneyRD((Number(p.stock)||0)*(Number(p.cost)||0))+'</td></tr>').join('')||'<tr><td colspan="5" class="p-3 text-center">No hay productos creados.</td></tr>';
+            const eb=document.getElementById('invEntriesTable');if(eb)eb.innerHTML=businessPurchases.slice(0,50).map(x=>'<tr class="border-b border-beige-100"><td class="p-2">'+safeText(x.date)+'</td><td class="p-2">'+safeText(x.productName)+'</td><td class="p-2">'+safeText(x.supplier||'—')+'</td><td class="p-2">'+Number(x.qty||0)+'</td><td class="p-2">'+moneyRD(x.unitCost)+'</td><td class="p-2">'+moneyRD(x.total)+'</td></tr>').join('')||'<tr><td colspan="6" class="p-3 text-center">Todavía no hay entradas.</td></tr>';
+        }
+        function createInventorySupplier(){
+            const name=document.getElementById('invSupplierName').value.trim();if(!name)return alert('Escribe el nombre o razón social del proveedor.');
+            const rnc=document.getElementById('invSupplierRnc').value.trim();if(rnc&&ajSuppliers.some(v=>String(v.rnc||'').toLowerCase()===rnc.toLowerCase()))return alert('Ya existe un proveedor con ese RNC o cédula.');
+            ajSuppliers.unshift({id:String(Date.now()),name,phone:document.getElementById('invSupplierPhone').value.trim(),rnc,contact:document.getElementById('invSupplierContact').value.trim(),createdAt:new Date().toISOString()});
+            if(!saveData())return;['invSupplierName','invSupplierPhone','invSupplierRnc','invSupplierContact'].forEach(id=>document.getElementById(id).value='');renderInventoryWorkspace();alert('Proveedor guardado y disponible para las entradas.');
+        }
+        function deleteInventorySupplier(id){
+            const v=ajSuppliers.find(x=>String(x.id)===String(id));if(!v||!confirm('¿Eliminar el proveedor '+v.name+'? Las compras históricas se conservarán.'))return;
+            ajSuppliers=ajSuppliers.filter(x=>String(x.id)!==String(id));if(saveData())renderInventoryWorkspace();
+        }
+        function registerInventoryEntry(){
+            const p=products.find(x=>Number(x.id)===Number(document.getElementById('invProductSelect').value)),qty=Number(document.getElementById('invQty').value),cost=Number(document.getElementById('invUnitCost').value),date=document.getElementById('invDate').value,supplier=ajSuppliers.find(x=>String(x.id)===String(document.getElementById('invSupplierSelect').value));
+            if(!p||!Number.isInteger(qty)||qty<1||!Number.isFinite(cost)||cost<0||!date)return alert('Selecciona un producto creado y verifica cantidad, costo y fecha.');
+            const oldQty=Number(p.stock)||0,oldCost=Number(p.cost)||0,newQty=oldQty+qty;p.cost=newQty>0?((oldQty*oldCost)+(qty*cost))/newQty:cost;p.stock=newQty;
+            businessPurchases.unshift({id:String(Date.now()),date,productId:p.id,productName:p.name,qty,unitCost:cost,total:qty*cost,supplier:supplier?.name||'',supplierId:supplier?.id||null,source:'inventory'});
+            if(!saveData())return;document.getElementById('invQty').value='';document.getElementById('invUnitCost').value='';renderInventoryWorkspace();renderBusinessManagement();renderPriceEditor();alert('Entrada registrada. Se actualizaron las existencias y el costo promedio ponderado.');
+        }
         function renderDailyLogs() {
             const tbody = document.getElementById('dailyLogTable');
             tbody.innerHTML = '';
@@ -2998,7 +3046,7 @@
                 el.setAttribute('role', isError ? 'alert' : 'status');
             }
         }
-        const AJ_PRIVATE_STORAGE_KEYS = ['aj_products','aj_credit','aj_appointments','aj_daily_logs','aj_business_sales','aj_business_expenses','aj_business_purchases'];
+        const AJ_PRIVATE_STORAGE_KEYS = ['aj_products','aj_credit','aj_appointments','aj_daily_logs','aj_business_sales','aj_business_expenses','aj_business_purchases','aj_suppliers'];
         // El catálogo muestra exclusivamente fotografías cargadas por el administrador.
         // Si un producto no tiene una foto propia, se presenta el marcador visual sin imagen externa.
         function ajReferenceProductImage(product) {
@@ -3023,7 +3071,7 @@
         function ajResetPrivateState() {
             ajClearPrivateLocalData();
             creditClients = []; appointments = []; dailyLogs = [];
-            businessSales = []; businessExpenses = []; businessPurchases = [];
+            businessSales = []; businessExpenses = []; businessPurchases = []; ajSuppliers = [];
             products = readStoredJSON('aj_public_products', initialProducts.map(ajSanitizePublicProduct)).map(ajSanitizePublicProduct);
             renderProductCatalog();
             calculateTotal();
@@ -3247,7 +3295,7 @@
         function ajCloudSnapshot() {
             return {
                 products: products.map(p => ({...p, image: (typeof p.image === 'string' && (p.image.startsWith('http://') || p.image.startsWith('https://'))) ? p.image : ''})),
-                creditClients, appointments, dailyLogs, businessSales, businessExpenses, businessPurchases, ajAccountingEntries,
+                creditClients, appointments, dailyLogs, businessSales, businessExpenses, businessPurchases, ajSuppliers, ajAccountingEntries,
                 campaigns: ajCampaigns, marketingCampaigns: ajMarketingCampaigns,
                 savedAt: new Date().toISOString(), formatVersion: 2
             };
@@ -3263,6 +3311,7 @@
                 if (Array.isArray(payload.businessSales)) businessSales = payload.businessSales;
                 if (Array.isArray(payload.businessExpenses)) businessExpenses = payload.businessExpenses;
                 if (Array.isArray(payload.businessPurchases)) businessPurchases = payload.businessPurchases;
+                if (Array.isArray(payload.ajSuppliers)) ajSuppliers = payload.ajSuppliers;
                 if (Array.isArray(payload.ajAccountingEntries)) ajAccountingEntries = payload.ajAccountingEntries;
                 if (payload.campaigns && typeof payload.campaigns === 'object') ajCampaigns = payload.campaigns;
                 if (Array.isArray(payload.marketingCampaigns)) ajMarketingCampaigns = payload.marketingCampaigns;
@@ -3274,6 +3323,7 @@
                 localStorage.setItem('aj_business_sales', JSON.stringify(businessSales));
                 localStorage.setItem('aj_business_expenses', JSON.stringify(businessExpenses));
                 localStorage.setItem('aj_business_purchases', JSON.stringify(businessPurchases));
+                localStorage.setItem('aj_suppliers', JSON.stringify(ajSuppliers));
                 localStorage.setItem('aj_accounting_entries', JSON.stringify(ajAccountingEntries));
                 localStorage.setItem('aj_marketing_campaigns', JSON.stringify(ajMarketingCampaigns));
 
@@ -3286,6 +3336,7 @@
                 renderAppointmentsList();
                 renderDailyLogs();
                 renderBusinessManagement();
+                renderInventoryWorkspace();
                 renderAjMarketing();
                 renderAjAccounting();
                 calculateTotal();
