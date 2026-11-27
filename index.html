@@ -2859,7 +2859,7 @@
                 ajStopIdleLock();
                 ajResetPrivateState();
             }
-            ['section-credit','section-appointments','section-inventory','section-prices'].forEach(id => {
+            ['section-credit','section-appointments','section-inventory','section-prices','section-accounting'].forEach(id => {
                 const section = document.getElementById(id);
                 if (section) { section.classList.toggle('hidden', !logged); section.setAttribute('aria-hidden', logged ? 'false' : 'true'); }
             });
