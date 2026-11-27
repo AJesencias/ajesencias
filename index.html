@@ -54,6 +54,84 @@
         }
     </script>
     <style>
+
+        /* AJ ESENCIAS · Renovación visual premium */
+        :root {
+            --aj-ivory:#F7F3EC;
+            --aj-espresso:#2B1E16;
+            --aj-gold:#B58A3B;
+            --aj-gold-light:#D9B967;
+            --aj-line:#E5D9C8;
+        }
+        body { background:var(--aj-ivory); color:var(--aj-espresso); }
+        .gold-gradient-bg {
+            background:linear-gradient(135deg,#A97928 0%,#C49A4A 52%,#A97928 100%) !important;
+            box-shadow:0 7px 18px rgba(115,78,26,.20);
+        }
+        .gold-gradient-text {
+            background:linear-gradient(120deg,#8E6426 0%,#BD913D 55%,#8E6426 100%);
+            -webkit-background-clip:text; background-clip:text;
+        }
+        .luxury-card { border-color:var(--aj-line); box-shadow:0 8px 24px rgba(43,30,22,.045); }
+        .luxury-card:hover { border-color:var(--aj-gold); box-shadow:0 14px 32px rgba(43,30,22,.10); }
+        header { box-shadow:0 5px 20px rgba(43,30,22,.07) !important; }
+        header nav { background:#F0E9DE !important; }
+        .nav-tab { min-height:44px; font-weight:700 !important; }
+        .nav-tab.active-tab { background:var(--aj-espresso) !important; color:#fff !important; border-color:var(--aj-espresso) !important; }
+        .nav-tab.active-tab i { color:var(--aj-gold-light) !important; }
+        #productSearch { min-height:50px; background:#fff !important; border:1.5px solid #D7C7AE !important; font-size:14px !important; }
+        #productSearch:focus { border-color:var(--aj-gold) !important; box-shadow:0 0 0 4px rgba(181,138,59,.13); }
+        #categoryQuickLinks { padding:5px 2px 12px; }
+        #categoryQuickLinks a {
+            display:inline-flex; align-items:center; min-height:38px; padding:9px 15px !important;
+            background:#fff !important; color:var(--aj-espresso) !important; border:1px solid #D8C9B2 !important;
+            border-radius:999px !important; font-size:12px !important; font-weight:700 !important;
+            box-shadow:0 3px 9px rgba(43,30,22,.05);
+        }
+        #categoryQuickLinks a:hover, #categoryQuickLinks a:focus {
+            background:var(--aj-espresso) !important; color:#fff !important; border-color:var(--aj-espresso) !important;
+        }
+        .catalog-product-card {
+            background:#fff !important; border:1px solid #E3D7C6 !important;
+            box-shadow:0 8px 22px rgba(43,30,22,.065) !important; padding:15px !important;
+        }
+        .catalog-product-card:hover { border-color:var(--aj-gold) !important; transform:translateY(-4px); }
+        .catalog-product-media {
+            background:linear-gradient(145deg,#F8F5EF,#EEE5D8) !important;
+            border:1px solid #E9DFD1 !important; border-radius:15px !important;
+        }
+        .catalog-product-name { color:var(--aj-espresso) !important; font-weight:700 !important; }
+        .catalog-product-price { color:#94651F !important; font-size:1.65rem !important; }
+        .catalog-brand-tag { background:#F1E8D8 !important; color:#79551F !important; border-color:#DCC69B !important; }
+        .catalog-qty-control { background:#F1EADF !important; border-color:#D8C9B2 !important; }
+        .catalog-qty-control button { width:40px !important; height:40px !important; font-size:14px !important; }
+        .catalog-qty-control button:first-child { border:1px solid #D8C9B2; }
+        .store-hero { border-color:#D8B96F !important; box-shadow:0 12px 30px rgba(43,30,22,.06); }
+        .store-hero a { min-height:48px; font-size:13px !important; font-weight:800 !important; }
+        #cartCountBadge { background:#2B1E16 !important; color:#fff !important; border-color:#2B1E16 !important; }
+        #cartItemList + div button, #cartItemList ~ button { font-weight:700; }
+        button:focus-visible, a:focus-visible, input:focus-visible { outline:3px solid #B58A3B !important; outline-offset:3px; }
+        @media (min-width:640px) {
+            .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+        }
+        @media (min-width:1024px) {
+            .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+        }
+        @media (max-width:639px) {
+            .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:11px !important; }
+            .catalog-product-card { padding:10px !important; border-radius:15px !important; }
+            .catalog-product-media { aspect-ratio:1/1 !important; margin-bottom:10px !important; }
+            .catalog-product-name { font-size:.88rem !important; line-height:1.3 !important; }
+            .catalog-product-price { font-size:1.18rem !important; }
+            .catalog-brand-tag { font-size:8px !important; padding:3px 6px !important; }
+            .catalog-qty-control { gap:3px !important; padding:3px !important; }
+            .catalog-qty-control button { width:32px !important; height:32px !important; }
+            .catalog-qty-control span { width:18px !important; font-size:11px !important; }
+            .store-hero { padding:24px !important; }
+        }
+        @media (max-width:360px) {
+            .catalog-grid { grid-template-columns:1fr !important; }
+        }
         body {
             background-color: #FAF8F5;
             color: #2B1E16;
@@ -1189,6 +1267,7 @@
                     const card = document.createElement('div');
                     card.className = `catalog-product-card luxury-card flex flex-col justify-between relative ${qty > 0 ? 'border-gold-500 ring-1 ring-gold-500/30 bg-gold-100/10' : ''}`;
                     card.setAttribute('data-name', p.name.toLowerCase());
+                    card.setAttribute('data-category', String(p.category || '').toLowerCase());
 
                     // Image Display Element
                     const hasImg = p.image && p.image.trim().length > 0;
@@ -1245,14 +1324,14 @@
         function filterProducts() {
             const query = document.getElementById('productSearch').value.toLowerCase().trim();
             const cards = document.querySelectorAll('#productsContainer [data-name]');
-            
             cards.forEach(card => {
-                const name = card.getAttribute('data-name');
-                if (name.includes(query)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+                const name = card.getAttribute('data-name') || '';
+                const category = card.getAttribute('data-category') || '';
+                card.style.display = (name.includes(query) || category.includes(query)) ? 'flex' : 'none';
+            });
+            document.querySelectorAll('#productsContainer > div[id^="cat-"]').forEach(group => {
+                const visible = group.querySelectorAll('[data-name]:not([style*="display: none"])').length;
+                group.style.display = visible ? '' : 'none';
             });
         }
 
