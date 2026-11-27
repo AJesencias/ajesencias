@@ -1713,26 +1713,21 @@
             document.getElementById('ajAccJournal').innerHTML=ajAccountingEntries.map(e=>'<tr class="border-b border-beige-100"><td class="p-2">'+safeText(e.date)+'</td><td class="p-2">'+safeText(e.description)+'<br><span class="text-bistre/50">'+e.debitCode+' '+safeText(e.debitName)+' / '+e.creditCode+' '+safeText(e.creditName)+'</span></td><td class="p-2">'+moneyRD(e.debit)+'</td><td class="p-2">'+moneyRD(e.credit)+'</td><td class="p-2">'+moneyRD(e.debit)+'</td></tr>').join('')||'<tr><td colspan="5" class="p-3 text-center text-bistre/50">Aún no hay asientos. Registra el primero cuando tengas el comprobante.</td></tr>';
             const totals={};ajAccountingEntries.forEach(e=>{totals[e.debitCode]=totals[e.debitCode]||{name:e.debitName,d:0,c:0};totals[e.debitCode].d+=e.debit;totals[e.creditCode]=totals[e.creditCode]||{name:e.creditName,d:0,c:0};totals[e.creditCode].c+=e.credit;});document.getElementById('ajAccTrial').innerHTML=Object.entries(totals).map(([code,v])=>'<tr class="border-b border-beige-100"><td class="p-2">'+code+' · '+safeText(v.name)+'</td><td class="p-2">'+moneyRD(v.d)+'</td><td class="p-2">'+moneyRD(v.c)+'</td><td class="p-2">'+moneyRD(Math.max(0,v.d-v.c))+'</td><td class="p-2">'+moneyRD(Math.max(0,v.c-v.d))+'</td></tr>').join('')||'<tr><td colspan="5" class="p-3 text-center text-bistre/50">Sin movimientos para mostrar.</td></tr>';
         }
-        function ajAccExportCSV(){const rows=[['Fecha','Descripción','Código débito','Cuenta débito','Código crédito','Cuenta crédito','Débito RD
-            // La pantalla de acceso debe estar disponible incluso sin sesión.
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            const panel = document.getElementById('section-business');
-            if (panel) panel.classList.remove('hidden');
-            document.querySelectorAll('.nav-tab').forEach(el => {
-                el.classList.remove('active-tab', 'bg-white', 'shadow-sm', 'border', 'border-gold-500/30');
-                el.classList.add('text-bistre/70');
-            });
-            const tab = document.getElementById('tab-business');
-            if (tab) {
-                tab.classList.add('active-tab', 'bg-white', 'shadow-sm', 'border', 'border-gold-500/30');
-                tab.classList.remove('text-bistre/70');
-            }
-            if (!ajCloudUser) {
-                ajCloudSetStatus('Introduce el correo y la contraseña de la cuenta administradora para continuar.');
-                const email = document.getElementById('cloudEmail');
-                if (email) setTimeout(() => email.focus(), 250);
-            }
-            if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        function ajAccExportCSV() {
+            const headers = ['Fecha','Descripción','Código débito','Cuenta débito','Código crédito','Cuenta crédito','Débito RD$','Crédito RD$'];
+            const quote = value => '"' + String(value ?? '').replace(/"/g, '""') + '"';
+            const rows = [headers, ...ajAccountingEntries.map(entry => [
+                entry.date, entry.description, entry.debitCode, entry.debitName,
+                entry.creditCode, entry.creditName, entry.debit, entry.credit
+            ])];
+            const csv = '\uFEFF' + rows.map(row => row.map(quote).join(',')).join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'AJ-Esencias-libro-diario-' + new Date().toISOString().slice(0, 10) + '.csv';
+            link.click();
+            URL.revokeObjectURL(url);
         }
 
         function checkProtectedTab(tabId) {
@@ -2817,9 +2812,17 @@
             const safe = (data || []).map(row => ajSanitizePublicProduct({
                 id: row.product_id, category: row.category, name: row.name,
                 price: row.price, image: row.image_url
-            }));
-            products = safe;
-            localStorage.setItem('aj_public_products', JSON.stringify(safe));
+            })).filter(product => product.id && product.name);
+
+            // Si la tabla pública está vacía, no borrar el catálogo que ya se puede mostrar.
+            if (safe.length) {
+                products = safe;
+                localStorage.setItem('aj_public_products', JSON.stringify(safe));
+            } else {
+                const cached = readStoredJSON('aj_public_products', []);
+                const fallback = Array.isArray(cached) && cached.length ? cached : initialProducts;
+                products = fallback.map(ajSanitizePublicProduct);
+            }
             renderProductCatalog();
             calculateTotal();
         }
@@ -2887,6 +2890,8 @@
                     else child.setAttribute('aria-hidden','false');
                 });
             }
+            const campaignAdmin = document.getElementById('ajCampaignAdmin');
+            if (campaignAdmin) campaignAdmin.classList.toggle('hidden', !logged);
             if(logged) renderAjCampaignAdmin();
             const privateWorkspaceNav = document.getElementById('privateWorkspaceNav');
             if(privateWorkspaceNav) privateWorkspaceNav.classList.toggle('hidden', !logged);
