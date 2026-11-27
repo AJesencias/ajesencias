@@ -179,19 +179,7 @@
                     <i class="fas fa-calculator text-gold-600"></i> Cotizador & Pedidos (Público)
                 </button>
                 
-                <button onclick="checkProtectedTab('credit')" id="tab-credit" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2">
-                    <i class="fas fa-book-bookmark text-gold-600"></i> Clientes a Crédito <i class="fas fa-lock text-[10px] text-gold-600/70"></i>
-                </button>
-                <button onclick="checkProtectedTab('appointments')" id="tab-appointments" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2">
-                    <i class="fas fa-calendar-check text-gold-600"></i> Citas & Recordatorios <i class="fas fa-lock text-[10px] text-gold-600/70"></i>
-                </button>
-                <button onclick="checkProtectedTab('inventory')" id="tab-inventory" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2">
-                    <i class="fas fa-boxes-packing text-gold-600"></i> Diario e Inventario <i class="fas fa-lock text-[10px] text-gold-600/70"></i>
-                </button>
-                <button onclick="checkProtectedTab('business')" id="tab-business" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2"><i class="fas fa-chart-line text-gold-600"></i> Gestión Comercial <i class="fas fa-lock text-[10px] text-gold-600/70"></i></button>
-                <button onclick="checkProtectedTab('prices')" id="tab-prices" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2">
-                    <i class="fas fa-tags text-gold-600"></i> Gestor de Productos e Imágenes <i class="fas fa-lock text-[10px] text-gold-600/70"></i>
-                </button>
+                <button onclick="checkProtectedTab('business')" id="tab-business" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2"><i class="fas fa-lock text-gold-600"></i> Área privada</button>
             </div>
         </nav>
     </header>
@@ -547,6 +535,17 @@
                     <p class="text-[11px] text-bistre/60">Los datos se sincronizan entre dispositivos con la misma cuenta. Las copias automáticas se conservan en la nube; el acceso está limitado por cuenta. Las fotografías nuevas se guardan en Storage y las anteriores quedan disponibles en el historial de recuperación.</p>
                 </div>
                 <div id="adminBusinessContent" class="hidden space-y-6">
+                    <div class="rounded-2xl border border-gold-500/25 bg-white p-4 space-y-3">
+                        <div><span class="text-[10px] font-bold tracking-[.2em] text-gold-700 uppercase">AJ Esencias · Administración</span><h3 class="font-serif-title text-2xl font-bold text-bistre">Centro de control privado</h3><p class="text-xs text-bistre/60">Toda la información interna del negocio, reunida en un solo espacio.</p></div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <button onclick="checkProtectedTab('business')" class="px-3 py-3 rounded-xl border border-gold-500/30 bg-beige-50 text-xs font-semibold"><i class="fas fa-chart-line block text-gold-700 text-lg mb-1"></i>Finanzas y ventas</button>
+                            <button onclick="checkProtectedTab('inventory')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-boxes-stacked block text-gold-700 text-lg mb-1"></i>Inventario y diario</button>
+                            <button onclick="checkProtectedTab('credit')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-book-bookmark block text-gold-700 text-lg mb-1"></i>Clientes a crédito</button>
+                            <button onclick="checkProtectedTab('appointments')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-calendar-check block text-gold-700 text-lg mb-1"></i>Citas y recordatorios</button>
+                            <button onclick="checkProtectedTab('prices')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-tags block text-gold-700 text-lg mb-1"></i>Productos e imágenes</button>
+                            <button onclick="ajCloudSignOut()" class="px-3 py-3 rounded-xl border border-red-200 text-xs font-semibold text-red-700"><i class="fas fa-lock block text-lg mb-1"></i>Bloquear y salir</button>
+                        </div>
+                    </div>
                 <section class="rounded-2xl border border-gold-500/25 bg-gradient-to-br from-white to-[#faf6ed] p-4 sm:p-5 space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-3"><div><span class="text-[10px] font-bold tracking-[.2em] text-gold-700 uppercase">AJ Esencias · Finanzas</span><h3 class="font-serif-title text-2xl sm:text-3xl font-bold text-bistre">Resumen financiero</h3><p class="text-xs text-bistre/60">Lectura gerencial basada en las ventas y gastos registrados.</p></div><select id="financePeriod" onchange="renderFinancialDashboard()" class="rounded-xl border border-beige-300 bg-white px-3 py-2 text-xs text-bistre"><option value="month">Este mes</option><option value="30">Últimos 30 días</option><option value="all">Todo el historial</option></select></div>
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-3">
@@ -1108,6 +1107,11 @@
         }
 
         function switchTab(tabId) {
+            const protectedTabs = ['credit','appointments','inventory','business','prices'];
+            if (protectedTabs.includes(tabId) && !ajCloudUser) {
+                if (tabId !== 'business') activeTabToPending = tabId;
+                tabId = 'business';
+            }
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(el => el.classList.add('hidden'));
 
@@ -1989,6 +1993,8 @@
             document.getElementById('cloudSignOutBtn').classList.toggle('hidden', !logged);
             const adminContent=document.getElementById('adminBusinessContent');
             if(adminContent) adminContent.classList.toggle('hidden', !logged);
+            const privateTab = document.getElementById('tab-business');
+            if(privateTab) privateTab.innerHTML = logged ? '<i class="fas fa-lock-open text-gold-600"></i> Área privada' : '<i class="fas fa-lock text-gold-600"></i> Área privada';
             const lockText=document.getElementById('pinLockText');
             if(lockText) lockText.textContent=logged?'Sesión administrativa activa':'Iniciar sesión';
             const lockIcon=document.getElementById('pinLockIcon');
