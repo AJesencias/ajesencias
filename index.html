@@ -641,8 +641,10 @@
                     <div class="flex flex-wrap justify-between items-center gap-2"><div><h3 class="font-bold text-bistre">Sincronización privada en la nube</h3><p id="cloudStatus" class="text-xs text-bistre/70">No has iniciado sesión en AJ Esencias Cloud.</p></div><button id="cloudSignOutBtn" onclick="ajCloudSignOut()" class="hidden px-3 py-2 border rounded-lg text-xs">Cerrar sesión</button></div>
                     <div id="cloudAuthFields" class="grid sm:grid-cols-2 gap-2"><input id="cloudEmail" type="email" autocomplete="email" placeholder="Correo electrónico" class="p-2 border rounded-lg text-sm"><input id="cloudPassword" type="password" autocomplete="current-password" minlength="8" placeholder="Contraseña (mínimo 8 caracteres)" class="p-2 border rounded-lg text-sm"></div>
                     <div id="cloudAuthActions" class="flex flex-wrap gap-2"><button onclick="ajCloudSignIn()" class="px-4 py-2 rounded-lg gold-gradient-bg text-white text-xs font-bold">Iniciar sesión</button><button onclick="ajCloudSignUp()" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold">Crear cuenta</button></div>
-                    <div id="cloudDataActions" class="hidden flex flex-wrap gap-2"><button onclick="ajCloudSave()" class="px-4 py-2 rounded-lg gold-gradient-bg text-white text-xs font-bold">Guardar datos en la nube</button><button onclick="ajCloudLoad()" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold">Cargar datos de la nube</button></div>
-                    <p class="text-[11px] text-bistre/60">Cada cuenta solo puede acceder a sus propios datos. La primera vez, crea una cuenta con tu correo y contraseña. Guarda primero un respaldo local antes de cargar datos desde la nube. Las imágenes cargadas como archivos locales no se sincronizan en esta versión.</p>
+                    <div id="cloudDataActions" class="hidden flex flex-wrap gap-2"><button onclick="ajCloudSave()" class="px-4 py-2 rounded-lg gold-gradient-bg text-white text-xs font-bold">Guardar datos en la nube</button><button onclick="ajCloudLoad()" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold">Cargar datos de la nube</button><button onclick="ajCloudCreateBackup('Respaldo manual').then(()=>alert('Respaldo creado correctamente.')).catch(e=>alert('No se pudo crear el respaldo: '+e.message))" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold">Crear respaldo ahora</button><button onclick="ajCloudShowBackups()" class="px-4 py-2 rounded-lg border border-beige-300 text-xs">Ver respaldos</button><button onclick="ajCloudShowActivity()" class="px-4 py-2 rounded-lg border border-beige-300 text-xs">Historial de actividad</button></div>
+                    <div id="cloudBackupsPanel" class="hidden text-xs space-y-2"></div>
+                    <div id="cloudActivityPanel" class="hidden text-xs space-y-2"></div>
+                    <p class="text-[11px] text-bistre/60">Los datos se sincronizan entre dispositivos con la misma cuenta. Las copias automáticas se conservan en la nube; el acceso está limitado por cuenta. Las fotografías nuevas se guardan en Storage y las anteriores quedan disponibles en el historial de recuperación.</p>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                     <div class="bg-beige-50 p-3 rounded-xl"><small>Ventas</small><div id="bizSalesTotal" class="font-bold text-lg">RD$ 0</div></div><div class="bg-beige-50 p-3 rounded-xl"><small>Costo de ventas</small><div id="bizCostTotal" class="font-bold text-lg">RD$ 0</div></div><div class="bg-beige-50 p-3 rounded-xl"><small>Ganancia bruta</small><div id="bizGrossProfit" class="font-bold text-lg text-green-700">RD$ 0</div></div><div class="bg-beige-50 p-3 rounded-xl"><small>Gastos</small><div id="bizExpensesTotal" class="font-bold text-lg">RD$ 0</div></div><div class="bg-beige-50 p-3 rounded-xl col-span-2 lg:col-span-1"><small>Resultado estimado</small><div id="bizNetResult" class="font-bold text-lg text-gold-700">RD$ 0</div></div>
@@ -756,6 +758,13 @@
                 <div class="space-y-1 text-left">
                     <label class="block text-xs font-bold text-bistre/80"><i class="fas fa-link text-gold-600 mr-1"></i> Pegar Enlace URL de la Foto:</label>
                     <input type="url" id="editImageUrlInput" placeholder="https://ejemplo.com/imagen.jpg" oninput="previewUrlImage(this.value)" class="w-full text-xs p-2.5 border border-beige-200 rounded-xl bg-white focus:outline-none focus:border-gold-500">
+                </div>
+                <div class="border border-beige-200 rounded-xl p-3 text-left space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs font-bold text-bistre">Historial de fotografías</span>
+                        <button type="button" onclick="loadProductImageHistory()" class="text-xs text-gold-700 underline">Ver y recuperar</button>
+                    </div>
+                    <div id="productImageHistory" class="hidden space-y-2 text-xs"></div>
                 </div>
             </div>
 
@@ -2009,13 +2018,24 @@
             if (!prod) return;
             const file = document.getElementById('editImageFileInput').files[0];
             const urlInput = document.getElementById('editImageUrlInput').value.trim();
+            const previousImage = prod.image || '';
             try {
-                if (file) prod.image = ajCloudUser ? await ajUploadProductImage(file, prodId) : await ajReadImageLocally(file);
-                else prod.image = urlInput || tempImageValue || "";
+                let nextImage;
+                if (file) nextImage = ajCloudUser ? await ajUploadProductImage(file, prodId) : await ajReadImageLocally(file);
+                else nextImage = urlInput || tempImageValue || "";
+                if (ajCloudUser && previousImage.startsWith('http') && previousImage !== nextImage) {
+                    await ajCloudArchiveProductImage(prod, previousImage, nextImage ? 'reemplazada' : 'eliminada');
+                }
+                prod.image = nextImage;
                 if (!saveData()) return;
+                if (ajCloudUser) {
+                    const synced = await ajCloudWrite(false);
+                    if (!synced) throw new Error('La foto se subió, pero no se pudo guardar su enlace en la nube. No cierres esta página; vuelve a intentar Guardar datos en la nube.');
+                    await ajCloudRecordActivity(nextImage ? 'fotografia_actualizada' : 'fotografia_eliminada', 'producto', String(prodId), { product_name: prod.name });
+                }
                 renderPriceEditor(); renderProductCatalog(); closeEditImageModal();
-                alert(ajCloudUser && prod.image.startsWith('http') ? "¡Fotografía actualizada y guardada en la nube!" : "¡Fotografía actualizada en este dispositivo!");
-            } catch (error) { alert('No se pudo actualizar la fotografía: ' + error.message); }
+                alert(ajCloudUser && nextImage.startsWith('http') ? "¡Fotografía guardada y sincronizada en la nube!" : "¡Fotografía actualizada en este dispositivo!");
+            } catch (error) { alert('No se pudo completar el cambio de fotografía: ' + error.message); }
         }
     
         const AJ_SUPABASE_URL = 'https://egkqaymaqednmweaqbaz.supabase.co';
@@ -2100,6 +2120,116 @@
             }
         }
 
+        let ajCloudLastBackupAt = 0;
+
+        async function ajCloudRecordActivity(action, entityType, entityId, details = {}) {
+            if (!ajSupabase || !ajCloudUser) return;
+            const { error } = await ajSupabase.from('aj_activity_log').insert({
+                owner_id: ajCloudUser.id, action, entity_type: entityType,
+                entity_id: entityId || null, details
+            });
+            if (error) console.warn('No se pudo registrar la actividad:', error.message);
+        }
+
+        async function ajCloudCreateBackup(label = 'Respaldo automático') {
+            if (!ajSupabase || !ajCloudUser) throw new Error('Inicia sesión en AJ Esencias Cloud.');
+            const { error } = await ajSupabase.from('aj_business_backups').insert({
+                owner_id: ajCloudUser.id, payload: ajCloudSnapshot(), label
+            });
+            if (error) throw error;
+            ajCloudLastBackupAt = Date.now();
+            const { data: oldRows, error: listError } = await ajSupabase.from('aj_business_backups')
+                .select('id').eq('owner_id', ajCloudUser.id).order('created_at', { ascending: false }).range(30, 500);
+            if (!listError && oldRows && oldRows.length) {
+                const { error: deleteError } = await ajSupabase.from('aj_business_backups')
+                    .delete().eq('owner_id', ajCloudUser.id).in('id', oldRows.map(row => row.id));
+                if (deleteError) console.warn('No se pudieron depurar respaldos antiguos:', deleteError.message);
+            }
+            await ajCloudRecordActivity('respaldo_creado', 'respaldo', null, { label });
+            return true;
+        }
+
+        async function ajCloudShowBackups() {
+            const panel = document.getElementById('cloudBackupsPanel');
+            if (!panel || !ajCloudUser) return;
+            panel.classList.remove('hidden');
+            panel.innerHTML = '<p>Cargando respaldos…</p>';
+            const { data, error } = await ajSupabase.from('aj_business_backups')
+                .select('id,label,created_at').eq('owner_id', ajCloudUser.id)
+                .order('created_at', { ascending: false }).limit(10);
+            if (error) { panel.innerHTML = '<p class="text-red-600">No se pudieron consultar los respaldos. Ejecuta primero la configuración SQL de AJ Esencias.</p>'; return; }
+            panel.innerHTML = '<h4 class="font-bold">Respaldos disponibles</h4>' +
+                (data || []).map(row => '<div class="flex items-center justify-between gap-2 border rounded-lg p-2"><span>' + safeText(row.label) + ' · ' + new Date(row.created_at).toLocaleString('es-DO') + '</span><button class="text-gold-700 underline font-bold" onclick="ajCloudRestoreBackup(\'' + row.id + '\')">Restaurar</button></div>').join('') ||
+                '<p>No hay respaldos todavía. Crea el primero con «Crear respaldo ahora».</p>';
+        }
+
+        async function ajCloudRestoreBackup(backupId) {
+            if (!confirm('Esto reemplazará los datos actuales por el respaldo seleccionado. ¿Deseas continuar?')) return;
+            const { data, error } = await ajSupabase.from('aj_business_backups').select('payload')
+                .eq('owner_id', ajCloudUser.id).eq('id', backupId).single();
+            if (error || !data) return alert('No se pudo leer el respaldo: ' + (error?.message || 'No encontrado'));
+            ajCloudApplyPayload(data.payload);
+            const synced = await ajCloudWrite(false);
+            if (!synced) return alert('El respaldo se aplicó localmente, pero no se pudo sincronizar.');
+            await ajCloudRecordActivity('respaldo_restaurado', 'respaldo', backupId, {});
+            alert('Respaldo restaurado y sincronizado.');
+        }
+
+        async function ajCloudShowActivity() {
+            const panel = document.getElementById('cloudActivityPanel');
+            if (!panel || !ajCloudUser) return;
+            panel.classList.remove('hidden');
+            panel.innerHTML = '<p>Cargando actividad…</p>';
+            const { data, error } = await ajSupabase.from('aj_activity_log').select('action,entity_type,entity_id,details,created_at')
+                .eq('owner_id', ajCloudUser.id).order('created_at', { ascending: false }).limit(25);
+            if (error) { panel.innerHTML = '<p class="text-red-600">No se pudo consultar el historial. Ejecuta primero la configuración SQL.</p>'; return; }
+            panel.innerHTML = '<h4 class="font-bold">Actividad reciente</h4>' +
+                (data || []).map(row => '<div class="border-b py-2"><strong>' + safeText(row.action) + '</strong> · ' + safeText(row.details?.product_name || row.entity_type) + '<br><span class="text-gray-500">' + new Date(row.created_at).toLocaleString('es-DO') + '</span></div>').join('') ||
+                '<p>Todavía no hay actividad registrada.</p>';
+        }
+
+        async function ajCloudArchiveProductImage(product, imageUrl, action) {
+            if (!ajSupabase || !ajCloudUser || !imageUrl) return;
+            const { error } = await ajSupabase.from('aj_product_image_history').insert({
+                owner_id: ajCloudUser.id, product_id: String(product.id),
+                product_name: product.name, image_url: imageUrl, action
+            });
+            if (error) throw new Error('No se pudo archivar la fotografía anterior. Ejecuta primero la configuración SQL: ' + error.message);
+        }
+
+        async function loadProductImageHistory() {
+            const panel = document.getElementById('productImageHistory');
+            const productId = document.getElementById('editImageProdId').value;
+            if (!panel || !ajCloudUser) return alert('Inicia sesión en AJ Esencias Cloud para consultar el historial.');
+            panel.classList.remove('hidden');
+            panel.innerHTML = '<p>Cargando historial…</p>';
+            const { data, error } = await ajSupabase.from('aj_product_image_history').select('id,image_url,action,created_at')
+                .eq('owner_id', ajCloudUser.id).eq('product_id', String(productId))
+                .order('created_at', { ascending: false }).limit(20);
+            if (error) { panel.innerHTML = '<p class="text-red-600">No se pudo cargar el historial. Ejecuta primero la configuración SQL.</p>'; return; }
+            panel.innerHTML = (data || []).map(row => '<div class="flex items-center gap-2 border rounded-lg p-2"><img src="' + safeText(row.image_url) + '" alt="" class="w-12 h-12 object-cover rounded"><span class="flex-1">' + safeText(row.action) + '<br><span class="text-gray-500">' + new Date(row.created_at).toLocaleString('es-DO') + '</span></span><button class="text-gold-700 underline font-bold" onclick="restoreProductImageHistory(\'' + row.id + '\')">Recuperar</button></div>').join('') || '<p>No hay fotografías anteriores archivadas.</p>';
+        }
+
+        async function restoreProductImageHistory(historyId) {
+            const productId = document.getElementById('editImageProdId').value;
+            const product = products.find(p => String(p.id) === String(productId));
+            if (!product || !confirm('¿Recuperar esta fotografía para ' + product.name + '?')) return;
+            const { data, error } = await ajSupabase.from('aj_product_image_history').select('image_url')
+                .eq('owner_id', ajCloudUser.id).eq('id', historyId).single();
+            if (error || !data) return alert('No se pudo recuperar la fotografía: ' + (error?.message || 'No encontrada'));
+            if (product.image && product.image.startsWith('http') && product.image !== data.image_url) {
+                await ajCloudArchiveProductImage(product, product.image, 'reemplazada');
+            }
+            product.image = data.image_url;
+            if (!saveData()) return;
+            const synced = await ajCloudWrite(false);
+            if (!synced) return alert('La foto se recuperó en este dispositivo, pero no se pudo sincronizar.');
+            await ajCloudRecordActivity('fotografia_recuperada', 'producto', String(product.id), { product_name: product.name });
+            renderProductCatalog(); renderPriceEditor();
+            alert('Fotografía recuperada y sincronizada.');
+            loadProductImageHistory();
+        }
+
         let ajCloudSyncTimer = null;
         let ajCloudApplyingRemote = false;
         let ajCloudChannel = null;
@@ -2117,13 +2247,21 @@
                 { onConflict: 'owner_id' }
             );
             ajCloudWriteInProgress = false;
-            if (error) ajCloudSetStatus('Error al sincronizar: ' + error.message, true);
-            else {
+            if (error) {
+                ajCloudSetStatus('Error al sincronizar: ' + error.message, true);
+                if (ajCloudWriteQueued) { ajCloudWriteQueued = false; ajCloudScheduleSync(); }
+                return false;
+            } else {
                 ajCloudLastUpdatedAt = stamp;
                 ajCloudSetStatus('Sincronizado automáticamente: ' + new Date(stamp).toLocaleTimeString('es-DO'));
+                if (Date.now() - ajCloudLastBackupAt > 15 * 60 * 1000) {
+                    try { await ajCloudCreateBackup('Respaldo automático'); }
+                    catch (backupError) { console.warn('La sincronización funcionó, pero falló el respaldo automático:', backupError.message); }
+                }
                 if (showAlert) alert('Datos guardados en la nube correctamente.');
             }
             if (ajCloudWriteQueued) { ajCloudWriteQueued = false; ajCloudScheduleSync(); }
+            return true;
         }
         function ajCloudScheduleSync() {
             if (!ajCloudUser || ajCloudApplyingRemote || !ajSupabase) return;
