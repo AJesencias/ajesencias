@@ -1325,11 +1325,7 @@
                         <label for="editImageProductNotes" class="block text-xs font-bold text-bistre mb-1">Notas olfativas (si aplica)</label>
                         <textarea id="editImageProductNotes" rows="3" maxlength="600" placeholder="Salida, corazón y fondo; solo si se conocen." class="w-full text-sm p-2.5 border border-beige-200 rounded-lg bg-white"></textarea>
                     </div>
-                    <button id="ajGenerateProductCopyButton" type="button" onclick="ajOpenProductTextAI()" class="w-full rounded-xl border border-[#B99A62] bg-[#482431] px-3 py-3 text-sm font-bold text-white hover:bg-[#603044] disabled:opacity-60">
-                        <i class="fas fa-wand-magic-sparkles mr-2 text-[#E7C77E]"></i>Generar texto sugerido con IA
-                    </button>
-                    <p id="ajGenerateProductCopyStatus" class="text-[11px] leading-relaxed text-bistre/60" role="status" aria-live="polite">Genera la propuesta aquí mismo, sin salir de AJ Esencias. Revisa el contenido antes de guardarlo.</p>
-                    <p class="text-[10px] leading-relaxed text-bistre/60">La IA no debe inventar notas olfativas ni beneficios; confirma los datos del fabricante antes de publicarlos.</p>
+                    <p class="text-[10px] leading-relaxed text-bistre/60">Completa estos datos manualmente y confirma la información del fabricante antes de publicarla.</p>
                 </div>
                 <div class="text-xs text-bistre/50 font-semibold uppercase tracking-widest my-1">- Ó bien -</div>
 
@@ -3069,54 +3065,6 @@
             return ajSupabase.storage.from('aj-product-images').getPublicUrl(path).data.publicUrl;
         }
 
-        async function ajOpenProductTextAI() {
-            const prodId = Number(document.getElementById('editImageProdId')?.value);
-            const prod = products.find(item => Number(item.id) === prodId);
-            if (!prod) return alert('No se encontró el producto.');
-            if (!ajSupabase || !ajCloudUser || !ajCloudIsAllowedUser(ajCloudUser)) {
-                return alert('Inicia sesión con la cuenta administrativa de AJ Esencias para generar textos.');
-            }
-            const descriptionField = document.getElementById('editImageProductDescription');
-            const notesField = document.getElementById('editImageProductNotes');
-            const button = document.getElementById('ajGenerateProductCopyButton');
-            const status = document.getElementById('ajGenerateProductCopyStatus');
-            const original = button?.innerHTML || 'Generar texto sugerido con IA';
-            if (button) { button.disabled = true; button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generando propuesta…'; }
-            if (status) { status.textContent = 'La IA está preparando la descripción y las notas…'; status.classList.remove('text-red-700'); }
-            const aiController = new AbortController();
-            const aiTimeout = setTimeout(() => aiController.abort(), 45000);
-            try {
-                const { data, error } = await ajSupabase.functions.invoke('generate-product-copy', {
-                    body: {
-                        name: prod.name || '',
-                        category: prod.category || '',
-                        description: descriptionField?.value.trim() || '',
-                        notes: notesField?.value.trim() || ''
-                    },
-                    signal: aiController.signal
-                });
-                if (error) {
-                    let detail = error.message || 'No se pudo conectar con el generador.';
-                    try { const context = error.context; if (context && typeof context.json === 'function') { const payload = await context.json(); if (payload?.error) detail = payload.error; } } catch (_) {}
-                    if (/404|not found|function/i.test(detail)) detail = 'El generador aún no está desplegado en Supabase. Falta publicar la función generate-product-copy y configurar OPENAI_API_KEY.';
-                    throw new Error(detail);
-                }
-                if (!data || (!data.description && !data.olfactoryNotes)) throw new Error(data?.error || 'La IA no devolvió textos válidos.');
-                if (descriptionField && data.description) descriptionField.value = data.description;
-                if (notesField && data.olfactoryNotes) notesField.value = data.olfactoryNotes;
-                if (status) status.textContent = '¡Texto generado! Revísalo y pulsa «Guardar Imagen» para conservarlo.';
-            } catch (error) {
-                console.error('Error al generar texto de producto:', error);
-                const detail = error?.name === 'AbortError'
-                    ? 'La solicitud tardó más de 45 segundos. Revisa la conexión y los registros de la función en Supabase; luego inténtalo otra vez.'
-                    : (error.message || 'No se pudo generar el texto.');
-                if (status) { status.textContent = detail; status.classList.add('text-red-700'); }
-                else alert(detail);
-            } finally {
-                clearTimeout(aiTimeout);
-                if (button) { button.disabled = false; button.innerHTML = original; }
-            }
-        }
 
         let ajImageSaveInProgress = false;
         function ajSetImageSaveStatus(message, isError = false) {
