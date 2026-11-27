@@ -481,8 +481,10 @@
     <style>
         /* El panel de acceso debe permanecer por encima de adornos y cortinas visuales. */
         #cloudAuthCard, #cloudAuthCard * { pointer-events:auto !important; }
-        #cloudAuthCard { position:relative !important; z-index:40 !important; isolation:isolate; }
-        #cloudAuthCard button { position:relative !important; z-index:41 !important; cursor:pointer !important; }
+        #section-business { position:relative !important; z-index:100 !important; }
+        #section-business > .luxury-card { position:relative !important; z-index:100 !important; }
+        #cloudAuthCard { position:relative !important; z-index:9999 !important; isolation:isolate; }
+        #cloudAuthCard button { position:relative !important; z-index:10000 !important; cursor:pointer !important; touch-action:manipulation !important; }
     </style>
     </style>
 <style>#section-business:target{display:block!important;scroll-margin-top:9rem}</style>
@@ -1066,7 +1068,7 @@
                     <div class="flex flex-wrap justify-between gap-2 items-center"><span class="text-xs font-bold uppercase tracking-wider text-gold-700">Iniciar sesión</span><button id="cloudSignOutBtn" onclick="ajCloudSignOut()" class="hidden px-3 py-2 border rounded-lg text-xs">Cerrar sesión</button></div>
                     <p id="cloudStatus" class="hidden" aria-live="polite"></p>
                     <div id="cloudAuthFields" class="grid gap-3"><label class="grid gap-1 text-xs font-semibold text-bistre">Correo electrónico<input id="cloudEmail" type="email" autocomplete="username" placeholder="Correo autorizado" class="p-3 border rounded-lg text-sm bg-white"></label><label class="grid gap-1 text-xs font-semibold text-bistre">Contraseña<input id="cloudPassword" type="password" autocomplete="current-password" minlength="8" placeholder="Contraseña" class="p-3 border rounded-lg text-sm bg-white"></label></div>
-                    <div id="cloudAuthActions" class="grid sm:grid-cols-2 gap-2"><button id="cloudSignInButton" type="button" class="px-5 py-3 rounded-lg gold-gradient-bg text-white text-sm font-bold">Iniciar sesión</button><button onclick="ajCloudSignInPasskey()" class="px-5 py-3 rounded-lg border border-gold-500 text-sm font-bold"><i class="fas fa-face-smile mr-1"></i>Entrar con Face ID</button></div>
+                    <div id="cloudAuthActions" class="grid sm:grid-cols-2 gap-2"><button id="cloudSignInButton" type="button" onclick="ajCloudSignIn()" class="px-5 py-3 rounded-lg gold-gradient-bg text-white text-sm font-bold">Iniciar sesión</button><button onclick="ajCloudSignInPasskey()" class="px-5 py-3 rounded-lg border border-gold-500 text-sm font-bold"><i class="fas fa-face-smile mr-1"></i>Entrar con Face ID</button></div>
                     <p class="text-[11px] text-bistre/55 text-center"><i class="fas fa-shield-halved mr-1"></i>Acceso protegido. Tus datos privados no se muestran al público.</p>
                     <div id="cloudPasskeyActions" class="hidden flex flex-wrap gap-2"><button onclick="ajCloudRegisterPasskey()" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold"><i class="fas fa-fingerprint mr-1"></i>Activar Face ID en este dispositivo</button></div>
                     <div id="cloudDataActions" class="hidden flex flex-wrap gap-2"><button onclick="ajCloudSave()" class="px-4 py-2 rounded-lg gold-gradient-bg text-white text-xs font-bold">Guardar datos en la nube</button><button onclick="ajCloudLoad()" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold">Cargar datos de la nube</button><button onclick="ajCloudCreateBackup('Respaldo manual').then(()=>alert('Respaldo creado correctamente.')).catch(e=>alert('No se pudo crear el respaldo: '+e.message))" class="px-4 py-2 rounded-lg border border-gold-500 text-xs font-bold">Crear respaldo ahora</button><button onclick="ajCloudShowBackups()" class="px-4 py-2 rounded-lg border border-beige-300 text-xs">Ver respaldos</button><button onclick="ajCloudShowActivity()" class="px-4 py-2 rounded-lg border border-beige-300 text-xs">Historial de actividad</button></div>
