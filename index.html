@@ -165,7 +165,7 @@
             <!-- Lock / Admin Session Status -->
             <div class="flex items-center space-x-2">
                 
-                <button id="pinStatusBtn" onclick="openPinModal()" class="px-3 py-1.5 text-xs rounded-full border border-gold-500/40 text-bistre hover:bg-beige-100 transition flex items-center space-x-2">
+                <button id="pinStatusBtn" onclick="checkProtectedTab('business')" class="px-3 py-1.5 text-xs rounded-full border border-gold-500/40 text-bistre hover:bg-beige-100 transition flex items-center space-x-2">
                     <i id="pinLockIcon" class="fas fa-lock text-gold-600"></i>
                     <span id="pinLockText">Sección Protegida</span>
                 </button>
@@ -553,6 +553,7 @@
                     <div id="cloudActivityPanel" class="hidden text-xs space-y-2"></div>
                     <p class="text-[11px] text-bistre/60">Los datos se sincronizan entre dispositivos con la misma cuenta. Las copias automáticas se conservan en la nube; el acceso está limitado por cuenta. Las fotografías nuevas se guardan en Storage y las anteriores quedan disponibles en el historial de recuperación.</p>
                 </div>
+                <div id="adminBusinessContent" class="hidden space-y-6">
                 <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                     <div class="bg-beige-50 p-3 rounded-xl"><small>Ventas</small><div id="bizSalesTotal" class="font-bold text-lg">RD$ 0</div></div><div class="bg-beige-50 p-3 rounded-xl"><small>Costo de ventas</small><div id="bizCostTotal" class="font-bold text-lg">RD$ 0</div></div><div class="bg-beige-50 p-3 rounded-xl"><small>Ganancia bruta</small><div id="bizGrossProfit" class="font-bold text-lg text-green-700">RD$ 0</div></div><div class="bg-beige-50 p-3 rounded-xl"><small>Gastos</small><div id="bizExpensesTotal" class="font-bold text-lg">RD$ 0</div></div><div class="bg-beige-50 p-3 rounded-xl col-span-2 lg:col-span-1"><small>Resultado estimado</small><div id="bizNetResult" class="font-bold text-lg text-gold-700">RD$ 0</div></div>
                 </div>
@@ -570,6 +571,7 @@
             <div class="grid lg:grid-cols-2 gap-5"><div class="luxury-card rounded-2xl p-5 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Cuentas por cobrar</h3><p>Saldo pendiente: <b id="bizReceivableTotal" class="text-red-700">RD$ 0.00</b></p><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Cliente / fecha</th><th class="p-2">Total</th><th class="p-2">Pendiente</th><th class="p-2">Abono</th></tr></thead><tbody id="bizReceivablesTable"></tbody></table></div></div><div class="luxury-card rounded-2xl p-5 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Últimos gastos</h3><div id="bizExpensesList" class="text-xs space-y-2"></div></div></div>
             <div class="luxury-card rounded-2xl p-5 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Registrar compra / entrada de mercancía</h3><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2"><label class="text-xs">Producto<select id="bizPurchaseProduct" class="w-full p-2 border rounded-lg"></select></label><label class="text-xs">Unidades recibidas<input id="bizPurchaseQty" type="number" min="1" step="1" class="w-full p-2 border rounded-lg"></label><label class="text-xs">Costo por unidad (RD$)<input id="bizPurchaseCost" type="number" min="0" step=".01" class="w-full p-2 border rounded-lg"></label><label class="text-xs">Fecha<input id="bizPurchaseDate" type="date" class="w-full p-2 border rounded-lg"></label></div><div class="flex flex-wrap gap-2"><input id="bizPurchaseSupplier" maxlength="100" placeholder="Proveedor (opcional)" class="flex-1 min-w-40 p-2 border rounded-lg text-sm"><button onclick="registerBusinessPurchase()" class="px-4 py-2 rounded-lg gold-gradient-bg text-white text-xs font-bold">Registrar entrada</button></div><p class="text-xs text-bistre/60">La compra aumenta las existencias y actualiza el costo promedio ponderado. Se registra como adquisición de inventario, no como gasto operativo.</p><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Fecha</th><th class="p-2">Producto / proveedor</th><th class="p-2">Unidades</th><th class="p-2">Costo unitario</th><th class="p-2">Total compra</th></tr></thead><tbody id="bizPurchasesTable"></tbody></table></div></div>
             <div class="luxury-card rounded-2xl p-5 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Historial de ventas</h3><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Fecha</th><th class="p-2">Producto / cliente</th><th class="p-2">Cant.</th><th class="p-2">Total</th><th class="p-2">Cobrado</th><th class="p-2">Pendiente</th></tr></thead><tbody id="bizSalesTable"></tbody></table></div></div>
+                </div>
         </section>
 
         <!-- SECTION 6: EDIT PRICES & PRODUCT IMAGES (PROTECTED PIN 1221) -->
@@ -1049,17 +1051,16 @@
         function importBusinessData(input){const file=input.files&&input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result),keys=['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses','businessPurchases'];if(d.app!=='AJ Esencias'||!['products','creditClients','appointments','dailyLogs','businessSales','businessExpenses'].every(k=>Array.isArray(d[k]))||(d.businessPurchases!==undefined&&!Array.isArray(d.businessPurchases)))throw new Error('Formato de respaldo inválido.');d.businessPurchases=d.businessPurchases||[];if(!confirm('El respaldo reemplazará los datos actuales de este navegador. ¿Continuar?'))return;products=d.products;creditClients=d.creditClients;appointments=d.appointments;dailyLogs=d.dailyLogs;businessSales=d.businessSales;businessExpenses=d.businessExpenses;businessPurchases=d.businessPurchases;if(saveData()){renderProductCatalog();renderPriceEditor();renderCreditTable();renderAppointmentsList();renderDailyLogs();renderBusinessManagement();alert('Respaldo restaurado.');}}catch(e){alert('No se pudo restaurar: '+e.message);}finally{input.value='';}};reader.readAsText(file);}
 
         function checkProtectedTab(tabId) {
-            if (tabId === 'calculator') {
-                switchTab('calculator');
+            if (tabId === 'calculator') { switchTab('calculator'); return; }
+            if (tabId === 'business') { switchTab('business'); return; }
+            if (!ajCloudUser) {
+                activeTabToPending = tabId;
+                switchTab('business');
+                ajCloudSetStatus('Inicia sesión con tu cuenta autorizada para acceder al área administrativa.', true);
+                const email=document.getElementById('cloudEmail'); if(email) email.focus();
                 return;
             }
-
-            if (isAdminUnlocked) {
-                switchTab(tabId);
-            } else {
-                activeTabToPending = tabId;
-                openPinModal();
-            }
+            switchTab(tabId);
         }
 
         function openPinModal() {
@@ -1902,7 +1903,15 @@
             document.getElementById('cloudAuthActions').classList.toggle('hidden', logged);
             document.getElementById('cloudDataActions').classList.toggle('hidden', !logged);
             document.getElementById('cloudSignOutBtn').classList.toggle('hidden', !logged);
-            ajCloudSetStatus(logged ? 'Sesión iniciada: ' + ajCloudUser.email : 'No has iniciado sesión en AJ Esencias Cloud.');
+            const adminContent=document.getElementById('adminBusinessContent');
+            if(adminContent) adminContent.classList.toggle('hidden', !logged);
+            const lockText=document.getElementById('pinLockText');
+            if(lockText) lockText.textContent=logged?'Sesión administrativa activa':'Iniciar sesión';
+            const lockIcon=document.getElementById('pinLockIcon');
+            if(lockIcon) lockIcon.className=logged?'fas fa-lock-open text-green-700':'fas fa-lock text-gold-600';
+            ajCloudSetStatus(logged ? 'Sesión administrativa activa: ' + ajCloudUser.email : 'Inicia sesión para ver ventas, clientes, inventario y finanzas.');
+            if(logged && activeTabToPending) { const next=activeTabToPending; activeTabToPending=null; switchTab(next); }
+            if(!logged) switchTab('calculator');
         }
         async function ajCloudSignUp() {
             const email = document.getElementById('cloudEmail').value.trim();
