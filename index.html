@@ -305,6 +305,47 @@
             .catalog-product-price { font-size:1.2rem !important; }
         }
         @media (max-width:360px) { .catalog-grid { grid-template-columns:1fr !important; } }
+
+        /* Detalles de marca y navegación del catálogo */
+        .store-hero { isolation:isolate !important; }
+        .store-hero:before {
+            content:""; position:absolute; z-index:0; pointer-events:none;
+            width:clamp(190px,34vw,340px); aspect-ratio:1;
+            right:clamp(12px,5vw,54px); top:50%; transform:translateY(-50%);
+            background:url("assets/aj-esencias-logo.svg") center/contain no-repeat;
+            opacity:.105; filter:grayscale(.15) sepia(.22);
+        }
+        .store-hero:after { content:none !important; }
+        #categoryQuickLinks {
+            display:flex !important; align-items:center; gap:10px !important;
+            overflow-x:auto !important; overflow-y:hidden !important;
+            padding:10px 3px 16px !important; scroll-snap-type:x proximity;
+            scrollbar-width:none;
+        }
+        #categoryQuickLinks::-webkit-scrollbar { display:none; }
+        #categoryQuickLinks a {
+            flex:0 0 auto; scroll-snap-align:start;
+            min-height:43px !important; padding:10px 17px !important;
+            border:1px solid #DCCBC5 !important; border-radius:13px !important;
+            background:linear-gradient(145deg,#FFFEFC,#F5EEEB) !important;
+            color:#482431 !important; font-size:12px !important;
+            font-weight:700 !important; letter-spacing:.015em;
+            box-shadow:0 4px 11px rgba(72,36,49,.065) !important;
+            transition:transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease !important;
+        }
+        #categoryQuickLinks a:hover, #categoryQuickLinks a:focus-visible {
+            transform:translateY(-2px);
+            background:#482431 !important; color:#fff !important;
+            border-color:#482431 !important; box-shadow:0 7px 16px rgba(72,36,49,.18) !important;
+        }
+        #categoryQuickLinks a:active { transform:scale(.97); }
+        @media (max-width:639px) {
+            .store-hero:before { width:190px; right:-8px; top:28%; opacity:.09; }
+            #categoryQuickLinks a { min-height:41px !important; padding:9px 14px !important; }
+        }
+        @media (prefers-reduced-motion:reduce) {
+            #categoryQuickLinks a { transition:none !important; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -335,7 +376,7 @@
         <nav class="bg-beige-100/60 border-t border-beige-200">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 flex overflow-x-auto whitespace-nowrap scrollbar-none py-1 gap-2 text-sm">
                 <button onclick="switchTab('calculator')" id="tab-calculator" class="nav-tab active-tab px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 bg-white text-bistre shadow-sm border border-gold-500/30">
-                    <i class="fas fa-calculator text-gold-600"></i> Cotizador & Pedidos (Público)
+                    <i class="fas fa-calculator text-gold-600"></i> Catálogo
                 </button>
                 
                 <button type="button" onclick="openPrivateArea(); return false;" id="tab-business" class="nav-tab px-4 py-2 rounded-lg font-medium text-bistre/70 hover:text-bistre hover:bg-white/50 transition flex items-center gap-2"><i class="fas fa-lock text-gold-600"></i> Área privada</button>
