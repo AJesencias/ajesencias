@@ -679,6 +679,7 @@
                 <button onclick="checkProtectedTab('prices')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-tags block text-gold-700 text-lg mb-1"></i>Productos e imágenes</button>
                 <button onclick="checkProtectedTab('marketing')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-bullhorn block text-gold-700 text-lg mb-1"></i>Marketing y ventas</button>
                 <button onclick="checkProtectedTab('accounting')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-calculator block text-gold-700 text-lg mb-1"></i>Contabilidad</button>
+                <button onclick="checkProtectedTab('payroll')" class="px-3 py-3 rounded-xl border border-beige-200 text-xs font-semibold"><i class="fas fa-users block text-gold-700 text-lg mb-1"></i>Nómina y empleados</button>
                 <button onclick="ajCloudSignOut()" class="px-3 py-3 rounded-xl border border-red-200 text-xs font-semibold text-red-700"><i class="fas fa-lock block text-lg mb-1"></i>Bloquear y salir</button>
             </div>
         </div>
@@ -1134,6 +1135,34 @@
             </div>
         </section>
 
+
+        <section id="section-payroll" class="tab-content hidden space-y-6">
+          <div class="luxury-card rounded-2xl p-5 sm:p-7 space-y-5">
+            <div class="border-b border-beige-200 pb-4"><span class="text-[10px] font-bold tracking-[.2em] uppercase text-gold-700">AJ Esencias · Gestión de personal</span><h2 class="font-serif-title text-3xl font-bold text-bistre">Nómina y empleados</h2><p class="text-xs text-bistre/60">Registro de empleados, salarios y pagos por período.</p></div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3"><div class="rounded-xl bg-beige-50 p-3"><small>Empleados activos</small><b id="ajPayrollActiveCount" class="block text-xl">0</b></div><div class="rounded-xl bg-beige-50 p-3"><small>Total bruto registrado</small><b id="ajPayrollGrossTotal" class="block text-lg">RD$ 0.00</b></div><div class="rounded-xl bg-beige-50 p-3 col-span-2 sm:col-span-1"><small>Total neto registrado</small><b id="ajPayrollNetTotal" class="block text-lg">RD$ 0.00</b></div></div>
+            <div class="rounded-xl border border-beige-200 p-4 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Registrar empleado</h3><input type="hidden" id="ajEmployeeEditId"><div class="grid sm:grid-cols-2 gap-3">
+              <label class="text-xs font-semibold">Nombre completo<input id="ajEmployeeName" maxlength="120" class="mt-1 w-full rounded-lg border p-3 text-sm" placeholder="Nombre y apellido"></label>
+              <label class="text-xs font-semibold">Cargo<input id="ajEmployeeRole" maxlength="100" class="mt-1 w-full rounded-lg border p-3 text-sm" placeholder="Ej. Vendedor/a"></label>
+              <label class="text-xs font-semibold">Cédula (opcional)<input id="ajEmployeeIdNumber" maxlength="20" class="mt-1 w-full rounded-lg border p-3 text-sm" placeholder="000-0000000-0"></label>
+              <label class="text-xs font-semibold">Salario mensual RD$<input id="ajEmployeeSalary" type="number" min="0" step=".01" class="mt-1 w-full rounded-lg border p-3 text-sm" placeholder="0.00"></label>
+              <label class="text-xs font-semibold">Fecha de ingreso<input id="ajEmployeeStart" type="date" class="mt-1 w-full rounded-lg border p-3 text-sm"></label>
+              <label class="text-xs font-semibold">Estado<select id="ajEmployeeStatus" class="mt-1 w-full rounded-lg border p-3 text-sm"><option>Activo</option><option>Inactivo</option></select></label></div>
+              <div class="flex flex-wrap gap-2"><button onclick="ajPayrollSaveEmployee()" class="rounded-lg bg-[#482431] px-4 py-3 text-sm font-bold text-white">Guardar empleado</button><button onclick="ajPayrollClearEmployee()" class="rounded-lg border px-4 py-3 text-sm font-bold">Limpiar</button></div>
+              <div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Empleado</th><th class="p-2">Cargo</th><th class="p-2">Salario mensual</th><th class="p-2">Estado</th><th class="p-2">Acciones</th></tr></thead><tbody id="ajEmployeeTable"></tbody></table></div>
+            </div>
+            <div class="rounded-xl border border-beige-200 p-4 space-y-3"><h3 class="font-serif-title text-2xl font-bold">Preparar nómina</h3><div class="grid sm:grid-cols-2 gap-3">
+              <label class="text-xs font-semibold">Empleado<select id="ajPayrollEmployee" class="mt-1 w-full rounded-lg border p-3 text-sm"></select></label>
+              <label class="text-xs font-semibold">Período<input id="ajPayrollPeriod" type="month" class="mt-1 w-full rounded-lg border p-3 text-sm"></label>
+              <label class="text-xs font-semibold">Salario base del período RD$<input id="ajPayrollBase" type="number" min="0" step=".01" class="mt-1 w-full rounded-lg border p-3 text-sm"></label>
+              <label class="text-xs font-semibold">Otros ingresos RD$<input id="ajPayrollOther" type="number" min="0" step=".01" value="0" class="mt-1 w-full rounded-lg border p-3 text-sm"></label>
+              <label class="text-xs font-semibold">Horas extras / incentivos RD$<input id="ajPayrollOvertime" type="number" min="0" step=".01" value="0" class="mt-1 w-full rounded-lg border p-3 text-sm"></label>
+              <label class="text-xs font-semibold">Deducciones RD$<input id="ajPayrollDeductions" type="number" min="0" step=".01" value="0" class="mt-1 w-full rounded-lg border p-3 text-sm"></label></div>
+              <p class="text-[11px] text-bistre/60">Las deducciones se introducen manualmente. Este módulo no calcula automáticamente AFP, SFS, ISR ni otras retenciones legales; verifica esos importes antes de pagar.</p>
+              <div class="rounded-xl bg-beige-50 p-3 text-sm flex flex-wrap justify-between gap-2"><span>Total bruto: <b id="ajPayrollPreviewGross">RD$ 0.00</b></span><span>Neto estimado: <b id="ajPayrollPreviewNet">RD$ 0.00</b></span></div><button onclick="ajPayrollSaveRun()" class="w-full rounded-lg bg-[#482431] px-4 py-3 text-sm font-bold text-white">Guardar registro de nómina</button>
+            </div>
+            <div class="rounded-xl border border-beige-200 p-4 space-y-3"><div class="flex flex-wrap items-center justify-between gap-2"><h3 class="font-serif-title text-2xl font-bold">Historial de nómina</h3><button onclick="ajPayrollExportCSV()" class="rounded-lg border px-3 py-2 text-xs font-bold">Exportar CSV</button></div><div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="bg-beige-100"><tr><th class="p-2">Período</th><th class="p-2">Empleado</th><th class="p-2">Bruto</th><th class="p-2">Deducciones</th><th class="p-2">Neto</th><th class="p-2">Estado</th><th class="p-2">Acción</th></tr></thead><tbody id="ajPayrollTable"></tbody></table></div></div>
+          </div>
+        </section>
         <section id="section-accounting" class="tab-content hidden space-y-6">
             <div class="luxury-card rounded-2xl p-5 sm:p-7 space-y-5">
                 <div class="border-b border-beige-200 pb-4"><span class="text-[10px] font-bold tracking-[.2em] uppercase text-gold-700">AJ Esencias · Control contable</span><h2 class="font-serif-title text-3xl font-bold text-bistre">Sistema de contabilidad</h2><p class="text-xs text-bistre/60">Registro por partida doble · Moneda: peso dominicano (RD$)</p></div>
@@ -1601,6 +1630,8 @@
         let businessPurchases = [];
         let ajSuppliers = [];
         let ajAccountingEntries = [];
+        let ajEmployees = [];
+        let ajPayrollRecords = [];
         const ajAccountingChart = [
             {code:'101',name:'Caja',type:'Activo'},{code:'102',name:'Bancos',type:'Activo'},{code:'103',name:'Cuentas por cobrar',type:'Activo'},{code:'104',name:'Inventario de mercancías',type:'Activo'},{code:'201',name:'Cuentas por pagar',type:'Pasivo'},{code:'202',name:'ITBIS por pagar',type:'Pasivo'},{code:'301',name:'Capital',type:'Patrimonio'},{code:'401',name:'Ventas',type:'Ingresos'},{code:'501',name:'Costo de ventas',type:'Costos'},{code:'601',name:'Gastos operativos',type:'Gastos'}
         ];
@@ -1865,6 +1896,8 @@
                 localStorage.setItem('aj_business_purchases', JSON.stringify(businessPurchases));
                 localStorage.setItem('aj_suppliers', JSON.stringify(ajSuppliers));
                 localStorage.setItem('aj_accounting_entries', JSON.stringify(ajAccountingEntries));
+                localStorage.setItem('aj_employees', JSON.stringify(ajEmployees));
+                localStorage.setItem('aj_payroll_records', JSON.stringify(ajPayrollRecords));
                 localStorage.setItem('aj_marketing_campaigns', JSON.stringify(ajMarketingCampaigns));
                 if (typeof ajCloudScheduleSync === 'function') ajCloudScheduleSync();
                 return true;
@@ -2074,7 +2107,7 @@
         }
 
         function switchTab(tabId) {
-            const protectedTabs = ['credit','appointments','inventory','business','prices','marketing','accounting'];
+            const protectedTabs = ['credit','appointments','inventory','business','prices','marketing','accounting','payroll'];
             if (protectedTabs.includes(tabId) && !ajCloudUser) {
                 if (tabId !== 'business') activeTabToPending = tabId;
                 tabId = 'business';
@@ -2092,6 +2125,7 @@
             if (targetContent) targetContent.classList.remove('hidden');
             if (tabId === 'accounting') { const dateField=document.getElementById('ajAccDate'); if(dateField&&!dateField.value)dateField.value=new Date().toISOString().slice(0,10); renderAjAccounting(); }
             if (tabId === 'inventory') { renderInventoryWorkspace(); renderDailyLogs(); }
+            if (tabId === 'payroll') renderAjPayroll();
 
             const targetBtn = document.getElementById('tab-' + tabId);
             if (targetBtn) {
@@ -3483,10 +3517,42 @@
             saveData();renderAjMarketing();
         }
 
+
+        function ajPayrollClearEmployee(){['ajEmployeeEditId','ajEmployeeName','ajEmployeeRole','ajEmployeeIdNumber','ajEmployeeSalary','ajEmployeeStart'].forEach(id=>document.getElementById(id).value='');document.getElementById('ajEmployeeStatus').value='Activo';}
+        function ajPayrollSaveEmployee(){
+          if(!ajCloudUser)return alert('Inicia sesión para guardar empleados.');
+          const id=document.getElementById('ajEmployeeEditId').value,name=document.getElementById('ajEmployeeName').value.trim(),role=document.getElementById('ajEmployeeRole').value.trim(),salary=Number(document.getElementById('ajEmployeeSalary').value);
+          if(!name||!role||!Number.isFinite(salary)||salary<0)return alert('Completa nombre, cargo y salario válido.');
+          const e={id:id||String(Date.now()),name,role,identity:document.getElementById('ajEmployeeIdNumber').value.trim(),salary,startDate:document.getElementById('ajEmployeeStart').value,status:document.getElementById('ajEmployeeStatus').value};
+          const i=ajEmployees.findIndex(x=>String(x.id)===String(e.id));if(i<0)ajEmployees.unshift(e);else ajEmployees[i]=e;saveData();renderAjPayroll();ajPayrollClearEmployee();ajCloudWrite(false);
+        }
+        function ajPayrollEditEmployee(id){const e=ajEmployees.find(x=>String(x.id)===String(id));if(!e)return;document.getElementById('ajEmployeeEditId').value=e.id;document.getElementById('ajEmployeeName').value=e.name;document.getElementById('ajEmployeeRole').value=e.role;document.getElementById('ajEmployeeIdNumber').value=e.identity||'';document.getElementById('ajEmployeeSalary').value=e.salary;document.getElementById('ajEmployeeStart').value=e.startDate||'';document.getElementById('ajEmployeeStatus').value=e.status||'Activo';}
+        function ajPayrollDeleteEmployee(id){const e=ajEmployees.find(x=>String(x.id)===String(id));if(!e||!confirm('¿Eliminar a '+e.name+'? Los registros de nómina se conservarán.'))return;ajEmployees=ajEmployees.filter(x=>String(x.id)!==String(id));saveData();renderAjPayroll();ajCloudWrite(false);}
+        function ajPayrollPreview(){const base=+document.getElementById('ajPayrollBase').value||0,other=+document.getElementById('ajPayrollOther').value||0,extra=+document.getElementById('ajPayrollOvertime').value||0,ded=+document.getElementById('ajPayrollDeductions').value||0,gross=base+other+extra;document.getElementById('ajPayrollPreviewGross').textContent=moneyRD(gross);document.getElementById('ajPayrollPreviewNet').textContent=moneyRD(gross-ded);}
+        function ajPayrollSaveRun(){
+          if(!ajCloudUser)return alert('Inicia sesión para guardar la nómina.');
+          const e=ajEmployees.find(x=>String(x.id)===document.getElementById('ajPayrollEmployee').value),period=document.getElementById('ajPayrollPeriod').value,base=+document.getElementById('ajPayrollBase').value||0,other=+document.getElementById('ajPayrollOther').value||0,extra=+document.getElementById('ajPayrollOvertime').value||0,deductions=+document.getElementById('ajPayrollDeductions').value||0,gross=base+other+extra,net=gross-deductions;
+          if(!e||!period)return alert('Selecciona empleado y período.');if([base,other,extra,deductions].some(x=>x<0)||net<0)return alert('Verifica los importes y deducciones.');
+          if(ajPayrollRecords.some(r=>String(r.employeeId)===String(e.id)&&r.period===period))return alert('Ya existe una nómina para ese empleado y período.');
+          ajPayrollRecords.unshift({id:String(Date.now()),employeeId:e.id,employeeName:e.name,period,base,other,extra,gross,deductions,net,status:'Pendiente'});saveData();renderAjPayroll();ajCloudWrite(false);
+        }
+        function ajPayrollMarkPaid(id){const r=ajPayrollRecords.find(x=>String(x.id)===String(id));if(!r||!confirm('¿Marcar como pagada por '+moneyRD(r.net)+'?'))return;r.status='Pagada';r.paidAt=new Date().toISOString();saveData();renderAjPayroll();ajCloudWrite(false);}
+        function ajPayrollDeleteRun(id){if(!confirm('¿Eliminar este registro?'))return;ajPayrollRecords=ajPayrollRecords.filter(x=>String(x.id)!==String(id));saveData();renderAjPayroll();ajCloudWrite(false);}
+        function ajPayrollExportCSV(){const rows=[['Período','Empleado','Base','Otros ingresos','Extras','Bruto','Deducciones','Neto','Estado'],...ajPayrollRecords.map(r=>[r.period,r.employeeName,r.base,r.other,r.extra,r.gross,r.deductions,r.net,r.status])];const csv='\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));const a=document.createElement('a');a.href=u;a.download='AJ-Esencias-nomina.csv';a.click();URL.revokeObjectURL(u);}
+        function renderAjPayroll(){
+          const body=document.getElementById('ajEmployeeTable');if(!body)return;const active=ajEmployees.filter(e=>e.status==='Activo');
+          body.innerHTML=ajEmployees.map(e=>'<tr class="border-b"><td class="p-2 font-semibold">'+safeText(e.name)+(e.identity?'<br>'+safeText(e.identity):'')+'</td><td class="p-2">'+safeText(e.role)+'</td><td class="p-2">'+moneyRD(e.salary)+'</td><td class="p-2">'+safeText(e.status)+'</td><td class="p-2 whitespace-nowrap"><button onclick="ajPayrollEditEmployee(\''+safeText(e.id)+'\')" class="text-gold-700 underline mr-2">Editar</button><button onclick="ajPayrollDeleteEmployee(\''+safeText(e.id)+'\')" class="text-red-600 underline">Eliminar</button></td></tr>').join('')||'<tr><td colspan="5" class="p-3 text-center">No hay empleados registrados.</td></tr>';
+          const sel=document.getElementById('ajPayrollEmployee'),old=sel.value;sel.innerHTML='<option value="">Selecciona empleado</option>'+active.map(e=>'<option value="'+safeText(e.id)+'">'+safeText(e.name)+'</option>').join('');if(active.some(e=>String(e.id)===old))sel.value=old;
+          document.getElementById('ajPayrollActiveCount').textContent=active.length;document.getElementById('ajPayrollGrossTotal').textContent=moneyRD(ajPayrollRecords.reduce((n,r)=>n+r.gross,0));document.getElementById('ajPayrollNetTotal').textContent=moneyRD(ajPayrollRecords.reduce((n,r)=>n+r.net,0));
+          document.getElementById('ajPayrollTable').innerHTML=ajPayrollRecords.map(r=>'<tr class="border-b"><td class="p-2">'+safeText(r.period)+'</td><td class="p-2">'+safeText(r.employeeName)+'</td><td class="p-2">'+moneyRD(r.gross)+'</td><td class="p-2">'+moneyRD(r.deductions)+'</td><td class="p-2 font-bold">'+moneyRD(r.net)+'</td><td class="p-2">'+safeText(r.status)+'</td><td class="p-2 whitespace-nowrap">'+(r.status!=='Pagada'?'<button onclick="ajPayrollMarkPaid(\''+safeText(r.id)+'\')" class="text-green-700 underline mr-2">Pagar</button>':'')+'<button onclick="ajPayrollDeleteRun(\''+safeText(r.id)+'\')" class="text-red-600 underline">Eliminar</button></td></tr>').join('')||'<tr><td colspan="7" class="p-3 text-center">No hay nóminas registradas.</td></tr>';
+          ajPayrollPreview();
+        }
+        ['ajPayrollBase','ajPayrollOther','ajPayrollOvertime','ajPayrollDeductions'].forEach(id=>document.getElementById(id)?.addEventListener('input',ajPayrollPreview));
+
         function ajCloudSnapshot() {
             return {
                 products: products.map(p => ({...p, image: (typeof p.image === 'string' && (p.image.startsWith('http://') || p.image.startsWith('https://'))) ? p.image : ''})),
-                creditClients, appointments, dailyLogs, businessSales, businessExpenses, businessPurchases, ajSuppliers, ajAccountingEntries,
+                creditClients, appointments, dailyLogs, businessSales, businessExpenses, businessPurchases, ajSuppliers, ajAccountingEntries, ajEmployees, ajPayrollRecords,
                 campaigns: ajCampaigns, marketingCampaigns: ajMarketingCampaigns,
                 savedAt: new Date().toISOString(), formatVersion: 2
             };
@@ -3504,6 +3570,10 @@
                 if (Array.isArray(payload.businessPurchases)) businessPurchases = payload.businessPurchases;
                 if (Array.isArray(payload.ajSuppliers)) ajSuppliers = payload.ajSuppliers;
                 if (Array.isArray(payload.ajAccountingEntries)) ajAccountingEntries = payload.ajAccountingEntries;
+                if (Array.isArray(payload.ajEmployees)) ajEmployees = payload.ajEmployees;
+                if (Array.isArray(payload.ajPayrollRecords)) ajPayrollRecords = payload.ajPayrollRecords;
+                if (Array.isArray(payload.ajEmployees)) ajEmployees = payload.ajEmployees;
+                if (Array.isArray(payload.ajPayrollRecords)) ajPayrollRecords = payload.ajPayrollRecords;
                 if (payload.campaigns && typeof payload.campaigns === 'object') ajCampaigns = payload.campaigns;
                 if (Array.isArray(payload.marketingCampaigns)) ajMarketingCampaigns = payload.marketingCampaigns;
 
@@ -3530,6 +3600,7 @@
                 renderInventoryWorkspace();
                 renderAjMarketing();
                 renderAjAccounting();
+                renderAjPayroll();
                 calculateTotal();
                 ajCloudSetStatus('Datos de la nube actualizados correctamente.');
             } catch (error) {
