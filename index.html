@@ -424,9 +424,64 @@
         @media(prefers-reduced-motion:reduce) { .aj-discount-stamps span,.aj-megaphone-sticker,.aj-snowfall i { animation:none !important; } }
         .aj-campaign-admin { border:1px solid #dfd2c2; border-radius:18px; padding:16px; background:#fff; }
         .aj-campaign-admin input,.aj-campaign-admin select { width:100%; border:1px solid #ded5cc; border-radius:10px; padding:10px; background:#fff; font-size:13px; }
+
+        /* Black Friday global: cortina animada desde el techo hasta media pantalla */
+        #ajBlackFridayCurtain {
+            position:fixed; inset:0 0 auto; height:54vh; max-height:560px; min-height:260px;
+            overflow:hidden; pointer-events:none; z-index:30;
+            background:linear-gradient(180deg,rgba(248,245,241,.10) 0%,rgba(248,245,241,.035) 66%,rgba(248,245,241,0) 100%);
+            -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 72%,transparent 100%);
+            mask-image:linear-gradient(to bottom,#000 0%,#000 72%,transparent 100%);
+        }
+        #ajBlackFridayCurtain .aj-bf-piece {
+            position:absolute; top:-64px; left:var(--x); display:block;
+            color:var(--piece-color); font-family:'Plus Jakarta Sans',sans-serif;
+            font-size:var(--piece-size); font-weight:900; line-height:1;
+            text-shadow:0 2px 8px rgba(72,36,49,.10);
+            opacity:0; white-space:nowrap; will-change:transform,opacity;
+            animation:ajBFCurtainFall var(--fall-time) linear var(--fall-delay) infinite;
+        }
+        #ajBlackFridayCurtain .aj-bf-piece.megaphone { filter:drop-shadow(0 3px 5px rgba(72,36,49,.16)); }
+        @keyframes ajBFCurtainFall {
+            0% { transform:translate3d(0,-30px,0) rotate(-16deg); opacity:0; }
+            10% { opacity:.78; }
+            48% { transform:translate3d(var(--sway),27vh,0) rotate(12deg); opacity:.72; }
+            88% { opacity:.62; }
+            100% { transform:translate3d(calc(var(--sway) * -0.55),56vh,0) rotate(-12deg); opacity:0; }
+        }
+        @media(max-width:639px) {
+            #ajBlackFridayCurtain { height:49vh; min-height:230px; }
+            #ajBlackFridayCurtain .aj-bf-piece { font-size:calc(var(--piece-size) * .78); }
+        }
+        @media(prefers-reduced-motion:reduce) {
+            #ajBlackFridayCurtain .aj-bf-piece { animation:none !important; opacity:.12; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
+
+    <div id="ajBlackFridayCurtain" aria-hidden="true"></div>
+    <script>
+    (() => {
+        const curtain = document.getElementById('ajBlackFridayCurtain');
+        if (!curtain || curtain.dataset.ready) return;
+        curtain.dataset.ready = '1';
+        const pieces = ['15%','20%','30%','📣','✦','✧','✳','★','15%','20%','30%','📣','✦','🎉'];
+        for (let i = 0; i < 34; i++) {
+            const piece = document.createElement('span');
+            const value = pieces[i % pieces.length];
+            piece.className = 'aj-bf-piece' + (value === '📣' ? ' megaphone' : '');
+            piece.textContent = value;
+            piece.style.setProperty('--x', (2 + Math.random() * 94) + '%');
+            piece.style.setProperty('--piece-size', (value.includes('%') ? 14 + Math.random() * 13 : 17 + Math.random() * 15) + 'px');
+            piece.style.setProperty('--piece-color', ['#B99A62','#482431','#C58A9D','#D0B77F'][i % 4]);
+            piece.style.setProperty('--fall-time', (8 + Math.random() * 8) + 's');
+            piece.style.setProperty('--fall-delay', (-Math.random() * 16) + 's');
+            piece.style.setProperty('--sway', (Math.random() * 70 - 35) + 'px');
+            curtain.appendChild(piece);
+        }
+    })();
+    </script>
 
     <!-- Top Header -->
     <header class="bg-white border-b border-beige-200 sticky top-0 z-40 shadow-sm no-print">
