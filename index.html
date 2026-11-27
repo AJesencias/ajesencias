@@ -362,19 +362,28 @@
         @media (prefers-reduced-motion:reduce) {
             #categoryQuickLinks a { transition:none !important; }
         }
-        /* Campañas estacionales AJ Esencias */
-        body.aj-season-blackfriday { background:#120d0b !important; }
-        body.aj-season-blackfriday main { background:transparent; }
-        body.aj-season-blackfriday .store-hero { background:linear-gradient(120deg,#171311,#3a1708 60%,#f05a00) !important; border-color:#ff6a00 !important; }
-        body.aj-season-blackfriday .store-hero h2, body.aj-season-blackfriday .store-hero p, body.aj-season-blackfriday .store-hero span { color:#fff !important; }
-        body.aj-season-christmas { background:#f4f8f1 !important; }
-        body.aj-season-christmas .store-hero { background:linear-gradient(120deg,#0d4b32,#176b43 55%,#a51e2d) !important; border-color:#b51e2b !important; }
-        body.aj-season-christmas .store-hero h2, body.aj-season-christmas .store-hero p, body.aj-season-christmas .store-hero span { color:#fff !important; }
-        body.aj-season-offers .store-hero { background:linear-gradient(120deg,#fff2a8,#ffb347 65%,#ff8c00) !important; border-color:#f59e0b !important; }
-        .aj-season-banner { display:none; margin:0 0 18px; padding:14px 18px; border-radius:18px; text-align:center; font-weight:800; letter-spacing:.04em; }
-        body.aj-season-blackfriday .aj-season-banner { display:block; color:#fff; background:linear-gradient(90deg,#171311,#f05a00,#171311); }
-        body.aj-season-christmas .aj-season-banner { display:block; color:#fff; background:linear-gradient(90deg,#0d4b32,#b51e2b,#0d4b32); }
-        body.aj-season-offers .aj-season-banner { display:block; color:#603400; background:linear-gradient(90deg,#fff2a8,#ffb347,#fff2a8); }
+        /* Campañas AJ Esencias: movimiento elegante sin romper la identidad marfil, vino y champagne */
+        body.aj-season-blackfriday,body.aj-season-christmas,body.aj-season-offers { background:#F8F5F1 !important; }
+        body.aj-season-blackfriday .store-hero,body.aj-season-christmas .store-hero,body.aj-season-offers .store-hero {
+            background:radial-gradient(circle at 88% 12%,rgba(185,154,98,.23),transparent 32%),linear-gradient(125deg,#FFFEFC 0%,#F4EAE7 65%,#E9DCD9 100%) !important;
+            border:1px solid #B99A62 !important;
+        }
+        .aj-season-banner { display:none; position:relative; isolation:isolate; overflow:hidden; margin:0 0 18px; padding:17px 22px; border:1px solid rgba(185,154,98,.55); border-radius:19px; text-align:center; font-weight:800; letter-spacing:.025em; color:#482431; background:linear-gradient(110deg,#FFFEFC,#F4EAE7 48%,#E9DCD9) !important; box-shadow:0 10px 26px rgba(72,36,49,.09); }
+        body.aj-season-blackfriday .aj-season-banner,body.aj-season-christmas .aj-season-banner,body.aj-season-offers .aj-season-banner { display:block; }
+        .aj-season-banner .aj-banner-copy { position:relative; z-index:2; display:inline-block; padding:0 22px; }
+        .aj-season-banner .aj-spark { position:absolute; z-index:1; color:#B99A62; text-shadow:0 2px 8px rgba(185,154,98,.35); pointer-events:none; animation:ajStarBoomerang 5.8s ease-in-out infinite; }
+        .aj-season-banner .aj-spark:nth-of-type(1) { left:7%; top:18%; font-size:19px; animation-delay:-1s; }
+        .aj-season-banner .aj-spark:nth-of-type(2) { left:22%; bottom:10%; font-size:12px; animation-delay:-3.4s; }
+        .aj-season-banner .aj-spark:nth-of-type(3) { right:8%; top:12%; font-size:22px; animation-delay:-2.2s; }
+        .aj-season-banner .aj-spark:nth-of-type(4) { right:25%; bottom:8%; font-size:13px; animation-delay:-4.5s; }
+        .aj-season-banner .aj-spark:nth-of-type(5) { left:48%; top:2%; font-size:11px; animation-delay:-.4s; }
+        @keyframes ajStarBoomerang {
+            0% { transform:translate3d(-9px,13px,0) rotate(-35deg) scale(.65); opacity:0; }
+            22% { opacity:1; }
+            48% { transform:translate3d(13px,-13px,0) rotate(95deg) scale(1.15); opacity:1; }
+            72% { transform:translate3d(27px,8px,0) rotate(205deg) scale(.85); opacity:.9; }
+            100% { transform:translate3d(-9px,13px,0) rotate(325deg) scale(.65); opacity:0; }
+        }
         .aj-campaign-admin { border:1px solid #dfd2c2; border-radius:18px; padding:16px; background:#fff; }
         .aj-campaign-admin input,.aj-campaign-admin select { width:100%; border:1px solid #ded5cc; border-radius:10px; padding:10px; background:#fff; font-size:13px; }
     </style>
@@ -1272,7 +1281,7 @@
             const banner=document.getElementById('ajSeasonBanner');
             if(!active){ if(banner) banner.textContent=''; return; }
             document.body.classList.add('aj-season-'+active.key);
-            if(banner) banner.textContent=(active.data.message||('✨ '+AJ_CAMPAIGN_NAMES[active.key]+' en AJ Esencias ✨'))+(active.data.badge?' · '+active.data.badge:'');
+            if(banner) banner.innerHTML='<span class="aj-spark" aria-hidden="true">✦</span><span class="aj-spark" aria-hidden="true">✧</span><span class="aj-spark" aria-hidden="true">✦</span><span class="aj-spark" aria-hidden="true">✧</span><span class="aj-spark" aria-hidden="true">⋆</span><span class="aj-banner-copy">'+safeText(active.data.message||('Novedades '+AJ_CAMPAIGN_NAMES[active.key]+' en AJ Esencias'))+(active.data.badge?' · '+safeText(active.data.badge):'')+'</span>';
         }
         function renderAjCampaignAdmin(){
             const box=document.getElementById('ajCampaignList'); if(!box)return;
@@ -1297,10 +1306,10 @@
             document.getElementById('ajCampaignMessage').value=c.message||'';document.getElementById('ajCampaignBadge').value=c.badge||'';
         }
         function clearAjCampaignForm(){['ajCampaignStart','ajCampaignEnd','ajCampaignMessage','ajCampaignBadge'].forEach(id=>document.getElementById(id).value='');document.getElementById('ajCampaignEnabled').value='true';}
-        function previewAjCampaign(){const k=document.getElementById('ajCampaignType').value;document.body.classList.remove('aj-season-offers','aj-season-blackfriday','aj-season-christmas');document.body.classList.add('aj-season-'+k);const b=document.getElementById('ajSeasonBanner');if(b)b.textContent='VISTA PREVIA · '+AJ_CAMPAIGN_NAMES[k]+' · '+(document.getElementById('ajCampaignBadge').value||'Promoción especial');}
+        function previewAjCampaign(){const k=document.getElementById('ajCampaignType').value;document.body.classList.remove('aj-season-offers','aj-season-blackfriday','aj-season-christmas');document.body.classList.add('aj-season-'+k);const b=document.getElementById('ajSeasonBanner');if(b)b.innerHTML='<span class="aj-spark" aria-hidden="true">✦</span><span class="aj-spark" aria-hidden="true">✧</span><span class="aj-spark" aria-hidden="true">✦</span><span class="aj-spark" aria-hidden="true">✧</span><span class="aj-spark" aria-hidden="true">⋆</span><span class="aj-banner-copy">VISTA PREVIA · '+AJ_CAMPAIGN_NAMES[k]+' · '+safeText(document.getElementById('ajCampaignBadge').value||'Promoción especial')+'</span>';}
         function showAjCampaignPage(k){
             const panel=document.getElementById('ajCampaignPage'),content=document.getElementById('ajCampaignPageContent');if(!panel||!content)return;
-            const themes={offers:{title:'Ofertas especiales',symbol:'✨ ⭐',subtitle:'Descubre precios especiales y oportunidades por tiempo limitado.',cls:'bg-gradient-to-br from-yellow-100 via-amber-100 to-orange-300 text-amber-950'},blackfriday:{title:'BLACK FRIDAY',symbol:'⚡ 🏷️',subtitle:'Descuentos especiales en productos seleccionados.',cls:'bg-gradient-to-br from-[#171311] via-[#2b170f] to-[#f05a00] text-white'},christmas:{title:'Temporada navideña',symbol:'❄️ 🎄',subtitle:'Encuentra detalles y regalos para compartir.',cls:'bg-gradient-to-br from-green-800 via-green-700 to-red-700 text-white'}};
+            const themes={offers:{title:'Ofertas especiales',symbol:'✦ ✧ ✦',subtitle:'Descubre precios especiales y oportunidades por tiempo limitado.',cls:'bg-gradient-to-br from-[#FFFEFC] via-[#F4EAE7] to-[#E9DCD9] text-[#482431]'},blackfriday:{title:'BLACK FRIDAY',symbol:'✦ ✧ ✦',subtitle:'Descuentos especiales en productos seleccionados.',cls:'bg-gradient-to-br from-[#FFFEFC] via-[#F1E9E5] to-[#DCCBC5] text-[#482431]'},christmas:{title:'Temporada navideña',symbol:'✧ ❄ ✧',subtitle:'Encuentra detalles y regalos para compartir.',cls:'bg-gradient-to-br from-[#FFFEFC] via-[#F1E9E5] to-[#E9DCD9] text-[#482431]'}};
             const t=themes[k];content.innerHTML='<div class="rounded-2xl p-7 sm:p-10 '+t.cls+'"><div class="text-4xl">'+t.symbol+'</div><h2 class="mt-3 text-3xl sm:text-4xl font-extrabold">'+t.title+'</h2><p class="mt-2">'+t.subtitle+'</p><p class="mt-4 text-sm opacity-80">Próximamente: productos y promociones publicados por AJ Esencias.</p></div>';
             panel.classList.remove('hidden');panel.scrollIntoView({behavior:'smooth',block:'start'});
         }
