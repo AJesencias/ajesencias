@@ -362,6 +362,21 @@
         @media (prefers-reduced-motion:reduce) {
             #categoryQuickLinks a { transition:none !important; }
         }
+        /* Campañas estacionales AJ Esencias */
+        body.aj-season-blackfriday { background:#120d0b !important; }
+        body.aj-season-blackfriday main { background:transparent; }
+        body.aj-season-blackfriday .store-hero { background:linear-gradient(120deg,#171311,#3a1708 60%,#f05a00) !important; border-color:#ff6a00 !important; }
+        body.aj-season-blackfriday .store-hero h2, body.aj-season-blackfriday .store-hero p, body.aj-season-blackfriday .store-hero span { color:#fff !important; }
+        body.aj-season-christmas { background:#f4f8f1 !important; }
+        body.aj-season-christmas .store-hero { background:linear-gradient(120deg,#0d4b32,#176b43 55%,#a51e2d) !important; border-color:#b51e2b !important; }
+        body.aj-season-christmas .store-hero h2, body.aj-season-christmas .store-hero p, body.aj-season-christmas .store-hero span { color:#fff !important; }
+        body.aj-season-offers .store-hero { background:linear-gradient(120deg,#fff2a8,#ffb347 65%,#ff8c00) !important; border-color:#f59e0b !important; }
+        .aj-season-banner { display:none; margin:0 0 18px; padding:14px 18px; border-radius:18px; text-align:center; font-weight:800; letter-spacing:.04em; }
+        body.aj-season-blackfriday .aj-season-banner { display:block; color:#fff; background:linear-gradient(90deg,#171311,#f05a00,#171311); }
+        body.aj-season-christmas .aj-season-banner { display:block; color:#fff; background:linear-gradient(90deg,#0d4b32,#b51e2b,#0d4b32); }
+        body.aj-season-offers .aj-season-banner { display:block; color:#603400; background:linear-gradient(90deg,#fff2a8,#ffb347,#fff2a8); }
+        .aj-campaign-admin { border:1px solid #dfd2c2; border-radius:18px; padding:16px; background:#fff; }
+        .aj-campaign-admin input,.aj-campaign-admin select { width:100%; border:1px solid #ded5cc; border-radius:10px; padding:10px; background:#fff; font-size:13px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -417,6 +432,7 @@
         <!-- SECTION 1: CALCULATOR / CATALOG (PUBLIC ACCESS) -->
         <section id="section-calculator" class="tab-content block">
             
+            <div id="ajSeasonBanner" class="aj-season-banner" aria-live="polite"></div>
             <div class="aj-promo-menu-wrap relative mb-5 flex justify-end">
                 <button type="button" id="ajPromoMenuButton" aria-expanded="false" aria-controls="ajPromoMenu"
                     onclick="toggleAjPromoMenu()" class="inline-flex items-center gap-2 rounded-full border border-[#B99A62] bg-white px-4 py-2.5 text-sm font-bold text-[#482431] shadow-sm hover:bg-[#F4ECE9]">
@@ -429,26 +445,14 @@
                 </div>
             </div>
             <div class="aj-promo-sections grid grid-cols-1 md:grid-cols-3 gap-4 mb-7">
-                <article id="aj-offers" class="rounded-2xl border border-[#DCCBC5] bg-white p-5 shadow-sm scroll-mt-28">
-                    <span class="text-[10px] font-bold uppercase tracking-[.2em] text-[#A7834D]">Selección especial</span>
-                    <h3 class="mt-2 font-serif-title text-2xl font-bold text-[#482431]">Ofertas especiales</h3>
-                    <p class="mt-2 text-sm text-[#6F5A60]">Descubre promociones y precios especiales de AJ Esencias.</p>
-                    <a href="https://wa.me/18096978498?text=Hola%20AJ%20Esencias%2C%20quiero%20conocer%20las%20ofertas%20disponibles." target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex rounded-xl bg-[#482431] px-4 py-2.5 text-xs font-bold text-white">Consultar ofertas</a>
-                </article>
-                <article id="aj-black-friday" class="rounded-2xl border border-[#DCCBC5] bg-[#482431] p-5 shadow-sm scroll-mt-28">
-                    <span class="text-[10px] font-bold uppercase tracking-[.2em] text-[#E2C995]">Edición especial</span>
-                    <h3 class="mt-2 font-serif-title text-2xl font-bold text-white">Black Friday</h3>
-                    <p class="mt-2 text-sm text-white/80">Aprovecha las ofertas especiales de temporada. Consulta disponibilidad y precios.</p>
-                    <a href="https://wa.me/18096978498?text=Hola%20AJ%20Esencias%2C%20quiero%20informaci%C3%B3n%20de%20Black%20Friday." target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex rounded-xl border border-[#D9C08B] px-4 py-2.5 text-xs font-bold text-white">Ver promociones</a>
-                </article>
-                <article id="aj-christmas" class="rounded-2xl border border-[#DCCBC5] bg-[#F3ECE8] p-5 shadow-sm scroll-mt-28">
-                    <span class="text-[10px] font-bold uppercase tracking-[.2em] text-[#A7834D]">Momentos para compartir</span>
-                    <h3 class="mt-2 font-serif-title text-2xl font-bold text-[#482431]">Temporada navideña</h3>
-                    <p class="mt-2 text-sm text-[#6F5A60]">Encuentra detalles, fragancias y regalos para esta Navidad.</p>
-                    <a href="https://wa.me/18096978498?text=Hola%20AJ%20Esencias%2C%20quiero%20ver%20las%20opciones%20navide%C3%B1as." target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex rounded-xl bg-[#482431] px-4 py-2.5 text-xs font-bold text-white">Ver opciones navideñas</a>
-                </article>
+                <a href="#aj-offers-page" onclick="showAjCampaignPage('offers')" class="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-yellow-100 via-amber-100 to-orange-300 p-5 shadow-md text-[#713b00]"><span class="text-2xl">✨ ⭐</span><h3 class="mt-2 text-xl font-extrabold">Ofertas especiales</h3><p class="text-sm mt-1">Promociones y precios especiales</p><span class="inline-block mt-3 text-xs font-bold underline">Explorar ofertas →</span></a>
+                <a href="#aj-black-friday-page" onclick="showAjCampaignPage('blackfriday')" class="rounded-2xl border-2 border-orange-500 bg-gradient-to-br from-[#171311] via-[#2b170f] to-[#f05a00] p-5 shadow-md text-white"><span class="text-2xl">⚡ 🏷️</span><h3 class="mt-2 text-xl font-extrabold">BLACK FRIDAY</h3><p class="text-sm mt-1">Descuentos especiales de temporada</p><span class="inline-block mt-3 text-xs font-bold underline">Ver descuentos →</span></a>
+                <a href="#aj-christmas-page" onclick="showAjCampaignPage('christmas')" class="rounded-2xl border-2 border-red-300 bg-gradient-to-br from-green-800 via-green-700 to-red-700 p-5 shadow-md text-white"><span class="text-2xl">❄️ 🎄</span><h3 class="mt-2 text-xl font-extrabold">Temporada navideña</h3><p class="text-sm mt-1">Regalos, fragancias y detalles</p><span class="inline-block mt-3 text-xs font-bold underline">Ver Navidad →</span></a>
             </div>
-<section class="store-hero relative overflow-hidden rounded-[26px] border border-gold-500/25 mb-7 p-6 sm:p-9">
+            <div id="ajCampaignPage" class="hidden mb-7 rounded-2xl border p-5 sm:p-7" aria-live="polite">
+                <button type="button" onclick="closeAjCampaignPage()" class="mb-4 rounded-lg border px-3 py-2 text-xs font-bold">← Volver al catálogo</button>
+                <div id="ajCampaignPageContent"></div>
+            </div><section class="store-hero relative overflow-hidden rounded-[26px] border border-gold-500/25 mb-7 p-6 sm:p-9">
                 <div class="absolute -right-12 -top-16 w-56 h-56 rounded-full border border-gold-500/20"></div><div class="absolute -right-4 -top-8 w-40 h-40 rounded-full border border-gold-500/15"></div>
                 <div class="relative z-10 max-w-2xl">
                     <span class="text-[10px] sm:text-xs font-bold tracking-[.24em] text-gold-700 uppercase">AJ Esencias · Perfumería y más</span>
@@ -794,6 +798,19 @@
                     <div id="cloudBackupsPanel" class="hidden text-xs space-y-2"></div>
                     <div id="cloudActivityPanel" class="hidden text-xs space-y-2"></div>
                 </div>
+                <div id="ajCampaignAdmin" class="aj-campaign-admin space-y-4">
+                    <div><span class="text-[10px] font-bold uppercase tracking-widest text-amber-700">Marketing y temporadas</span><h3 class="font-serif-title text-2xl font-bold text-bistre">Calendario comercial y campañas</h3><p class="text-xs text-bistre/60">Programa el inicio y final de cada tema. La tienda cambiará automáticamente según las fechas y la hora de República Dominicana.</p></div>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <label class="text-xs font-semibold">Campaña<select id="ajCampaignType"><option value="offers">Ofertas especiales</option><option value="blackfriday">Black Friday</option><option value="christmas">Navidad</option></select></label>
+                        <label class="text-xs font-semibold">Fecha de inicio<input id="ajCampaignStart" type="date"></label>
+                        <label class="text-xs font-semibold">Fecha de finalización<input id="ajCampaignEnd" type="date"></label>
+                        <label class="text-xs font-semibold">Estado<select id="ajCampaignEnabled"><option value="true">Programada / activa</option><option value="false">Desactivada</option></select></label>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-3"><label class="text-xs font-semibold">Mensaje de temporada<input id="ajCampaignMessage" maxlength="100" placeholder="¡Llegó Black Friday a AJ Esencias!"></label><label class="text-xs font-semibold">Etiqueta o descuento destacado<input id="ajCampaignBadge" maxlength="40" placeholder="Hasta 20% de descuento"></label></div>
+                    <div class="flex flex-wrap gap-2"><button type="button" onclick="saveAjCampaign()" class="rounded-xl bg-[#482431] px-4 py-3 text-xs font-bold text-white">Guardar campaña</button><button type="button" onclick="previewAjCampaign()" class="rounded-xl border border-gold-500 px-4 py-3 text-xs font-bold">Vista previa</button><button type="button" onclick="clearAjCampaignForm()" class="rounded-xl border px-4 py-3 text-xs">Limpiar</button></div>
+                    <p id="ajCampaignStatus" class="text-xs text-bistre/70" aria-live="polite">Las campañas guardadas se sincronizan con la nube al guardar los datos.</p>
+                    <div id="ajCampaignList" class="space-y-2"></div>
+                </div>
                 <div id="adminBusinessContent" class="hidden space-y-6">
                 <section class="rounded-2xl border border-gold-500/25 bg-gradient-to-br from-white to-[#faf6ed] p-4 sm:p-5 space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-3"><div><span class="text-[10px] font-bold tracking-[.2em] text-gold-700 uppercase">AJ Esencias · Finanzas</span><h3 class="font-serif-title text-2xl sm:text-3xl font-bold text-bistre">Resumen financiero</h3><p class="text-xs text-bistre/60">Lectura gerencial basada en las ventas y gastos registrados.</p></div><select id="financePeriod" onchange="renderFinancialDashboard()" class="rounded-xl border border-beige-300 bg-white px-3 py-2 text-xs text-bistre"><option value="month">Este mes</option><option value="30">Últimos 30 días</option><option value="all">Todo el historial</option></select></div>
@@ -1115,6 +1132,7 @@
 
         // Application State & Storage Keys
         let products = [];
+        let ajCampaigns = { offers:null, blackfriday:null, christmas:null };
         let creditClients = [];
         let appointments = [];
         let dailyLogs = [];
@@ -1198,6 +1216,8 @@
 
             // Solo se renderiza el catálogo público antes de autenticar.
             renderProductCatalog();
+            applyAjSeasonTheme();
+            setInterval(applyAjSeasonTheme, 60000);
             const today = new Date().toISOString().slice(0,10);
             document.getElementById('bizSaleDate').value = today;
             document.getElementById('bizExpenseDate').value = today;
@@ -1206,6 +1226,52 @@
             if (typeof ajCloudInit === 'function') ajCloudInit();
         };
 
+        const AJ_CAMPAIGN_NAMES = { offers:'Ofertas especiales', blackfriday:'Black Friday', christmas:'Temporada navideña' };
+        function ajTodayLocal(){ return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Santo_Domingo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()); }
+        function getActiveAjCampaign(){
+            const today=ajTodayLocal();
+            return ['blackfriday','christmas','offers'].map(k=>({key:k,data:ajCampaigns[k]}))
+                .find(x=>x.data && x.data.enabled!==false && x.data.start && x.data.end && x.data.start<=today && today<=x.data.end) || null;
+        }
+        function applyAjSeasonTheme(){
+            const active=getActiveAjCampaign();
+            document.body.classList.remove('aj-season-offers','aj-season-blackfriday','aj-season-christmas');
+            const banner=document.getElementById('ajSeasonBanner');
+            if(!active){ if(banner) banner.textContent=''; return; }
+            document.body.classList.add('aj-season-'+active.key);
+            if(banner) banner.textContent=(active.data.message||('✨ '+AJ_CAMPAIGN_NAMES[active.key]+' en AJ Esencias ✨'))+(active.data.badge?' · '+active.data.badge:'');
+        }
+        function renderAjCampaignAdmin(){
+            const box=document.getElementById('ajCampaignList'); if(!box)return;
+            box.innerHTML=['offers','blackfriday','christmas'].map(k=>{
+                const c=ajCampaigns[k]; if(!c)return '<div class="rounded-lg border border-dashed p-3 text-xs text-gray-500">'+AJ_CAMPAIGN_NAMES[k]+': sin programar</div>';
+                return '<div class="rounded-lg border p-3 text-xs flex flex-wrap justify-between gap-2"><span><b>'+AJ_CAMPAIGN_NAMES[k]+'</b><br>'+safeText(c.start)+' → '+safeText(c.end)+' · '+(c.enabled?'Programada':'Desactivada')+'<br>'+safeText(c.message||'')+'</span><button type="button" onclick="editAjCampaign(\''+k+'\')" class="underline font-bold">Editar</button></div>';
+            }).join('');
+        }
+        function saveAjCampaign(){
+            if(!ajCloudUser)return alert('Inicia sesión para guardar campañas.');
+            const k=document.getElementById('ajCampaignType').value,start=document.getElementById('ajCampaignStart').value,end=document.getElementById('ajCampaignEnd').value;
+            if(!start||!end||end<start)return alert('Indica fechas válidas. La fecha final no puede ser anterior a la inicial.');
+            ajCampaigns[k]={start,end,enabled:document.getElementById('ajCampaignEnabled').value==='true',message:document.getElementById('ajCampaignMessage').value.trim(),badge:document.getElementById('ajCampaignBadge').value.trim()};
+            renderAjCampaignAdmin(); applyAjSeasonTheme();
+            document.getElementById('ajCampaignStatus').textContent='Campaña guardada en este dispositivo. Sincronizando con la nube…';
+            ajCloudWrite(false).then(ok=>{document.getElementById('ajCampaignStatus').textContent=ok?'Campaña guardada y sincronizada.':'No se pudo sincronizar. Revisa tu conexión y vuelve a guardar.';});
+        }
+        function editAjCampaign(k){
+            const c=ajCampaigns[k]; if(!c)return;
+            document.getElementById('ajCampaignType').value=k;document.getElementById('ajCampaignStart').value=c.start||'';
+            document.getElementById('ajCampaignEnd').value=c.end||'';document.getElementById('ajCampaignEnabled').value=String(c.enabled!==false);
+            document.getElementById('ajCampaignMessage').value=c.message||'';document.getElementById('ajCampaignBadge').value=c.badge||'';
+        }
+        function clearAjCampaignForm(){['ajCampaignStart','ajCampaignEnd','ajCampaignMessage','ajCampaignBadge'].forEach(id=>document.getElementById(id).value='');document.getElementById('ajCampaignEnabled').value='true';}
+        function previewAjCampaign(){const k=document.getElementById('ajCampaignType').value;document.body.classList.remove('aj-season-offers','aj-season-blackfriday','aj-season-christmas');document.body.classList.add('aj-season-'+k);const b=document.getElementById('ajSeasonBanner');if(b)b.textContent='VISTA PREVIA · '+AJ_CAMPAIGN_NAMES[k]+' · '+(document.getElementById('ajCampaignBadge').value||'Promoción especial');}
+        function showAjCampaignPage(k){
+            const panel=document.getElementById('ajCampaignPage'),content=document.getElementById('ajCampaignPageContent');if(!panel||!content)return;
+            const themes={offers:{title:'Ofertas especiales',symbol:'✨ ⭐',subtitle:'Descubre precios especiales y oportunidades por tiempo limitado.',cls:'bg-gradient-to-br from-yellow-100 via-amber-100 to-orange-300 text-amber-950'},blackfriday:{title:'BLACK FRIDAY',symbol:'⚡ 🏷️',subtitle:'Descuentos especiales en productos seleccionados.',cls:'bg-gradient-to-br from-[#171311] via-[#2b170f] to-[#f05a00] text-white'},christmas:{title:'Temporada navideña',symbol:'❄️ 🎄',subtitle:'Encuentra detalles y regalos para compartir.',cls:'bg-gradient-to-br from-green-800 via-green-700 to-red-700 text-white'}};
+            const t=themes[k];content.innerHTML='<div class="rounded-2xl p-7 sm:p-10 '+t.cls+'"><div class="text-4xl">'+t.symbol+'</div><h2 class="mt-3 text-3xl sm:text-4xl font-extrabold">'+t.title+'</h2><p class="mt-2">'+t.subtitle+'</p><p class="mt-4 text-sm opacity-80">Próximamente: productos y promociones publicados por AJ Esencias.</p></div>';
+            panel.classList.remove('hidden');panel.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+        function closeAjCampaignPage(){document.getElementById('ajCampaignPage')?.classList.add('hidden');document.getElementById('ajCampaignPageContent').innerHTML='';}
         function readStoredJSON(key, fallback) {
             try {
                 const raw = localStorage.getItem(key);
@@ -2383,6 +2449,7 @@
                     else child.setAttribute('aria-hidden','false');
                 });
             }
+            if(logged) renderAjCampaignAdmin();
             const privateWorkspaceNav = document.getElementById('privateWorkspaceNav');
             if(privateWorkspaceNav) privateWorkspaceNav.classList.toggle('hidden', !logged);
             const privateTab = document.getElementById('tab-business');
@@ -2416,7 +2483,8 @@
             return {
                 products: products.map(p => ({...p, image: (typeof p.image === 'string' && (p.image.startsWith('http://') || p.image.startsWith('https://'))) ? p.image : ''})),
                 creditClients, appointments, dailyLogs, businessSales, businessExpenses, businessPurchases,
-                savedAt: new Date().toISOString(), formatVersion: 1
+                campaigns: ajCampaigns,
+                savedAt: new Date().toISOString(), formatVersion: 2
             };
         }
         function ajCloudApplyPayload(payload, updatedAt = null) {
@@ -2430,6 +2498,7 @@
                 if (Array.isArray(payload.businessSales)) businessSales = payload.businessSales;
                 if (Array.isArray(payload.businessExpenses)) businessExpenses = payload.businessExpenses;
                 if (Array.isArray(payload.businessPurchases)) businessPurchases = payload.businessPurchases;
+                if (payload.campaigns && typeof payload.campaigns === 'object') ajCampaigns = payload.campaigns;
 
                 localStorage.setItem('aj_products', JSON.stringify(products));
                 localStorage.setItem('aj_credit', JSON.stringify(creditClients));
