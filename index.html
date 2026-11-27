@@ -2005,7 +2005,7 @@
         }
         function ajBuildCreditReminder(client) {
             const date = client.dueDate ? new Date(client.dueDate + 'T12:00:00').toLocaleDateString('es-DO') : '';
-            return 'Hola ' + client.name + ' ✨, esperamos que estés muy bien. Te escribimos de *AJ Esencias* para recordarte cordialmente que tienes un saldo pendiente de *RD$ ' + Number(client.remaining).toLocaleString('es-DO') + '*, con fecha de pago acordada para el *' + date + '*.' + '\\n\\nCuando te sea posible, agradecemos que nos confirmes tu pago o nos indiques cuándo podrías realizarlo. Estamos a tu disposición. ¡Muchas gracias por tu preferencia! 💛';
+            return 'Hola ' + client.name + ' ✨, esperamos que estés muy bien. Te escribimos de *AJ Esencias* para recordarte cordialmente que tienes un saldo pendiente de *RD$ ' + Number(client.remaining).toLocaleString('es-DO') + '*, con fecha de pago acordada para el *' + date + '*.' + '\n\nCuando te sea posible, agradecemos que nos confirmes tu pago o nos indiques cuándo podrías realizarlo. Estamos a tu disposición. ¡Muchas gracias por tu preferencia! 💛';
         }
         function renderAjCreditReminders() {
             const list = document.getElementById('ajCreditReminderList'), count = document.getElementById('ajCreditReminderCount');
@@ -2023,7 +2023,7 @@
         function editCreditDueDate(index) {
             const c=creditClients[index], value=prompt('Fecha acordada de pago para '+c.name+' (AAAA-MM-DD):',c.dueDate||'');
             if(value===null)return;
-            if(value && !/^\\d{4}-\\d{2}-\\d{2}$/.test(value))return alert('Usa el formato AAAA-MM-DD.');
+            if(value && !/^\d{4}-\d{2}-\d{2}$/.test(value))return alert('Usa el formato AAAA-MM-DD.');
             c.dueDate=value||null; if(saveData())renderCreditTable();
         }
 
@@ -2035,7 +2035,7 @@
             const amount = parseFloat(prompt("Monto total adeudado (RD$):")) || 0;
             const initialAbono = parseFloat(prompt("Abono inicial entregado (RD$ - colocar 0 si no abonó):")) || 0;
             const dueDate = prompt("Fecha acordada de pago (AAAA-MM-DD). Déjalo vacío si aún no está definida:", "");
-            if (dueDate && !/^\\d{4}-\\d{2}-\\d{2}$/.test(dueDate)) return alert("La fecha debe tener el formato AAAA-MM-DD.");
+            if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return alert("La fecha debe tener el formato AAAA-MM-DD.");
             const remaining = Math.max(0, amount - initialAbono);
             creditClients.unshift({ name, phone, totalAmount: amount, paidAmount: initialAbono, remaining, dueDate: dueDate || null });
 
