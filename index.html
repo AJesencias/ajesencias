@@ -1995,6 +1995,7 @@
             const targetContent = document.getElementById('section-' + tabId);
             if (targetContent) targetContent.classList.remove('hidden');
             if (tabId === 'accounting') { const dateField=document.getElementById('ajAccDate'); if(dateField&&!dateField.value)dateField.value=new Date().toISOString().slice(0,10); renderAjAccounting(); }
+            if (tabId === 'inventory') { renderInventoryWorkspace(); renderDailyLogs(); }
 
             const targetBtn = document.getElementById('tab-' + tabId);
             if (targetBtn) {
